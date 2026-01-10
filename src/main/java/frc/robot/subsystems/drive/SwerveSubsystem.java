@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -11,7 +12,9 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveDrive;
@@ -46,5 +49,13 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
+    }
+
+    public void driveFieldOriented(ChassisSpeeds speeds) {
+        swerveDrive.driveFieldOriented(speeds);
+    }
+
+    public Command driveFieldOriented(Supplier<ChassisSpeeds> speeds) {
+        return run(() -> swerveDrive.driveFieldOriented(speeds.get()));
     }
 }
