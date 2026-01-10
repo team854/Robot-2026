@@ -13,12 +13,14 @@ import swervelib.SwerveInputStream;
 
 public class RobotContainer {
 
+	//Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 	public static final ProjectileSubsystem projectileSubsystem = new ProjectileSubsystem();
 
 	public static final CommandXboxController driverController   = new CommandXboxController(
         Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
+	//Transforms controller input into swerve drive speeds
 	SwerveInputStream driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
         () -> driverController.getLeftY() * -1,
         () -> driverController.getLeftX() * -1)

@@ -24,12 +24,14 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase{
     
     private final SwerveDrive swerveDrive;
-    private final AHRS navx = new AHRS(NavXComType.kMXP_SPI);
+    private final AHRS navx = new AHRS(NavXComType.kMXP_SPI); //Enables connection to the RIO
 
     public SwerveSubsystem() {
         swervelib.telemetry.SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         try {
+
+            //Will throw error if no swerve directory (Thats the purpose)
             swerveDrive = new SwerveParser(Constants.SwerveConstants.SWERVE_DIRECTORY)
                 .createSwerveDrive(
                     Constants.SwerveConstants.MAX_SPEED.in(MetersPerSecond),
