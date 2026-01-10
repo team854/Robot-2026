@@ -31,7 +31,7 @@ public final class Constants {
             0,
             0,
             0.18
-        ); //In meters
+        ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
     }
 

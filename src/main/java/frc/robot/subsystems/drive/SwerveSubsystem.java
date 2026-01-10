@@ -28,7 +28,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase{
     
     private final SwerveDrive swerveDrive;
-    private final AHRS navx = new AHRS(NavXComType.kMXP_SPI); //Enables connection to the RIO
+    private final AHRS navx = new AHRS(NavXComType.kMXP_SPI); // Enables connection to the RIO
     private final Rotation3d gyroOffset = new Rotation3d(
         0.0,
         0.0,
@@ -40,7 +40,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
         try {
 
-            //Will throw error if no swerve directory (Thats the purpose)
+            // Will throw error if no swerve directory (Thats the purpose)
             swerveDrive = new SwerveParser(Constants.SwerveConstants.SWERVE_DIRECTORY)
                 .createSwerveDrive(
                     Constants.SwerveConstants.MAX_SPEED.in(MetersPerSecond),
