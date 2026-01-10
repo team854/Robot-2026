@@ -19,6 +19,7 @@ public class Robot extends LoggedRobot {
 
 	private final RobotContainer robotContainer;
 
+	//Sets up advantage scope
 	public Robot() {
 		robotContainer = new RobotContainer();
 
