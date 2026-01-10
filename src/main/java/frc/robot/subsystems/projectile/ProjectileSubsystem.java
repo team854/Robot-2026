@@ -89,7 +89,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double square_root = Math.sqrt(discriminant);
 
-        double numerator = (Math.pow(launchSpeedMPS, 2)) - square_root;
+        double numerator = (Math.pow(launchSpeedMPS, 2)) + square_root;
         double denominator = gravity * horizontalDistance.in(Meter);
 
         return Radians.of(Math.atan(numerator / denominator));

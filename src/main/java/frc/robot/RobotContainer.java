@@ -7,10 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.projectile.ProjectileSubsystem;
 
 public class RobotContainer {
 
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+	public static final ProjectileSubsystem projectileSubsystem = new ProjectileSubsystem();
 	
 	public RobotContainer() {
 		configureBindings();
