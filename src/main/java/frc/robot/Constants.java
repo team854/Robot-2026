@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public final class Constants {
     public static class SwerveConstants {
-        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); //File with swerve configs
-        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(10); //Maximum speed the swerve drive can go
+        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs
+        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(10); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
     }
 
