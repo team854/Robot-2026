@@ -47,6 +47,8 @@ public final class Constants {
 
     public final class FuelPhysicsConstants {
         public static final double DRAG_CONSTANT = 0.5;
+        public static final double ROT_DRAG_CONSTANT = 0.01;
+        public static final double LIFT_CONSTANT = 1.2;
         public static final double CROSS_SECTION_AREA = 0.01767;
         public static final Mass MASS = Pound.of(0.5);
         public static final double FLUID_DENSITY = 1.2754;

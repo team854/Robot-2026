@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.MathUtil;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -22,10 +24,15 @@ import frc.robot.Constants;
 
 public class ProjectileSubsystem extends SubsystemBase {
     private final double dragCoefficient = Constants.FuelPhysicsConstants.DRAG_CONSTANT;
+    private final double rotDragCoefficient = Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT; 
     private final double crossSectionArea = Constants.FuelPhysicsConstants.CROSS_SECTION_AREA;
     private final double mass = Constants.FuelPhysicsConstants.MASS.in(Kilogram);
     private final double fluidDensity = Constants.FuelPhysicsConstants.FLUID_DENSITY;
     private final double gravity = Constants.FuelPhysicsConstants.GRAVITY.in(MetersPerSecondPerSecond);
+    private final double projectileRadius = Math.sqrt(crossSectionArea / Math.PI);
+    private final double momentOfInertia = 0.4 * mass * Math.pow(projectileRadius, 2);
+    private final double liftCoefficient = Constants.FuelPhysicsConstants.LIFT_CONSTANT;
+
 
     public ProjectileSubsystem() {
 
@@ -106,7 +113,7 @@ public class ProjectileSubsystem extends SubsystemBase {
      * @param tps The ticks per second of the simulation
      * @return A {@link Translation3d} array of the last two positions of the projectile
      */
-    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, int tps) {
+    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int tps) {
 
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
@@ -125,6 +132,13 @@ public class ProjectileSubsystem extends SubsystemBase {
         double deltaTime = 1.0 / tps;
 
         double dragConstant = 0.5 * dragCoefficient * fluidDensity * crossSectionArea;
+        double magnusConstant = 0.5 * liftCoefficient * fluidDensity * crossSectionArea * projectileRadius;
+
+        double pitchSpinAxisYaw = launchYaw.in(Radians) - (Math.PI / 2.0);
+
+        double angX = launchAngularPitch.in(RadiansPerSecond) * Math.cos(pitchSpinAxisYaw);
+        double angY = launchAngularPitch.in(RadiansPerSecond) * Math.sin(pitchSpinAxisYaw);
+        double angZ = launchAngularYaw.in(RadiansPerSecond);
 
         double horizontalDistance = Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2));
 
@@ -132,12 +146,14 @@ public class ProjectileSubsystem extends SubsystemBase {
         double prevY = posY;
         double prevZ = posZ;
 
-        double k1vx, k1vy, k1vz, k1ax, k1ay, k1az;
-        double k2vx, k2vy, k2vz, k2ax, k2ay, k2az;
-        double k3vx, k3vy, k3vz, k3ax, k3ay, k3az;
-        double k4vx, k4vy, k4vz, k4ax, k4ay, k4az;
+        double k1vx, k1vy, k1vz, k1ax, k1ay, k1az, k1wx, k1wy, k1wz, k1alphax, k1alphay, k1alphaz;
+        double k2vx, k2vy, k2vz, k2ax, k2ay, k2az, k2wx, k2wy, k2wz, k2alphax, k2alphay, k2alphaz;
+        double k3vx, k3vy, k3vz, k3ax, k3ay, k3az, k3wx, k3wy, k3wz, k3alphax, k3alphay, k3alphaz;
+        double k4vx, k4vy, k4vz, k4ax, k4ay, k4az, k4wx, k4wy, k4wz, k4alphax, k4alphay, k4alphaz;
 
         double magVel, dragFactor;
+
+        double magnusX, magnusY, magnusZ;
 
         for (int step = 0; step < 5 * tps; step++) {
             
@@ -149,45 +165,89 @@ public class ProjectileSubsystem extends SubsystemBase {
             k1vx = velX;
             k1vy = velY;
             k1vz = velZ;
+            k1wx = angX;
+            k1wy = angY;
+            k1wz = angZ;
             magVel = Math.sqrt(k1vx * k1vx + k1vy * k1vy + k1vz * k1vz);
             dragFactor = -dragConstant * magVel;
 
-            k1ax = ((k1vx * dragFactor) / mass);
-            k1ay = ((k1vy * dragFactor) / mass);
-            k1az = ((k1vz * dragFactor) / mass) - gravity;
+            magnusX = magnusConstant * (k1wy * k1vz - k1wz * k1vy);
+            magnusY = magnusConstant * (k1wz * k1vx - k1wx * k1vz);
+            magnusZ = magnusConstant * (k1wx * k1vy - k1wy * k1vx);
+
+            k1ax = (((k1vx * dragFactor) + magnusX) / mass);
+            k1ay = (((k1vy * dragFactor) + magnusY) / mass);
+            k1az = (((k1vz * dragFactor) + magnusZ) / mass) - gravity;
             
+            k1alphax = -rotDragCoefficient * k1wx / momentOfInertia;
+            k1alphay = -rotDragCoefficient * k1wy / momentOfInertia;
+            k1alphaz = -rotDragCoefficient * k1wz / momentOfInertia;
+
             // K2
             k2vx = velX + (0.5 * k1ax * deltaTime);
             k2vy = velY + (0.5 * k1ay * deltaTime);
             k2vz = velZ + (0.5 * k1az * deltaTime);
+            k2wx = angX + (0.5 * k1alphax * deltaTime);
+            k2wy = angY + (0.5 * k1alphay * deltaTime);
+            k2wz = angZ + (0.5 * k1alphaz * deltaTime);
             magVel = Math.sqrt(k2vx * k2vx + k2vy * k2vy + k2vz * k2vz);
             dragFactor = -dragConstant * magVel;
 
-            k2ax = ((k2vx * dragFactor) / mass);
-            k2ay = ((k2vy * dragFactor) / mass);
-            k2az = ((k2vz * dragFactor) / mass) - gravity;
+            magnusX = magnusConstant * (k2wy * k2vz - k2wz * k2vy);
+            magnusY = magnusConstant * (k2wz * k2vx - k2wx * k2vz);
+            magnusZ = magnusConstant * (k2wx * k2vy - k2wy * k2vx);
+
+            k2ax = (((k2vx * dragFactor) + magnusX) / mass);
+            k2ay = (((k2vy * dragFactor) + magnusY) / mass);
+            k2az = (((k2vz * dragFactor) + magnusZ) / mass) - gravity;
+            
+            k2alphax = -rotDragCoefficient * k2wx / momentOfInertia;
+            k2alphay = -rotDragCoefficient * k2wy / momentOfInertia;
+            k2alphaz = -rotDragCoefficient * k2wz / momentOfInertia;
 
             // K3
             k3vx = velX + (0.5 * k2ax * deltaTime);
             k3vy = velY + (0.5 * k2ay * deltaTime);
             k3vz = velZ + (0.5 * k2az * deltaTime);
+            k3wx = angX + (0.5 * k2alphax * deltaTime);
+            k3wy = angY + (0.5 * k2alphay * deltaTime);
+            k3wz = angZ + (0.5 * k2alphaz * deltaTime);
             magVel = Math.sqrt(k3vx * k3vx + k3vy * k3vy + k3vz * k3vz);
             dragFactor = -dragConstant * magVel;
 
-            k3ax = ((k3vx * dragFactor) / mass);
-            k3ay = ((k3vy * dragFactor) / mass);
-            k3az = ((k3vz * dragFactor) / mass) - gravity;
+            magnusX = magnusConstant * (k3wy * k3vz - k3wz * k3vy);
+            magnusY = magnusConstant * (k3wz * k3vx - k3wx * k3vz);
+            magnusZ = magnusConstant * (k3wx * k3vy - k3wy * k3vx);
+
+            k3ax = (((k3vx * dragFactor) + magnusX) / mass);
+            k3ay = (((k3vy * dragFactor) + magnusY) / mass);
+            k3az = (((k3vz * dragFactor) + magnusZ) / mass) - gravity;
+            
+            k3alphax = -rotDragCoefficient * k3wx / momentOfInertia;
+            k3alphay = -rotDragCoefficient * k3wy / momentOfInertia;
+            k3alphaz = -rotDragCoefficient * k3wz / momentOfInertia;
 
             // K4
             k4vx = velX + (k3ax * deltaTime);
             k4vy = velY + (k3ay * deltaTime);
             k4vz = velZ + (k3az * deltaTime);
+            k4wx = angX + (k3alphax * deltaTime);
+            k4wy = angY + (k3alphay * deltaTime);
+            k4wz = angZ + (k3alphaz * deltaTime);
             magVel = Math.sqrt(k4vx * k4vx + k4vy * k4vy + k4vz * k4vz);
             dragFactor = -dragConstant * magVel;
 
-            k4ax = ((k4vx * dragFactor) / mass);
-            k4ay = ((k4vy * dragFactor) / mass);
-            k4az = ((k4vz * dragFactor) / mass) - gravity;
+            magnusX = magnusConstant * (k4wy * k4vz - k4wz * k4vy);
+            magnusY = magnusConstant * (k4wz * k4vx - k4wx * k4vz);
+            magnusZ = magnusConstant * (k4wx * k4vy - k4wy * k4vx);
+
+            k4ax = (((k4vx * dragFactor) + magnusX) / mass);
+            k4ay = (((k4vy * dragFactor) + magnusY) / mass);
+            k4az = (((k4vz * dragFactor) + magnusZ) / mass) - gravity;
+            
+            k4alphax = -rotDragCoefficient * k4wx / momentOfInertia;
+            k4alphay = -rotDragCoefficient * k4wy / momentOfInertia;
+            k4alphaz = -rotDragCoefficient * k4wz / momentOfInertia;
 
             posX += (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6.0 * deltaTime;
             posY += (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6.0 * deltaTime;
@@ -196,6 +256,10 @@ public class ProjectileSubsystem extends SubsystemBase {
             velX += (k1ax + 2 * k2ax + 2 * k3ax + k4ax) / 6.0 * deltaTime;
             velY += (k1ay + 2 * k2ay + 2 * k3ay + k4ay) / 6.0 * deltaTime;
             velZ += (k1az + 2 * k2az + 2 * k3az + k4az) / 6.0 * deltaTime;
+
+            angX += (k1alphax + 2 * k2alphax + 2 * k3alphax + k4alphax) / 6.0 * deltaTime;
+            angY += (k1alphay + 2 * k2alphay + 2 * k3alphay + k4alphay) / 6.0 * deltaTime;
+            angZ += (k1alphaz + 2 * k2alphaz + 2 * k3alphaz + k4alphaz) / 6.0 * deltaTime;
 
 
             if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
@@ -250,11 +314,13 @@ public class ProjectileSubsystem extends SubsystemBase {
      *       <li>Yaw error</li>
      *  </ul>
      */
-    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
+    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
         Translation3d[] path = simulateLaunch(
             launchSpeed,
             launchPitch,
             launchYaw,
+            launchAngularPitch,
+            launchAngularYaw,
             robotVelocity,
             targetPosition,
             tps
@@ -273,13 +339,15 @@ public class ProjectileSubsystem extends SubsystemBase {
     /**
      * 
      * @param launchSpeed The launch speed of the projectile as a {@link LinearVelocity}
+     * @param launchAngularPitch The angular pitch of the projectile as a {@link AngularVelocity}
+     * @param launchAngularYaw The angular yaw of the projectile as a {@link AngularVelocity}
      * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
      * @param targetPosition The robt relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
      * @param maxSteps The max ammount of optimization steps (It can exit early if the error gets below a threshold)
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
      */
-    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity launchSpeed, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
+    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity launchSpeed, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
 
         double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
@@ -295,8 +363,8 @@ public class ProjectileSubsystem extends SubsystemBase {
         double launchAngleYaw2 = targetDirectAngle + 0.1;
 
         // Height Error, Yaw Error
-        double[] launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-        double[] launchError2 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] launchError2 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
 
         for (int steps = 0; steps < maxSteps; steps++) {
             if (Math.abs(launchError1[0]) < 1e-7 && Math.abs(launchError1[1]) < 1e-6) {
@@ -324,7 +392,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw), -maxStep, maxStep);
 
             // Height Error, Yaw Error
-            launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+            launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         }
 
         TargetErrorCode solutionFound = TargetErrorCode.NONE;
