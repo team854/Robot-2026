@@ -1,20 +1,26 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
 
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public final class Constants {
@@ -25,8 +31,39 @@ public final class Constants {
     }
 
     public final class TurretConstants {
+        public static final int TURRET_YAW_MOTOR_ID = 10;
+        public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
+        public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
+        public static final double TURRET_YAW_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the turret
+        public static final double TURRET_YAW_P = 0;
+        public static final double TURRET_YAW_I = 0;
+        public static final double TURRET_YAW_D = 0;
+        public static final Voltage TURRET_YAW_S = Volts.of(0);
+        public static final Voltage TURRET_YAW_V = Volts.of(0); // Unit is V/(rad/s)
+        public static final Voltage TURRET_YAW_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(10);
+        public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
+
+        public static final int TURRET_PITCH_MOTOR_ID = 10;
+        public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
+        public static final boolean TURRET_PITCH_ENCODER_INVERTED = false;
+        public static final double TURRET_PITCH_ZERO_OFFSET = 0;
+        public static final double TURRET_PITCH_P = 0;
+        public static final double TURRET_PITCH_I = 0;
+        public static final double TURRET_PITCH_D = 0;
+        public static final Voltage TURRET_PITCH_S = Volts.of(0);
+        public static final Voltage TURRET_PITCH_G = Volts.of(0);
+        public static final Voltage TURRET_PITCH_V = Volts.of(0); // Unit is V/(rad/s)
+        public static final Voltage TURRET_PITCH_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(10);
+        public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
+        
+        
+
         public static final Angle TURRET_UPPER_LIMIT = Degree.of(80);
         public static final Angle TURRET_LOWER_LIMIT = Degree.of(-15);
+        public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
+        public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             0,
             0,
