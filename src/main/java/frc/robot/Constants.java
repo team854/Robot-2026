@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Pound;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
@@ -89,6 +90,7 @@ public final class Constants {
         public static final Voltage SHOOTER_V = Volts.of(0); // Unit is V/(rad/s)
         public static final Voltage SHOOTER_A = Volts.of(0); // Unit is V/(rad/s^2)
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(100);
+        public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
         
 
         

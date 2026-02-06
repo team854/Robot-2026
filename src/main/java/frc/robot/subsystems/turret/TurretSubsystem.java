@@ -153,7 +153,6 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
         SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);
 
-
         SmartDashboard.putNumber("Turret/Current Yaw", turretYawEncoder.getPosition() * (180 / Math.PI));
         SmartDashboard.putNumber("Turret/Current Pitch", turretPitchAbsoluteEncoder.getPosition() * (180 / Math.PI));
     }
