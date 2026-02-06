@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
@@ -73,6 +74,24 @@ public final class Constants {
     }
 
     public final class ShooterConstants {
+        public static final int SHOOTER_MOTOR_1_ID = 15;
+        public static final boolean SHOOTER_MOTOR_1_INVERTED = false;
+
+        public static final int SHOOTER_MOTOR_2_ID = 16;
+        public static final boolean SHOOTER_MOTOR_2_INVERTED = false;
+
+        public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
+
+        public static final double SHOOTER_P = 0;
+        public static final double SHOOTER_I = 0;
+        public static final double SHOOTER_D = 0;
+        public static final Voltage SHOOTER_S = Volts.of(0);
+        public static final Voltage SHOOTER_V = Volts.of(0); // Unit is V/(rad/s)
+        public static final Voltage SHOOTER_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(100);
+        
+
+        
     }
 
     public final class OperatorConstants {
