@@ -34,25 +34,14 @@ public class SwerveSubsystem extends SubsystemBase{
     public RobotConfig config;
 
     private final SwerveDrive swerveDrive;
+
     private final AHRS navx = new AHRS(NavXComType.kMXP_SPI); // Enables connection to the RIO
+
     private final Rotation3d gyroOffset = new Rotation3d(
         0.0,
         0.0,
         Constants.SwerveConstants.GYRO_OFFSET.in(Radian)
     );
-
-    public Pose2d getPose(){
-        return swerveDrive.getPose();
-    }
-    public void resetPose(Pose2d pose) {
-        swerveDrive.resetOdometry(pose);
-    }
-    public ChassisSpeeds getRobotRelativeSpeeds() {
-        return swerveDrive.getRobotVelocity();
-    }
-    public void driveRobotRelative(ChassisSpeeds speeds) {
-        swerveDrive.drive(speeds);
-    }   
 
     public SwerveSubsystem() {
     
@@ -82,7 +71,7 @@ public class SwerveSubsystem extends SubsystemBase{
             this::getPose, 
             this::resetPose, 
             this::getRobotRelativeSpeeds, 
-            (speeds, feedforwards) -> driveRobotRelative(speeds),
+            (speeds, feedForwards) -> driveRobotRelative(speeds),
             new PPHolonomicDriveController( 
                     new PIDConstants(5.0, 0.0, 0.0), 
                     new PIDConstants(5.0, 0.0, 0.0) 
@@ -125,4 +114,19 @@ public class SwerveSubsystem extends SubsystemBase{
     public Command driveFieldOriented(Supplier<ChassisSpeeds> speeds) {
         return run(() -> swerveDrive.driveFieldOriented(speeds.get()));
     }
+    public Pose2d getPose(){
+        return swerveDrive.getPose();
+    }
+
+    public void resetPose(Pose2d pose) {
+        swerveDrive.resetOdometry(pose);
+    }
+
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        return swerveDrive.getRobotVelocity();
+    }
+    
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        swerveDrive.drive(speeds);
+    }   
 }
