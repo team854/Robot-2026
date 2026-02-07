@@ -133,6 +133,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double dragConstant = 0.5 * dragCoefficient * fluidDensity * crossSectionArea;
         double magnusConstant = 0.5 * liftCoefficient * fluidDensity * crossSectionArea * projectileRadius;
+        double rotDragFactor = rotDragCoefficient / momentOfInertia;
 
         double pitchSpinAxisYaw = launchYaw.in(Radians) - (Math.PI / 2.0);
 
@@ -151,7 +152,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         double k3vx, k3vy, k3vz, k3ax, k3ay, k3az, k3wx, k3wy, k3wz, k3alphax, k3alphay, k3alphaz;
         double k4vx, k4vy, k4vz, k4ax, k4ay, k4az, k4wx, k4wy, k4wz, k4alphax, k4alphay, k4alphaz;
 
-        double magVel, dragFactor;
+        double magVel, magAngVel, dragFactor;
 
         double magnusX, magnusY, magnusZ;
 
@@ -169,6 +170,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             k1wy = angY;
             k1wz = angZ;
             magVel = Math.sqrt(k1vx * k1vx + k1vy * k1vy + k1vz * k1vz);
+            magAngVel = Math.sqrt(k1wx * k1wx + k1wy * k1wy + k1wz * k1wz);
             dragFactor = -dragConstant * magVel;
 
             magnusX = magnusConstant * (k1wy * k1vz - k1wz * k1vy);
@@ -179,9 +181,9 @@ public class ProjectileSubsystem extends SubsystemBase {
             k1ay = (((k1vy * dragFactor) + magnusY) / mass);
             k1az = (((k1vz * dragFactor) + magnusZ) / mass) - gravity;
             
-            k1alphax = -rotDragCoefficient * k1wx / momentOfInertia;
-            k1alphay = -rotDragCoefficient * k1wy / momentOfInertia;
-            k1alphaz = -rotDragCoefficient * k1wz / momentOfInertia;
+            k1alphax = -rotDragFactor * k1wx * magAngVel;
+            k1alphay = -rotDragFactor * k1wy * magAngVel;
+            k1alphaz = -rotDragFactor * k1wz * magAngVel;
 
             // K2
             k2vx = velX + (0.5 * k1ax * deltaTime);
@@ -191,6 +193,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             k2wy = angY + (0.5 * k1alphay * deltaTime);
             k2wz = angZ + (0.5 * k1alphaz * deltaTime);
             magVel = Math.sqrt(k2vx * k2vx + k2vy * k2vy + k2vz * k2vz);
+            magAngVel = Math.sqrt(k2wx * k2wx + k2wy * k2wy + k2wz * k2wz);
             dragFactor = -dragConstant * magVel;
 
             magnusX = magnusConstant * (k2wy * k2vz - k2wz * k2vy);
@@ -201,9 +204,9 @@ public class ProjectileSubsystem extends SubsystemBase {
             k2ay = (((k2vy * dragFactor) + magnusY) / mass);
             k2az = (((k2vz * dragFactor) + magnusZ) / mass) - gravity;
             
-            k2alphax = -rotDragCoefficient * k2wx / momentOfInertia;
-            k2alphay = -rotDragCoefficient * k2wy / momentOfInertia;
-            k2alphaz = -rotDragCoefficient * k2wz / momentOfInertia;
+            k2alphax = -rotDragFactor * k2wx * magAngVel;
+            k2alphay = -rotDragFactor * k2wy * magAngVel;
+            k2alphaz = -rotDragFactor * k2wz * magAngVel;
 
             // K3
             k3vx = velX + (0.5 * k2ax * deltaTime);
@@ -213,6 +216,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             k3wy = angY + (0.5 * k2alphay * deltaTime);
             k3wz = angZ + (0.5 * k2alphaz * deltaTime);
             magVel = Math.sqrt(k3vx * k3vx + k3vy * k3vy + k3vz * k3vz);
+            magAngVel = Math.sqrt(k3wx * k3wx + k3wy * k3wy + k3wz * k3wz);
             dragFactor = -dragConstant * magVel;
 
             magnusX = magnusConstant * (k3wy * k3vz - k3wz * k3vy);
@@ -223,9 +227,9 @@ public class ProjectileSubsystem extends SubsystemBase {
             k3ay = (((k3vy * dragFactor) + magnusY) / mass);
             k3az = (((k3vz * dragFactor) + magnusZ) / mass) - gravity;
             
-            k3alphax = -rotDragCoefficient * k3wx / momentOfInertia;
-            k3alphay = -rotDragCoefficient * k3wy / momentOfInertia;
-            k3alphaz = -rotDragCoefficient * k3wz / momentOfInertia;
+            k3alphax = -rotDragFactor * k3wx * magAngVel;
+            k3alphay = -rotDragFactor * k3wy * magAngVel;
+            k3alphaz = -rotDragFactor * k3wz * magAngVel;
 
             // K4
             k4vx = velX + (k3ax * deltaTime);
@@ -235,6 +239,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             k4wy = angY + (k3alphay * deltaTime);
             k4wz = angZ + (k3alphaz * deltaTime);
             magVel = Math.sqrt(k4vx * k4vx + k4vy * k4vy + k4vz * k4vz);
+            magAngVel = Math.sqrt(k4wx * k4wx + k4wy * k4wy + k4wz * k4wz);
             dragFactor = -dragConstant * magVel;
 
             magnusX = magnusConstant * (k4wy * k4vz - k4wz * k4vy);
@@ -245,9 +250,9 @@ public class ProjectileSubsystem extends SubsystemBase {
             k4ay = (((k4vy * dragFactor) + magnusY) / mass);
             k4az = (((k4vz * dragFactor) + magnusZ) / mass) - gravity;
             
-            k4alphax = -rotDragCoefficient * k4wx / momentOfInertia;
-            k4alphay = -rotDragCoefficient * k4wy / momentOfInertia;
-            k4alphaz = -rotDragCoefficient * k4wz / momentOfInertia;
+            k4alphax = -rotDragFactor * k4wx * magAngVel;
+            k4alphay = -rotDragFactor * k4wy * magAngVel;
+            k4alphaz = -rotDragFactor * k4wz * magAngVel;
 
             posX += (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6.0 * deltaTime;
             posY += (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6.0 * deltaTime;

@@ -46,7 +46,7 @@ public final class Constants {
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(10);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
 
-        public static final int TURRET_PITCH_MOTOR_ID = 10;
+        public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final boolean TURRET_PITCH_ENCODER_INVERTED = false;
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
@@ -62,8 +62,8 @@ public final class Constants {
         
         
 
-        public static final Angle TURRET_UPPER_LIMIT = Degree.of(80);
-        public static final Angle TURRET_LOWER_LIMIT = Degree.of(-15);
+        public static final Angle TURRET_UPPER_LIMIT = Degree.of(53.2);
+        public static final Angle TURRET_LOWER_LIMIT = Degree.of(20.7);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
@@ -106,7 +106,7 @@ public final class Constants {
     public final class FuelPhysicsConstants {
         public static final double DRAG_CONSTANT = 0.5;
         public static final double ROT_DRAG_CONSTANT = 0.01;
-        public static final double LIFT_CONSTANT = 1.2;
+        public static final double LIFT_CONSTANT = 0.4;
         public static final double CROSS_SECTION_AREA = 0.01767;
         public static final Mass MASS = Pound.of(0.5);
         public static final double FLUID_DENSITY = 1.2754;

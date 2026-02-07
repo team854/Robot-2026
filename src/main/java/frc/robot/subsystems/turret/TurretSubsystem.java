@@ -75,7 +75,6 @@ public class TurretSubsystem extends SubsystemBase {
         double yawConverstionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
         turretYawConfig.encoder.positionConversionFactor(yawConverstionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConverstionFactor / 60.0);
-        turretYawConfig.encoder.inverted(Constants.TurretConstants.TURRET_YAW_ENCODER_INVERTED);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);

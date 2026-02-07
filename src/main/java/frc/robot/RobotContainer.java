@@ -4,12 +4,19 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.projectile.ProjectileSubsystem;
+import frc.robot.subsystems.projectile.ProjectileSubsystem.TargetSolution;
 import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -40,10 +47,28 @@ public class RobotContainer {
 	
 	Command driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
 
-	 
+	
 
 	public RobotContainer() {
 		configureBindings();
+
+		//DO SANITY CHECKS OF THE MAGNUS EFFECT
+
+		/*
+		TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
+			MetersPerSecond.of(15),
+			DegreesPerSecond.of(300),
+			DegreesPerSecond.of(0),
+			new Translation2d(0, 0),
+			new Translation3d(14,0,1.9558),
+			500,
+			50
+			
+		);
+		System.out.println(solution);
+		System.out.println(solution.launchPitch().in(Degree)); // 56.08282080939181
+		*/
+		
 	}
 
 	private void configureBindings() {
