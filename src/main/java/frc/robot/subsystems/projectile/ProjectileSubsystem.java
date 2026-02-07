@@ -113,7 +113,7 @@ public class ProjectileSubsystem extends SubsystemBase {
      * @param tps The ticks per second of the simulation
      * @return A {@link Translation3d} array of the last two positions of the projectile
      */
-    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int tps) {
+    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, int tps) {
 
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
@@ -267,9 +267,12 @@ public class ProjectileSubsystem extends SubsystemBase {
             angZ += (k1alphaz + 2 * k2alphaz + 2 * k3alphaz + k4alphaz) / 6.0 * deltaTime;
 
 
-            if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
+            if (posX * Math.cos(targetDirectAngle.in(Radians)) + posY * Math.sin(targetDirectAngle.in(Radians)) >= horizontalDistance) {
                 break;
             }
+            /*if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
+                break;
+            }*/
         }
 
         return new Translation3d[]{
@@ -328,6 +331,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchAngularYaw,
             robotVelocity,
             targetPosition,
+            targetDirectAngle,
             tps
         );
 
@@ -391,7 +395,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchAngleYaw2 = launchAngleYaw1;
             launchError2 = launchError1;
 
-            double maxStep = 0.5; 
+            double maxStep = Math.toRadians(10); 
 
             launchAnglePitch1 -= MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep);
             launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw), -maxStep, maxStep);

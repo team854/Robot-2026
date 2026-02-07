@@ -62,7 +62,7 @@ public final class Constants {
         
         
 
-        public static final Angle TURRET_UPPER_LIMIT = Degree.of(53.2);
+        public static final Angle TURRET_UPPER_LIMIT = Degree.of(90);
         public static final Angle TURRET_LOWER_LIMIT = Degree.of(20.7);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
@@ -105,7 +105,7 @@ public final class Constants {
 
     public final class FuelPhysicsConstants {
         public static final double DRAG_CONSTANT = 0.5;
-        public static final double ROT_DRAG_CONSTANT = 0.01;
+        public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.4;
         public static final double CROSS_SECTION_AREA = 0.01767;
         public static final Mass MASS = Pound.of(0.5);

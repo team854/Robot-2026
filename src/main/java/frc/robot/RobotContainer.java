@@ -54,20 +54,20 @@ public class RobotContainer {
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
 
-		/*
+		
 		TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
 			MetersPerSecond.of(15),
-			DegreesPerSecond.of(300),
+			DegreesPerSecond.of(0),
 			DegreesPerSecond.of(0),
 			new Translation2d(0, 0),
-			new Translation3d(14,0,1.9558),
+			new Translation3d(1,0,1.9558),
 			500,
 			50
 			
 		);
 		System.out.println(solution);
 		System.out.println(solution.launchPitch().in(Degree)); // 56.08282080939181
-		*/
+		
 		
 	}
 
