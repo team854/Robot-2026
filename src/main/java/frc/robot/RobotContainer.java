@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.projectile.ProjectileSubsystem;
+import frc.robot.subsystems.projectile.ProjectileSubsystem.TargetErrorCode;
 import frc.robot.subsystems.projectile.ProjectileSubsystem.TargetSolution;
 import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
@@ -54,20 +55,20 @@ public class RobotContainer {
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
 
-		
-		TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
-			MetersPerSecond.of(15),
-			DegreesPerSecond.of(0),
-			DegreesPerSecond.of(0),
-			new Translation2d(0, 0),
-			new Translation3d(2,0,1.9558),
-			500,
-			50
+		for (double px = 2; px < 14; px+=0.1) {
+			TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
+				MetersPerSecond.of(13),
+				DegreesPerSecond.of(0),
+				new Translation2d(0, 0),
+				new Translation3d(px,0,1.9558),
+				50,
+				200
+				
+			);
+			System.out.println(px + " " + solution.toString());
 			
-		);
-		System.out.println(solution);
-		System.out.println(solution.launchPitch().in(Degree)); // 56.08282080939181
-		
+		}
+		System.out.println("FEWF");
 		
 	}
 

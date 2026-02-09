@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.Arrays;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -119,7 +121,7 @@ public class ProjectileSubsystem extends SubsystemBase {
      * @return A {@link Translation3d} array of the last two positions of the projectile
      */
     public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, int tps) {
-
+        
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
 
@@ -138,7 +140,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double dragConstant = 0.5 * dragCoefficient * fluidDensity * crossSectionArea;
         double magnusConstant = 0.5 * liftCoefficient * fluidDensity * crossSectionArea * projectileRadius;
-        double rotDragFactor = rotDragCoefficient / momentOfInertia;
+        double rotDragFactor = (0.5 * fluidDensity * rotDragCoefficient * crossSectionArea * projectileRadius) / momentOfInertia;
 
         double pitchSpinAxisYaw = launchYaw.in(Radians) - (Math.PI / 2.0);
 
@@ -161,8 +163,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double magnusX, magnusY, magnusZ;
 
-        for (int step = 0; step < 5 * tps; step++) {
-            
+        for (int step = 0; step < 6 * tps; step++) {
             prevX = posX;
             prevY = posY;
             prevZ = posZ;
@@ -270,16 +271,15 @@ public class ProjectileSubsystem extends SubsystemBase {
             angX += (k1alphax + 2 * k2alphax + 2 * k3alphax + k4alphax) / 6.0 * deltaTime;
             angY += (k1alphay + 2 * k2alphay + 2 * k3alphay + k4alphay) / 6.0 * deltaTime;
             angZ += (k1alphaz + 2 * k2alphaz + 2 * k3alphaz + k4alphaz) / 6.0 * deltaTime;
-
-
+            
             if (posX * Math.cos(targetDirectAngle.in(Radians)) + posY * Math.sin(targetDirectAngle.in(Radians)) >= horizontalDistance) {
                 break;
             }
+            
             /*if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
                 break;
             }*/
         }
-
         return new Translation3d[]{
             new Translation3d(prevX, prevY, prevZ),
             new Translation3d(posX, posY , posZ)
@@ -339,7 +339,6 @@ public class ProjectileSubsystem extends SubsystemBase {
             targetDirectAngle,
             tps
         );
-
         Translation3d crossOverPoint = interpolatePosition(path, horizontalDistance);
 
         double landing_yaw = Math.atan2(crossOverPoint.getY(), crossOverPoint.getX());
@@ -361,7 +360,6 @@ public class ProjectileSubsystem extends SubsystemBase {
     /**
      * 
      * @param startLaunchSpeed The starting launch speed of the projectile as a {@link LinearVelocity}
-     * @param launchAngularPitch The angular pitch of the projectile as a {@link AngularVelocity}
      * @param launchAngularYaw The angular yaw of the projectile as a {@link AngularVelocity}
      * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
      * @param targetPosition The robt relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
@@ -369,7 +367,7 @@ public class ProjectileSubsystem extends SubsystemBase {
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
      */
-    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
+    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
 
         double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
@@ -383,13 +381,14 @@ public class ProjectileSubsystem extends SubsystemBase {
         double pitchLimitUpper = Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians);
         double pitchLimitLower = Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians);
 
-        double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.9).in(MetersPerSecond);
-        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.9).in(MetersPerSecond);
+        double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
+        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
+
 
         double launchAnglePitch1 = MathUtil.clamp(
             launchAnglePitch1Temp.in(Radians),
-            pitchLimitUpper - 0.1,
-            pitchLimitLower + 0.1
+            pitchLimitLower + 0.1,
+            pitchLimitUpper - 0.1
 
         );
         double launchAnglePitch2 = launchAnglePitch1 + 0.1;
@@ -399,29 +398,27 @@ public class ProjectileSubsystem extends SubsystemBase {
         double launchSpeed2 = launchSpeed1 + 1;
 
         // Height Error, Yaw Error
-        double[] launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-        double[] launchError2 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
+        double[] launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of((launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] launchError2 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), RadiansPerSecond.of((launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         for (int steps = 0; steps < maxSteps; steps++) {
             if (Math.abs(launchError1[0]) < 1e-6 && Math.abs(launchError1[1]) < 1e-6) {
-                System.out.println("Early Exit");
                 break;
             }
 
-            double maxStep = Math.toRadians(10);
+            double maxStep = Math.toRadians(5);
 
             double weightYaw = 0;
             if (Math.abs(launchError1[1]) > 1e-9 && Math.abs(launchError1[1] - launchError2[1]) > 1e-9) {
                 weightYaw = (launchAngleYaw1 - launchAngleYaw2) / (launchError1[1] - launchError2[1]);
             }
             launchAngleYaw2 = launchAngleYaw1;
-            launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw), -maxStep, maxStep);
+            launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw)  * 0.5, -maxStep, maxStep);
 
 
 
             double weightPitch = 0;
             double weightSpeed = 0;
-            if (Math.abs(launchError1[0]) > 1e-9 && Math.abs(launchError1[0] - launchError2[0]) > 1e-9) {
+            if (Math.abs(launchError1[0]) > 1e-9 && Math.abs(launchError1[0] - launchError2[0]) > 1e-5) {
                 weightPitch = (launchAnglePitch1 - launchAnglePitch2) / (launchError1[0] - launchError2[0]);
                 weightSpeed = (launchSpeed1 - launchSpeed2) / (launchError1[0] - launchError2[0]);
             }
@@ -434,7 +431,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             } else {
                 launchAnglePitch2 = launchAnglePitch1;
                 launchAnglePitch1 = MathUtil.clamp(
-                    launchAnglePitch1 + MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep),
+                    launchAnglePitch1 - MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep),
                     pitchLimitLower,
                     pitchLimitUpper
                 );
@@ -445,9 +442,8 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchError2 = launchError1;
 
             // Height Error, Yaw Error
-            launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), launchAngularPitch, launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+            launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of((launchSpeed1 / projectileRadius) ), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         }
-
         TargetErrorCode solutionFound = TargetErrorCode.NONE;
         if (Math.abs(launchAngleYaw1) > (Math.PI * 2)) {
             solutionFound = TargetErrorCode.EXCESSIVE_YAW;
