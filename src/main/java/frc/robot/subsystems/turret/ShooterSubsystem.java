@@ -98,5 +98,10 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotor1.setVoltage(shooterVoltage);
         shooterMotor2.setVoltage(shooterVoltage);
         shooterPrevSetpointVelocity = shooterState.velocity;
+
+        SmartDashboard.putNumber("Shooter/Motor Voltage", shooterVoltage);
+
+        SmartDashboard.putNumber("Shooter/Motor 1 Speed", shooterEncoder1.getVelocity() / 60.0);
+        SmartDashboard.putNumber("Shooter/Motor 2 Speed", shooterEncoder2.getVelocity() / 60.0);
     }
 }

@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -62,7 +63,7 @@ public final class Constants {
         
         
 
-        public static final Angle TURRET_UPPER_LIMIT = Degree.of(90);
+        public static final Angle TURRET_UPPER_LIMIT = Degree.of(69);
         public static final Angle TURRET_LOWER_LIMIT = Degree.of(20.7);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
@@ -89,7 +90,9 @@ public final class Constants {
         public static final Voltage SHOOTER_S = Volts.of(0);
         public static final Voltage SHOOTER_V = Volts.of(0); // Unit is V/(rad/s)
         public static final Voltage SHOOTER_A = Volts.of(0); // Unit is V/(rad/s^2)
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(100);
+        public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(200);
+        public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
         
 
