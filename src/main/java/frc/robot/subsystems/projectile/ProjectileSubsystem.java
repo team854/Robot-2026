@@ -384,7 +384,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         double pitchLimitLower = Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians);
 
         double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.9).in(MetersPerSecond);
-        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.9).in(MetersPerSecond);
+        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.9).in(MetersPerSecond);
 
         double launchAnglePitch1 = MathUtil.clamp(
             launchAnglePitch1Temp.in(Radians),
