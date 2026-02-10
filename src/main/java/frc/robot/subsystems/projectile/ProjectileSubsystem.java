@@ -343,9 +343,15 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double landing_yaw = Math.atan2(crossOverPoint.getY(), crossOverPoint.getX());
 
+        double verticalVelocity = path[1].getZ() - path[0].getZ();
+
+        double heightError = (crossOverPoint.getZ() - targetPosition.getZ());
+        
+
         return new double[]{
-            crossOverPoint.getZ() - targetPosition.getZ(),
-            MathUtil.angleModulus(landing_yaw - targetDirectAngle.in(Radians))
+            heightError,
+            MathUtil.angleModulus(landing_yaw - targetDirectAngle.in(Radians)),
+            verticalVelocity
         };
     }
 
@@ -385,12 +391,16 @@ public class ProjectileSubsystem extends SubsystemBase {
         double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
 
 
+        double launchAnglePitch1 = launchAnglePitch1Temp.in(Radians);
+        /*
         double launchAnglePitch1 = MathUtil.clamp(
             launchAnglePitch1Temp.in(Radians),
             pitchLimitLower + 0.1,
             pitchLimitUpper - 0.1
 
         );
+        */
+
         double launchAnglePitch2 = launchAnglePitch1 + 0.1;
         double launchAngleYaw1 = targetDirectAngle - 0.1;
         double launchAngleYaw2 = targetDirectAngle + 0.1;
@@ -401,9 +411,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         double[] launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of((launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         double[] launchError2 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), RadiansPerSecond.of((launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         for (int steps = 0; steps < maxSteps; steps++) {
-            if (Math.abs(launchError1[0]) < 1e-6 && Math.abs(launchError1[1]) < 1e-6) {
-                break;
-            }
+            
 
             double maxStep = Math.toRadians(5);
 
@@ -425,16 +433,21 @@ public class ProjectileSubsystem extends SubsystemBase {
 
 
             
-            if (launchAnglePitch1 >= pitchLimitUpper || launchAnglePitch1 <= pitchLimitLower) {
+            if ((launchAnglePitch1 >= pitchLimitUpper || launchAnglePitch1 <= pitchLimitLower) && steps > 5) {
                 launchSpeed2 = launchSpeed1;
                 launchSpeed1 -= MathUtil.clamp((launchError1[0] * weightSpeed), -5, 5);
-            } else {
-                launchAnglePitch2 = launchAnglePitch1;
+
                 launchAnglePitch1 = MathUtil.clamp(
-                    launchAnglePitch1 - MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep),
+                    launchAnglePitch1,
                     pitchLimitLower,
                     pitchLimitUpper
                 );
+            } else {
+                launchAnglePitch2 = launchAnglePitch1;
+
+                double angleModifer = MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep);
+
+                launchAnglePitch1 = launchAnglePitch1 - angleModifer;
             }
 
             
@@ -443,6 +456,10 @@ public class ProjectileSubsystem extends SubsystemBase {
 
             // Height Error, Yaw Error
             launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of((launchSpeed1 / projectileRadius) ), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+
+            if (Math.abs(launchError1[0]) < 1e-6 && Math.abs(launchError1[1]) < 1e-6 && launchError1[2] < 0 && steps > 8) {
+                break;
+            }
         }
         TargetErrorCode solutionFound = TargetErrorCode.NONE;
         if (Math.abs(launchAngleYaw1) > (Math.PI * 2)) {
