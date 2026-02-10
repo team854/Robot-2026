@@ -91,7 +91,7 @@ public final class Constants {
         public static final Voltage SHOOTER_V = Volts.of(0); // Unit is V/(rad/s)
         public static final Voltage SHOOTER_A = Volts.of(0); // Unit is V/(rad/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(84);
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
         
