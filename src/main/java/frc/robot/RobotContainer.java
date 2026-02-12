@@ -54,21 +54,33 @@ public class RobotContainer {
 		configureBindings();
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
-
-		for (double px = 2; px < 14; px+=0.1) {
+		if (false) {
 			TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
-				MetersPerSecond.of(13),
+				projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
 				DegreesPerSecond.of(0),
-				new Translation2d(0, 0),
-				new Translation3d(px,0,1.9558),
-				50,
-				50
+				new Translation2d(2, 0),
+				new Translation3d(10.09999999999998,0,1.9558),
+				25,
+				80
 				
 			);
-			System.out.println(px + " " + solution.toString());
-			
+			System.out.println(10.09999999999998 + " " + solution.toString());
+		} else {
+			for (double px = 2; px < 14; px+=0.1) {
+				TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
+					projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
+					DegreesPerSecond.of(0),
+					new Translation2d(2, 0),
+					new Translation3d(px,0,1.9558),
+					25,
+					80
+					
+				);
+				System.out.println(px + " " + solution.toString());
+				
+			}
+			System.out.println("FEWF");
 		}
-		System.out.println("FEWF");
 		
 	}
 
