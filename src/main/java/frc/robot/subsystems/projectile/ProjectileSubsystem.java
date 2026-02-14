@@ -420,8 +420,8 @@ public class ProjectileSubsystem {
 
         double[] speedError = calculateLaunchError(MetersPerSecond.of(launchSpeed + 0.1), Radians.of(launchPitch), Radians.of(0), RadiansPerSecond.of(-((launchSpeed + 0.1) / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
 
-        double pitchSensitivity = (pitchError[0] - error[0]) / 0.2;
-        double speedSensitivity = (speedError[0] - error[0]) / 2;
+        double pitchSensitivity = (pitchError[0] - error[0]) / 0.01;
+        double speedSensitivity = (speedError[0] - error[0]) / 0.1;
 
         double pitchDelta = 0;
         double speedDelta = 0;
