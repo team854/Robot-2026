@@ -60,7 +60,6 @@ public class ProjectileSubsystem {
 
     public record TargetDebug (
         int pitchYawSteps,
-        int speedSteps,
         double heightError,
         double yawError
     ) {};
@@ -359,11 +358,14 @@ public class ProjectileSubsystem {
         double unitY = targetPosition.getY() / targetHorizontalDist;
         
         // Project crossover point onto target direction vector (dot product)
-        double projectedDistance = (crossOverPoint.getX() * unitX) + 
+        double projectedDistanceForward = (crossOverPoint.getX() * unitX) + 
                                   (crossOverPoint.getY() * unitY);
         
+        double projectedDistanceRight = (crossOverPoint.getX() * unitY) + 
+                                  (crossOverPoint.getY() * -unitX);
+        
         // Signed error: positive = overshot, negative = undershot
-        double distanceError = projectedDistance - targetHorizontalDist;
+        double distanceError = projectedDistanceForward - targetHorizontalDist;
 
         if (path[0].getZ() < targetPosition.getZ()) {
             distanceError = -1;
@@ -371,7 +373,7 @@ public class ProjectileSubsystem {
 
         return new double[]{
             distanceError,
-            MathUtil.angleModulus(landing_yaw - targetDirectAngle.in(Radians)),
+            projectedDistanceRight,
             verticalVelocity
         };
     }
@@ -403,7 +405,7 @@ public class ProjectileSubsystem {
         Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
 
         if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), new TargetDebug(0, 0, 0, 0));
+            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), new TargetDebug(0, 0, 0));
         }
 
         double pitchLimitUpper = Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians);
@@ -433,7 +435,7 @@ public class ProjectileSubsystem {
         double[] lastError = error;
 
         int pitchYawSteps = 0;
-        for (pitchYawSteps = 0; pitchYawSteps < 30; pitchYawSteps++) {
+        for (pitchYawSteps = 0; pitchYawSteps < maxSteps; pitchYawSteps++) {
 
             if (Math.abs(pitchSensitivity) < 1e-5) {
                 pitchDelta = 0;
@@ -445,7 +447,7 @@ public class ProjectileSubsystem {
             if (Math.abs(yawSensitivity) < 1e-5) {
                 yawDelta = 0;
             } else {
-                yawDelta = error[1] / Math.max(((pitchYawSteps + 2) / 2.5), 1);
+                yawDelta = MathUtil.clamp((error[1] / yawSensitivity), -0.3, 0.3);
             }
 
             lastPitch = launchPitch;
@@ -456,10 +458,11 @@ public class ProjectileSubsystem {
 
             launchYaw = MathUtil.angleModulus(launchYaw);
 
-            if (pitchYawSteps > 15) {
+            if (pitchYawSteps > 3) {
                 if (launchPitch > pitchLimitUpper) launchPitch = pitchLimitUpper;
                 if (launchPitch < pitchLimitLower) launchPitch = pitchLimitLower;
             }
+
             double[] newError = calculateLaunchError(
                 MetersPerSecond.of(launchSpeed), 
                 Radians.of(launchPitch), 
@@ -479,41 +482,16 @@ public class ProjectileSubsystem {
             if (Math.abs(actualPitchDelta) > 1e-5) {
                 pitchSensitivity = (newError[0] - lastError[0]) / actualPitchDelta;
             }
-            /*
+            
             if (Math.abs(actualYawDelta) > 1e-5) {
                 yawSensitivity = (newError[1] - lastError[1]) / actualYawDelta;
             }
-            */
-
-            lastError = error; 
+            
             error = newError;
-        }
+            lastError = error;
 
-        int speedSteps = 0;
-        if (Math.abs(error[0]) > 10000000) {
-            double speedChangeUpperLimit = speedLimitUpper;
-            double speedChangeLowerLimit = speedLimitLower;
-            for (speedSteps = 0; speedSteps < 10; speedSteps++) {
-                launchSpeed = ((speedChangeUpperLimit - speedChangeLowerLimit) / 2.0) + speedChangeLowerLimit;
-
-                error = calculateLaunchError(
-                    MetersPerSecond.of(launchSpeed), 
-                    Radians.of(launchPitch), 
-                    Radians.of(launchYaw), 
-                    RadiansPerSecond.of(-(launchSpeed / projectileRadius)), 
-                    launchAngularYaw, 
-                    robotVelocity, 
-                    targetPosition, 
-                    Radians.of(targetDirectAngle), 
-                    horizontalDistance, 
-                    tps
-                );
-
-                if (error[0] > 0) {
-                    speedChangeUpperLimit = launchSpeed;
-                } else {
-                    speedChangeLowerLimit = launchSpeed;
-                }
+            if (Math.abs(error[0]) < 1e-5 && Math.abs(error[1]) < 1e-5) {
+                break;
             }
         }
 
@@ -539,269 +517,9 @@ public class ProjectileSubsystem {
             MetersPerSecond.of(launchSpeed),
             Radians.of(launchPitch),
             Radians.of(launchYaw), 
-            new TargetDebug(pitchYawSteps, speedSteps, error[0], error[1])
+            new TargetDebug(pitchYawSteps, error[0], error[1])
         );
-    }
 
-    /**
-     * 
-     * @param startLaunchSpeed The starting launch speed of the projectile as a {@link LinearVelocity}
-     * @param launchAngularYaw The angular yaw of the projectile as a {@link AngularVelocity}
-     * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
-     * @param targetPosition The robot relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
-     * @param maxSteps The max amount of optimization steps (It can exit early if the error gets below a threshold)
-     * @param tps The ticks per second that physics will be calculated at
-     * @return The target solution
-     */
-    public TargetSolution calculateLaunchAngleSimulationOld2(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
-        double pitchWeight = 0.5;
-
-        Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
-
-        double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
-
-        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
-
-        if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), new TargetDebug(0, 0, 0, 0));
-        }
-
-        double pitchLimitUpper = Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians);
-        double pitchLimitLower = Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians);
-
-        double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
-        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
-
-        double launchPitch = launchAnglePitch1Temp.in(Radians);
-        double launchSpeed = startLaunchSpeed.in(MetersPerSecond);
-
-        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(0), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + 0.05), Radians.of(0), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-        double[] speedError = calculateLaunchError(MetersPerSecond.of(launchSpeed + 0.1), Radians.of(launchPitch), Radians.of(0), RadiansPerSecond.of(-((launchSpeed + 0.1) / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-        double pitchSensitivity = (pitchError[0] - error[0]) / 0.05;
-        double speedSensitivity = (speedError[0] - error[0]) / 0.1;
-
-        double pitchDelta = 0;
-        double speedDelta = 0;
-
-        int steps = 0;
-        for (steps = 0; steps < maxSteps; steps++) {
-
-            if (Math.abs(error[0]) < 0.01) break;
-
-
-            double weightedPitchSensitivity = pitchSensitivity / pitchWeight;
-
-            double effectivePitchSens = weightedPitchSensitivity;
-            double effectiveSpeedSens = speedSensitivity;
-
-            if ((launchPitch >= pitchLimitUpper && error[0] * pitchSensitivity < 0) || 
-                (launchPitch <= pitchLimitLower && error[0] * pitchSensitivity > 0)) {
-                effectivePitchSens = 0.1;
-            }
-
-            if ((launchSpeed >= speedLimitUpper && error[0] * speedSensitivity < 0) || 
-                (launchSpeed <= speedLimitLower && error[0] * speedSensitivity > 0)) {
-                effectiveSpeedSens = 0.1;
-            }
-
-            double l2Norm = effectivePitchSens * effectivePitchSens + effectiveSpeedSens * effectiveSpeedSens;
-            
-            if (l2Norm < 1e-9) break;
-
-            pitchDelta = ((-error[0] / l2Norm) * effectivePitchSens) / pitchWeight;
-            speedDelta = -error[0] * (effectiveSpeedSens / l2Norm);
-
-            double t = Math.sqrt(pitchDelta * pitchDelta + speedDelta * speedDelta);
-            if (t > 2) {
-                pitchDelta /= 0.5 * t;
-                speedDelta /= 0.5 * t;
-            }
-
-            double oldPitch = launchPitch;
-            double oldSpeed = launchSpeed;
-
-            launchPitch = MathUtil.clamp(launchPitch + pitchDelta, pitchLimitLower, pitchLimitUpper);
-            launchSpeed = MathUtil.clamp(launchSpeed + speedDelta, speedLimitLower, speedLimitUpper);
-
-            pitchDelta = launchPitch - oldPitch;
-            speedDelta = launchSpeed - oldSpeed;
-
-            double[] newError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(0), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-            double errorDelta = newError[0] - error[0];
-
-            double predictedDelta = (pitchSensitivity * pitchDelta) + (speedSensitivity * speedDelta);
-
-            double discrepancy = errorDelta - predictedDelta;
-
-            double distanceDelta = pitchDelta * pitchDelta + speedDelta * speedDelta;
-
-            //System.out.println(newError + " [" + launchPitch + ", " + launchSpeed + "] " + pitchDelta + " " + speedDelta);
-
-            if (distanceDelta > 1e-12) {
-                pitchSensitivity += (discrepancy * pitchDelta) / distanceDelta;
-                speedSensitivity += (discrepancy * speedDelta) / distanceDelta;
-            } else {
-                break;
-            }
-
-            error = newError;
-        }
-
-        TargetErrorCode solutionFound = TargetErrorCode.NONE;
-        if (Math.abs(0) > (Math.PI * 3)) {
-            solutionFound = TargetErrorCode.EXCESSIVE_YAW;
-        } else if (launchPitch > Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians)) {
-            solutionFound = TargetErrorCode.PITCH_UPPER_LIMIT;
-        } else if (launchPitch < Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians)) {
-            solutionFound = TargetErrorCode.PITCH_LOWER_LIMIT;
-        } else if (Math.abs(error[0]) > 0.1) {
-            solutionFound = TargetErrorCode.HEIGHT_ERROR_HIGH;
-        } else if (Math.abs(error[1]) > 0.1) {
-            solutionFound = TargetErrorCode.YAW_ERROR_HIGH;
-        } else if (launchSpeed > speedLimitUpper) {
-            solutionFound = TargetErrorCode.SPEED_UPPER_LIMIT;
-        } else if (launchSpeed < speedLimitLower) {
-            solutionFound = TargetErrorCode.SPEED_LOWER_LIMIT;
-        }
-
-        return new TargetSolution(
-            solutionFound,
-            MetersPerSecond.of(launchSpeed),
-            Radians.of(launchPitch),
-            Radians.of(0), 
-            new TargetDebug(steps, 0, error[0], error[1])
-        );
-    }
-
-    /**
-     * 
-     * @param startLaunchSpeed The starting launch speed of the projectile as a {@link LinearVelocity}
-     * @param launchAngularYaw The angular yaw of the projectile as a {@link AngularVelocity}
-     * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
-     * @param targetPosition The robot relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
-     * @param maxSteps The max amount of optimization steps (It can exit early if the error gets below a threshold)
-     * @param tps The ticks per second that physics will be calculated at
-     * @return The target solution
-     */
-    public TargetSolution calculateLaunchAngleSimulationOld(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
-        Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
-
-        double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
-
-        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
-
-        if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), new TargetDebug(0, 0, 0, 0));
-        }
-
-        double pitchLimitUpper = Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians);
-        double pitchLimitLower = Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians);
-
-        double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
-        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
-
-
-        double launchAnglePitch1 = launchAnglePitch1Temp.in(Radians);
-
-        double launchAnglePitch2 = launchAnglePitch1 + 0.005;
-        double launchAngleYaw1 = targetDirectAngle - 0.01;
-        double launchAngleYaw2 = targetDirectAngle + 0.01;
-        double launchSpeed1 = startLaunchSpeed.in(MetersPerSecond);
-        double launchSpeed2 = launchSpeed1 + 1;
-
-        // Height Error, Yaw Error
-        double[] launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of(-(launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-        double[] launchError2 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), RadiansPerSecond.of(-(launchSpeed1 / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-        boolean modifingSpeed = false;
-
-        int steps;
-        for (steps = 0; steps < maxSteps; steps++) {
-            
-
-            double maxStep = Math.toRadians(10); 
-
-            double weightYaw = 0;
-            if (Math.abs(launchError1[1]) > 1e-7 && Math.abs(launchError1[1] - launchError2[1]) > 1e-7) {
-                weightYaw = (launchAngleYaw1 - launchAngleYaw2) / (launchError1[1] - launchError2[1]);
-            }
-            launchAngleYaw2 = launchAngleYaw1;
-            launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw), -maxStep, maxStep);
-
-
-
-            double weightPitch = 0;
-            double weightSpeed = 0;
-            if (Math.abs(launchError1[0]) > 1e-7 && Math.abs(launchError1[0] - launchError2[0]) > 1e-7) {
-                weightPitch = (launchAnglePitch1 - launchAnglePitch2) / (launchError1[0] - launchError2[0]);
-                weightSpeed = (launchSpeed1 - launchSpeed2) / (launchError1[0] - launchError2[0]);
-            }
-
-
-            if (modifingSpeed) {
-                launchSpeed2 = launchSpeed1;
-                launchSpeed1 -= MathUtil.clamp((launchError1[0] * weightSpeed), -3, 3);
-                launchSpeed1 = MathUtil.clamp(
-                    launchSpeed1,
-                    speedLimitLower,
-                    speedLimitUpper
-                );
-
-            } else {
-                launchAnglePitch2 = launchAnglePitch1;
-                launchAnglePitch1 -= MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep);
-            }
-            //System.out.println(launchAnglePitch2 - launchAnglePitch1);
-            launchError2 = launchError1;
-            if (modifingSpeed == false) {
-                if (steps >= 6 && Math.abs(launchAnglePitch2 - launchAnglePitch1) < 2e-5) {
-                    modifingSpeed = true;
-
-                    launchAnglePitch1 = MathUtil.clamp(
-                        launchAnglePitch1,
-                        pitchLimitLower,
-                        pitchLimitUpper
-                    );
-                    launchAnglePitch2 = launchAnglePitch1;
-                    //launchError1 = new double[] {0.01, launchError1[1], launchError1[2]};
-                }
-            }
-            
-
-            // Height Error, Yaw Error, Vertical Speed
-            launchError1 = calculateLaunchError(MetersPerSecond.of(launchSpeed1), Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), RadiansPerSecond.of(-(launchSpeed1 / projectileRadius) ), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-
-            if (Math.abs(launchError1[0]) < 2e-3 && Math.abs(launchError1[1]) < 2e-3 && launchError1[2] < 0 && steps >= 10) {
-                break;
-            }
-        }
-        TargetErrorCode solutionFound = TargetErrorCode.NONE;
-        if (Math.abs(launchAngleYaw1) > (Math.PI * 3)) {
-            solutionFound = TargetErrorCode.EXCESSIVE_YAW;
-        } else if (launchAnglePitch1 > Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians)) {
-            solutionFound = TargetErrorCode.PITCH_UPPER_LIMIT;
-        } else if (launchAnglePitch1 < Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians)) {
-            solutionFound = TargetErrorCode.PITCH_LOWER_LIMIT;
-        } else if (Math.abs(launchError1[0]) > 0.1) {
-            solutionFound = TargetErrorCode.HEIGHT_ERROR_HIGH;
-        } else if (Math.abs(launchError1[1]) > 0.1) {
-            solutionFound = TargetErrorCode.YAW_ERROR_HIGH;
-        } else if (launchSpeed1 > speedLimitUpper) {
-            solutionFound = TargetErrorCode.SPEED_UPPER_LIMIT;
-        } else if (launchSpeed1 < speedLimitLower) {
-            solutionFound = TargetErrorCode.SPEED_LOWER_LIMIT;
-        }
-
-        return new TargetSolution(
-            solutionFound, MetersPerSecond.of(launchSpeed1),
-            Radians.of(launchAnglePitch1),
-            Radians.of(MathUtil.inputModulus(launchAngleYaw1,0, 2 * Math.PI)),
-            new TargetDebug(steps, 0, launchError1[0], launchError1[1])
-        );
+        
     }
 }
