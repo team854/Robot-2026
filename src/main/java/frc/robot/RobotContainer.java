@@ -71,7 +71,7 @@ public class RobotContainer {
 					projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
 					DegreesPerSecond.of(0),
 					new Translation2d(-2, 0),
-					new Translation3d(px,0,1.9558),
+					new Translation3d(px,2,1.9558),
 					25,
 					80
 					

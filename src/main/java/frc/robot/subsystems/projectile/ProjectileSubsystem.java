@@ -433,19 +433,19 @@ public class ProjectileSubsystem {
         double[] lastError = error;
 
         int pitchYawSteps = 0;
-        for (pitchYawSteps = 0; pitchYawSteps < 7; pitchYawSteps++) {
+        for (pitchYawSteps = 0; pitchYawSteps < 30; pitchYawSteps++) {
 
             if (Math.abs(pitchSensitivity) < 1e-5) {
                 pitchDelta = 0;
             } else {
-                pitchDelta = MathUtil.clamp(error[0] / pitchSensitivity, -0.2, 0.2);
+                pitchDelta = MathUtil.clamp((error[0] / pitchSensitivity), -0.1, 0.1);
             }
 
 
             if (Math.abs(yawSensitivity) < 1e-5) {
                 yawDelta = 0;
             } else {
-                yawDelta = (error[1] / 1);
+                yawDelta = error[1] / Math.max(((pitchYawSteps + 2) / 2.5), 1);
             }
 
             lastPitch = launchPitch;
@@ -454,7 +454,9 @@ public class ProjectileSubsystem {
             launchPitch -= pitchDelta;
             launchYaw -= yawDelta;
 
-            if (pitchYawSteps > 5) {
+            launchYaw = MathUtil.angleModulus(launchYaw);
+
+            if (pitchYawSteps > 15) {
                 if (launchPitch > pitchLimitUpper) launchPitch = pitchLimitUpper;
                 if (launchPitch < pitchLimitLower) launchPitch = pitchLimitLower;
             }
@@ -488,7 +490,7 @@ public class ProjectileSubsystem {
         }
 
         int speedSteps = 0;
-        if (Math.abs(error[0]) > 0.1) {
+        if (Math.abs(error[0]) > 10000000) {
             double speedChangeUpperLimit = speedLimitUpper;
             double speedChangeLowerLimit = speedLimitLower;
             for (speedSteps = 0; speedSteps < 10; speedSteps++) {

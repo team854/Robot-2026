@@ -63,8 +63,8 @@ public final class Constants {
         
         
 
-        public static final Angle TURRET_UPPER_LIMIT = Degree.of(67);
-        public static final Angle TURRET_LOWER_LIMIT = Degree.of(45);
+        public static final Angle TURRET_UPPER_LIMIT = Degree.of(90);
+        public static final Angle TURRET_LOWER_LIMIT = Degree.of(60);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
