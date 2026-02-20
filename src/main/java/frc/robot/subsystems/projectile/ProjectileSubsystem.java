@@ -455,9 +455,7 @@ public class ProjectileSubsystem {
 
             launchPitch -= pitchDelta;
             launchYaw -= yawDelta;
-
-            launchYaw = MathUtil.angleModulus(launchYaw);
-
+            
             if (pitchYawSteps > 3) {
                 if (launchPitch > pitchLimitUpper) launchPitch = pitchLimitUpper;
                 if (launchPitch < pitchLimitLower) launchPitch = pitchLimitLower;
@@ -477,7 +475,7 @@ public class ProjectileSubsystem {
             );
 
             double actualPitchDelta = launchPitch - lastPitch;
-            double actualYawDelta = launchYaw - lastYaw;
+            double actualYawDelta = MathUtil.angleModulus(launchYaw - lastYaw);
             
             if (Math.abs(actualPitchDelta) > 1e-5) {
                 pitchSensitivity = (newError[0] - lastError[0]) / actualPitchDelta;
