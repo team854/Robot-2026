@@ -1,4 +1,4 @@
-package frc.robot.subsystems.projectile;
+package frc.robot.libraries;
 
 import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
@@ -16,7 +16,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.Constants;
 
-public class ProjectileSubsystem {
+public class ProjectileSimulation {
     private final double dragCoefficient = Constants.FuelPhysicsConstants.DRAG_CONSTANT;
     private final double rotDragCoefficient = Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT; 
     private final double crossSectionArea = Constants.FuelPhysicsConstants.CROSS_SECTION_AREA;
@@ -28,7 +28,7 @@ public class ProjectileSubsystem {
     private final double liftCoefficient = Constants.FuelPhysicsConstants.LIFT_CONSTANT;
 
 
-    public ProjectileSubsystem() {
+    public ProjectileSimulation() {
 
     }
 

@@ -61,6 +61,10 @@ public class SwerveSubsystem extends SubsystemBase{
         System.out.println("Zeroed Swerve");
     }
 
+    public Pose2d getPose2d() {
+        return swerveDrive.getPose();
+    }
+
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
     }

@@ -10,14 +10,16 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.TurretAutoAimCommand;
+import frc.robot.libraries.ProjectileSimulation;
+import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
+import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.projectile.ProjectileSubsystem;
-import frc.robot.subsystems.projectile.ProjectileSubsystem.TargetErrorCode;
-import frc.robot.subsystems.projectile.ProjectileSubsystem.TargetSolution;
 import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -27,11 +29,11 @@ public class RobotContainer {
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-	public static final ProjectileSubsystem projectileSubsystem = new ProjectileSubsystem();
 	public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 	public static final TurretSubsystem turretSubsystem = new TurretSubsystem();
 	public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+	public static final ProjectileSimulation projectileSimulation = new ProjectileSimulation();
 
 	public static final CommandXboxController driverController   = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
@@ -54,6 +56,7 @@ public class RobotContainer {
 		configureBindings();
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
+		/*
 		if (false) {
 			TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
 				projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
@@ -70,7 +73,7 @@ public class RobotContainer {
 				TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
 					projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
 					DegreesPerSecond.of(0),
-					new Translation2d(-2, -2),
+					new Translation2d(0, 0),
 					new Translation3d(px,0,1.9558),
 					25,
 					80
@@ -81,12 +84,21 @@ public class RobotContainer {
 			}
 			System.out.println("FEWF");
 		}
+		*/
 		
 	}
 
 	private void configureBindings() {
 		swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
+		turretSubsystem.setDefaultCommand(new TurretAutoAimCommand());
+
+
 	}
+
+	public static boolean isBlueAlliance(){
+        var alliance = DriverStation.getAlliance();
+        return alliance.isPresent() ? alliance.get() != DriverStation.Alliance.Red : false;
+    }
 
 	public Command getAutonomousCommand() {
 		return Commands.print("No autonomous command configured");

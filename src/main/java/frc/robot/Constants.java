@@ -107,6 +107,7 @@ public final class Constants {
     }
 
     public final class FuelPhysicsConstants {
+        public static final int TPS = 60;
         public static final double DRAG_CONSTANT = 0.5;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.4;
@@ -114,5 +115,12 @@ public final class Constants {
         public static final Mass MASS = Pound.of(0.5);
         public static final double FLUID_DENSITY = 1.2754;
         public static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.80665);
+    }
+
+    public final class FieldConstants {
+        public static final Distance FIELD_SIZE_X = Meter.of(16.54);
+        public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
+        public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
+        public static final Distance HUB_TARGET_HEIGHT = Meter.of(2);
     }
 }
