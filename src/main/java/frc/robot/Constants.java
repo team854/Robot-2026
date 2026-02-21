@@ -108,6 +108,7 @@ public final class Constants {
 
     public final class FuelPhysicsConstants {
         public static final int TPS = 60;
+        public static final int MAX_STEPS = 15;
         public static final double DRAG_CONSTANT = 0.5;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.4;

@@ -35,10 +35,11 @@ public class RobotContainer {
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final ProjectileSimulation projectileSimulation = new ProjectileSimulation();
 
-	public static final CommandXboxController driverController   = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	
 
 	// Transforms controller input into swerve drive speeds
-	SwerveInputStream driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
+	static SwerveInputStream driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
         () -> driverController.getLeftY() * -1,
         () -> driverController.getLeftX() * -1)
         .withControllerRotationAxis(
@@ -48,8 +49,8 @@ public class RobotContainer {
 
         .allianceRelativeControl(true);
 	
-	Command driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
-
+	public static final Command driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+	public static final Command turretAutoAimCommand = new TurretAutoAimCommand();
 	
 
 	public RobotContainer() {
@@ -58,31 +59,32 @@ public class RobotContainer {
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
 		/*
 		if (false) {
-			TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
-				projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
+			TargetSolution solution = projectileSimulation.calculateLaunchAngleSimulation(
+				projectileSimulation.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
 				DegreesPerSecond.of(0),
 				new Translation2d(0, 2),
 				new Translation3d(4.4,0,1.9558),
-				25,
-				80
+				Constants.FuelPhysicsConstants.MAX_STEPS,
+				Constants.FuelPhysicsConstants.TPS
 				
 			);
 			System.out.println(10.09999999999998 + " " + solution.toString());
 		} else {
 			for (double px = 2; px < 14; px+=0.1) {
-				TargetSolution solution = projectileSubsystem.calculateLaunchAngleSimulation(
-					projectileSubsystem.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
+				TargetSolution solution = projectileSimulation.calculateLaunchAngleSimulation(
+					projectileSimulation.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
 					DegreesPerSecond.of(0),
 					new Translation2d(0, 0),
 					new Translation3d(px,0,1.9558),
-					25,
-					80
+					Constants.FuelPhysicsConstants.MAX_STEPS,
+					Constants.FuelPhysicsConstants.TPS
 					
 				);
 				System.out.println(px + " " + solution.toString());
 				
 			}
 			System.out.println("FEWF");
+			
 		}
 		*/
 		
@@ -90,7 +92,7 @@ public class RobotContainer {
 
 	private void configureBindings() {
 		swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
-		turretSubsystem.setDefaultCommand(new TurretAutoAimCommand());
+		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
 
 
 	}

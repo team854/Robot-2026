@@ -6,10 +6,13 @@ import static edu.wpi.first.units.Units.Meter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
+import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 
 public class TurretAutoAimCommand extends Command {
@@ -43,10 +46,20 @@ public class TurretAutoAimCommand extends Command {
             DegreesPerSecond.of(0),
             new Translation2d(0, 0),
             robotHubRelative,
-            25,
+            Constants.FuelPhysicsConstants.MAX_STEPS,
             Constants.FuelPhysicsConstants.TPS
             
         );
+
+        SmartDashboard.putString("Auto Aim/Error Code", solution.errorCode().name());
+        SmartDashboard.putString("Auto Aim/Solution Debug", solution.targetDebug().toString());
+        SmartDashboard.putBoolean("Auto Aim/Error", solution.errorCode() == TargetErrorCode.NONE);
+        if (solution.errorCode() == TargetErrorCode.NONE) {
+            Angle robotRelativeAngle = RobotContainer.turretSubsystem.getTurretPointAngle(solution.launchYaw());
+            RobotContainer.turretSubsystem.setTurretYaw(robotRelativeAngle);
+
+            RobotContainer.turretSubsystem.setTurretPitch(solution.launchPitch());
+        }
 
         System.out.println(solution);
     }
