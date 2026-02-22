@@ -122,6 +122,6 @@ public final class Constants {
         public static final Distance FIELD_SIZE_X = Meter.of(16.54);
         public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
         public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
-        public static final Distance HUB_TARGET_HEIGHT = Meter.of(2);
+        public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.9);
     }
 }

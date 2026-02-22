@@ -20,6 +20,7 @@ import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.logging.VisualizerSubsystem;
 import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -34,6 +35,7 @@ public class RobotContainer {
 	public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final ProjectileSimulation projectileSimulation = new ProjectileSimulation();
+	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
 
 	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 	
@@ -43,7 +45,7 @@ public class RobotContainer {
         () -> driverController.getLeftY() * -1,
         () -> driverController.getLeftX() * -1)
         .withControllerRotationAxis(
-            () -> driverController.getRightX() * Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
+            () -> -driverController.getRightX() * Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
         .deadband(Constants.OperatorConstants.DEADBAND)
         .scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
 

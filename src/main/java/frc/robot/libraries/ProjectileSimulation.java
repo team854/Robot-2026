@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.util.ArrayList;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -17,15 +18,15 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.Constants;
 
 public class ProjectileSimulation {
-    private final double dragCoefficient = Constants.FuelPhysicsConstants.DRAG_CONSTANT;
-    private final double rotDragCoefficient = Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT; 
-    private final double crossSectionArea = Constants.FuelPhysicsConstants.CROSS_SECTION_AREA;
-    private final double mass = Constants.FuelPhysicsConstants.MASS.in(Kilogram);
-    private final double fluidDensity = Constants.FuelPhysicsConstants.FLUID_DENSITY;
-    private final double gravity = Constants.FuelPhysicsConstants.GRAVITY.in(MetersPerSecondPerSecond);
-    private final double projectileRadius = Math.sqrt(crossSectionArea / Math.PI);
-    private final double momentOfInertia = 0.4 * mass * Math.pow(projectileRadius, 2);
-    private final double liftCoefficient = Constants.FuelPhysicsConstants.LIFT_CONSTANT;
+    public final double dragCoefficient = Constants.FuelPhysicsConstants.DRAG_CONSTANT;
+    public final double rotDragCoefficient = Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT; 
+    public final double crossSectionArea = Constants.FuelPhysicsConstants.CROSS_SECTION_AREA;
+    public final double mass = Constants.FuelPhysicsConstants.MASS.in(Kilogram);
+    public final double fluidDensity = Constants.FuelPhysicsConstants.FLUID_DENSITY;
+    public final double gravity = Constants.FuelPhysicsConstants.GRAVITY.in(MetersPerSecondPerSecond);
+    public final double projectileRadius = Math.sqrt(crossSectionArea / Math.PI);
+    public final double momentOfInertia = 0.4 * mass * Math.pow(projectileRadius, 2);
+    public final double liftCoefficient = Constants.FuelPhysicsConstants.LIFT_CONSTANT;
 
 
     public ProjectileSimulation() {
@@ -117,10 +118,11 @@ public class ProjectileSimulation {
      * @param launchYaw The launch yaw of the projectile as a {@link Angle}
      * @param robotVelocity The velocity of the robot as a {@link Translation3d} in Meters/Second
      * @param targetPosition The target position in field relative coordinates centered at the robot in {@link Translation3d} in Meter
+     * @param logAllPositions Controls if all positions of the ball during flight are returned
      * @param tps The ticks per second of the simulation
      * @return A {@link Translation3d} array of the last two positions of the projectile
      */
-    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, int tps) {
+    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, boolean logAllPositions, int tps) {
         
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
@@ -162,6 +164,8 @@ public class ProjectileSimulation {
         double magVel, magAngVel, dragFactor;
 
         double magnusX, magnusY, magnusZ;
+
+        ArrayList<Translation3d> positionLog = new ArrayList<>();
 
         for (int step = 0; step < 60 * tps; step++) {
             prevX = posX;
@@ -272,6 +276,16 @@ public class ProjectileSimulation {
             angY += (k1alphay + 2 * k2alphay + 2 * k3alphay + k4alphay) / 6.0 * deltaTime;
             angZ += (k1alphaz + 2 * k2alphaz + 2 * k3alphaz + k4alphaz) / 6.0 * deltaTime;
             
+            if (logAllPositions) {
+                positionLog.add(
+                    new Translation3d(
+                        posX,
+                        posY,
+                        posZ
+                    )
+                );
+            }
+
             if (velZ < 0 && posZ < targetPosition.getZ()) {
                 break;
             }
@@ -280,10 +294,15 @@ public class ProjectileSimulation {
                 break;
             }*/
         }
-        return new Translation3d[]{
-            new Translation3d(prevX, prevY, prevZ),
-            new Translation3d(posX, posY , posZ)
-        };
+
+        if (logAllPositions) {
+            return positionLog.toArray(new Translation3d[0]);
+        } else {
+            return new Translation3d[]{
+                new Translation3d(prevX, prevY, prevZ),
+                new Translation3d(posX, posY , posZ)
+            };
+        }
     }
 
     /**
@@ -340,6 +359,7 @@ public class ProjectileSimulation {
             robotVelocity,
             targetPosition,
             targetDirectAngle,
+            false,
             tps
         );
         Translation3d crossOverPoint = interpolatePosition(path, targetPosition, targetDirectAngle);

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -59,6 +60,10 @@ public class TurretAutoAimCommand extends Command {
             RobotContainer.turretSubsystem.setTurretYaw(robotRelativeAngle);
 
             RobotContainer.turretSubsystem.setTurretPitch(solution.launchPitch());
+
+            AngularVelocity shooterSpeed = RobotContainer.projectileSimulation.convertVelocityToShooterSpeed(solution.launchSpeed(), Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5);
+
+            RobotContainer.shooterSubsystem.setTargetSpeed(shooterSpeed);
         }
 
         System.out.println(solution);
