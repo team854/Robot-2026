@@ -120,9 +120,10 @@ public class ProjectileSimulation {
      * @param targetPosition The target position in field relative coordinates centered at the robot in {@link Translation3d} in Meter
      * @param logAllPositions Controls if all positions of the ball during flight are returned
      * @param tps The ticks per second of the simulation
-     * @return A {@link Translation3d} array of the last two positions of the projectile
+     * @return A {@link Double} array in the format [Cur X, Cur Y, Cur Z, Prev X, Prev Y, Prev Z, Max Height]
+     *  
      */
-    public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, boolean logAllPositions, int tps) {
+    public Double[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, boolean logAllPositions, int tps) {
         
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
@@ -165,7 +166,8 @@ public class ProjectileSimulation {
 
         double magnusX, magnusY, magnusZ;
 
-        ArrayList<Translation3d> positionLog = new ArrayList<>();
+        ArrayList<Double> positionLog = new ArrayList<>();
+        double maxHeight = 0;
 
         for (int step = 0; step < 60 * tps; step++) {
             prevX = posX;
@@ -277,13 +279,13 @@ public class ProjectileSimulation {
             angZ += (k1alphaz + 2 * k2alphaz + 2 * k3alphaz + k4alphaz) / 6.0 * deltaTime;
             
             if (logAllPositions) {
-                positionLog.add(
-                    new Translation3d(
-                        posX,
-                        posY,
-                        posZ
-                    )
-                );
+                positionLog.add(posX);
+                positionLog.add(posY);
+                positionLog.add(posZ);
+            }
+
+            if (posZ > maxHeight) {
+                maxHeight = posZ;
             }
 
             if (velZ < 0 && posZ < targetPosition.getZ()) {
@@ -296,11 +298,12 @@ public class ProjectileSimulation {
         }
 
         if (logAllPositions) {
-            return positionLog.toArray(new Translation3d[0]);
+            return positionLog.toArray(new Double[0]);
         } else {
-            return new Translation3d[]{
-                new Translation3d(prevX, prevY, prevZ),
-                new Translation3d(posX, posY , posZ)
+            return new Double[] {
+                posX, posY , posZ,
+                prevX, prevY, prevZ,
+                maxHeight
             };
         }
     }
@@ -308,26 +311,28 @@ public class ProjectileSimulation {
     /**
      * Interpolates the position of the projectile between two points
      * 
-     * @param path A double array that contains the last two positions of the projectile as a {@link Translation3d} in Meters
+     * @param path A double array that contains the last two positions of the projectile in Meters
      * @param horizontalDistance The horizontal distance of the target as a {@link Distance}
      * @return The interpolated positon of the projectile as a {@link Translation3d} in Meters
      */
-    private Translation3d interpolatePosition(Translation3d[] path, Translation3d targetPosition, Angle targetDirectAngle) {
-        //double horizontalDistance1 = Math.sqrt(Math.pow(path[0].getX(), 2) + Math.pow(path[0].getY(), 2));
-        //double horizontalDistance2 = Math.sqrt(Math.pow(path[1].getX(), 2) + Math.pow(path[1].getY(), 2));
-        double zHeight1 = path[0].getZ();
-        double zHeight2 = path[1].getZ();
+    private Translation3d interpolatePosition(Double[] path, Translation3d targetPosition, Angle targetDirectAngle) {
+        double zHeight1 = path[5];
+        double zHeight2 = path[2];
 
         if (Math.abs(zHeight2 - zHeight1) < 1e-9) {
-            return path[0];
+            return new Translation3d(
+                path[3],
+                path[4],
+                path[5]
+            );
         }
 
         double weight = (targetPosition.getZ() - zHeight1) / (zHeight2 - zHeight1);
 
         return new Translation3d(
-            path[0].getX() + ((path[1].getX() - path[0].getX()) * weight),
-            path[0].getY() + ((path[1].getY() - path[0].getY()) * weight),
-            path[0].getZ() + ((path[1].getZ() - path[0].getZ()) * weight)
+            path[3] + ((path[0] - path[3]) * weight),
+            path[4] + ((path[1] - path[4]) * weight),
+            path[5] + ((path[2] - path[5]) * weight)
         );
     }
 
@@ -347,10 +352,11 @@ public class ProjectileSimulation {
      *       <li>Forward error</li>
      *       <li>Right error</li>
      *       <li>Vertical velocity</li>
+     *       <li>Height error</li>
      *  </ul>
      */
     private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
-        Translation3d[] path = simulateLaunch(
+        Double[] path = simulateLaunch(
             launchSpeed,
             launchPitch,
             launchYaw,
@@ -364,7 +370,7 @@ public class ProjectileSimulation {
         );
         Translation3d crossOverPoint = interpolatePosition(path, targetPosition, targetDirectAngle);
 
-        double verticalVelocity = (path[1].getZ() - path[0].getZ()) * tps;
+        double verticalVelocity = (path[2] - path[5]) * tps;
 
         double targetHorizontalDist = Math.sqrt(
             targetPosition.getX() * targetPosition.getX() + 
@@ -384,14 +390,17 @@ public class ProjectileSimulation {
         // Signed error: positive = overshot, negative = undershot
         double forwardError = projectedDistanceForward - targetHorizontalDist;
 
-        if (path[0].getZ() < targetPosition.getZ()) {
+        double heightError = path[6] - (targetPosition.getZ() + 2);
+
+        if (path[5] < targetPosition.getZ()) {
             forwardError = -1;
         }
 
         return new double[]{
             forwardError,
             projectedDistanceRight,
-            verticalVelocity
+            verticalVelocity,
+            heightError
         };
     }
 
@@ -403,13 +412,13 @@ public class ProjectileSimulation {
         return RadiansPerSecond.of((linearVelocity.in(MetersPerSecond) / radius.in(Meter)) / efficiency);
     }
 
-    public LinearVelocity estimateShootingVelocity(Translation2d targetPosition, LinearVelocity speedLimitUpper) {
+    public LinearVelocity estimateShootingVelocity(Translation2d targetPosition, LinearVelocity speedLimitUpper, Translation2d robotVelocity) {
         double targetDistance = targetPosition.getNorm();
 
-        double percent = MathUtil.inverseInterpolate(0, 6, targetDistance);
+        double percent = MathUtil.inverseInterpolate(0, 8, targetDistance);
 
         return MetersPerSecond.of(
-            MathUtil.interpolate(speedLimitUpper.in(MetersPerSecond) * 0.4, speedLimitUpper.in(MetersPerSecond), percent)
+            MathUtil.interpolate(speedLimitUpper.in(MetersPerSecond) * 0.3, speedLimitUpper.in(MetersPerSecond), percent)
         );
     }
 
@@ -442,7 +451,7 @@ public class ProjectileSimulation {
         double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
 
         double launchPitch = launchAnglePitch1Temp.in(Radians);
-        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(speedLimitUpper)).in(MetersPerSecond);
+        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(speedLimitUpper), robotVelocity).in(MetersPerSecond);
         double launchYaw = targetDirectAngle;
 
         double perturbation = 0.05;

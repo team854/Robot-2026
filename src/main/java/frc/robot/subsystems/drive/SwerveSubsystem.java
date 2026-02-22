@@ -69,6 +69,14 @@ public class SwerveSubsystem extends SubsystemBase{
         return swerveDrive;
     }
 
+    public ChassisSpeeds getChassisSpeeds() {
+        return swerveDrive.getRobotVelocity();
+    }
+
+    public ChassisSpeeds getFieldChassisSpeeds() {
+        return swerveDrive.getFieldVelocity();
+    }
+
     public void driveFieldOriented(ChassisSpeeds speeds) {
         swerveDrive.driveFieldOriented(speeds);
     }

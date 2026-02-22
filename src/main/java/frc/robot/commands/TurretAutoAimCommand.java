@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Meter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,10 +43,15 @@ public class TurretAutoAimCommand extends Command {
             hubPosition.getZ()
         );
 
+        ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
+
         TargetSolution solution = RobotContainer.projectileSimulation.calculateLaunchAngleSimulation(
             RobotContainer.projectileSimulation.convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
             DegreesPerSecond.of(0),
-            new Translation2d(0, 0),
+            new Translation2d(
+                fieldSpeeds.vxMetersPerSecond,
+                fieldSpeeds.vyMetersPerSecond
+            ),
             robotHubRelative,
             Constants.FuelPhysicsConstants.MAX_STEPS,
             Constants.FuelPhysicsConstants.TPS
@@ -64,9 +70,11 @@ public class TurretAutoAimCommand extends Command {
             AngularVelocity shooterSpeed = RobotContainer.projectileSimulation.convertVelocityToShooterSpeed(solution.launchSpeed(), Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5);
 
             RobotContainer.shooterSubsystem.setTargetSpeed(shooterSpeed);
+        } else {
+            System.out.println(solution);
         }
 
-        System.out.println(solution);
+        
     }
 
     @Override

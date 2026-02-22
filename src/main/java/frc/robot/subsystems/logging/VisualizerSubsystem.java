@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,26 +53,30 @@ public class VisualizerSubsystem extends SubsystemBase {
                 RobotContainer.turretSubsystem.getTurretTargetYaw().in(Radian) + robotPose.getRotation().getRadians()
             );
 
+            ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
 
-            Translation3d[] positionHistory = RobotContainer.projectileSimulation.simulateLaunch(
+            Double[] positionHistory = RobotContainer.projectileSimulation.simulateLaunch(
                 launchSpeed,
                 RobotContainer.turretSubsystem.getTurretTargetPitch(),
                 launchYaw,
                 RadiansPerSecond.of(-(launchSpeed.in(MetersPerSecond) / RobotContainer.projectileSimulation.projectileRadius)),
                 RadiansPerSecond.of(0), 
-                new Translation2d(0, 0),
+                new Translation2d(
+                    fieldSpeeds.vxMetersPerSecond,
+                    fieldSpeeds.vyMetersPerSecond
+                ),
                 robotHubRelative,
                 Radian.of(Math.atan2(robotHubRelative.getY(), robotHubRelative.getX())),
                 true,
                 Constants.FuelPhysicsConstants.TPS
             );
 
-            Translation3d[] globalPositionHistory = new Translation3d[positionHistory.length]; 
-            for (int index = 0; index < positionHistory.length; index++) {
-                globalPositionHistory[index] = new Translation3d(
-                    positionHistory[index].getX() + robotPose.getX(),
-                    positionHistory[index].getY() + robotPose.getY(),
-                    positionHistory[index].getZ()
+            Translation3d[] globalPositionHistory = new Translation3d[positionHistory.length / 3]; 
+            for (int index = 0; index < positionHistory.length; index+=3) {
+                globalPositionHistory[index / 3] = new Translation3d(
+                    positionHistory[index] + robotPose.getX(),
+                    positionHistory[index + 1] + robotPose.getY(),
+                    positionHistory[index + 2]
                 );
             }
 
