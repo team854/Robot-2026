@@ -96,7 +96,11 @@ public final class Constants {
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
         
     }
-
+    
+    public final class LightConstants {
+        public static final int LIGHT_PORT = 9;
+        public static final int LIGHT_LENGTH = 10;
+    }
 
     public final class KickerConstants {
         public static final int KICKER_MOTOR_ID = 28;
