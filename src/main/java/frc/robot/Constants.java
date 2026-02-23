@@ -95,8 +95,12 @@ public final class Constants {
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
         
+    }
 
-        
+
+    public final class KickerConstants {
+        public static final int KICKER_MOTOR_ID = 28;
+        public static final boolean KICKER_MOTOR_INVERTED = false;
     }
 
     public final class OperatorConstants {
