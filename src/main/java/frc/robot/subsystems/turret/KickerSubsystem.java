@@ -11,16 +11,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class KickerSubsystem extends SubsystemBase {
-    private final SparkMaxConfig kickerConfig = new SparkMaxConfig();
-    private final SparkMax kickerMotor = new SparkMax(Constants.KickerConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
+    private SparkMaxConfig kickerConfig;
+    private SparkMax kickerMotor;
 
     public KickerSubsystem() {
-        kickerConfig.idleMode(IdleMode.kCoast);
-        kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
-        kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        if (Constants.KickerConstants.ENABLED) {
+            kickerMotor = new SparkMax(Constants.KickerConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
+
+            kickerConfig = new SparkMaxConfig();
+            kickerConfig.idleMode(IdleMode.kCoast);
+            kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
+            kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        }
     }
 
     public void setThrottle(double throttle) {
+        if (Constants.KickerConstants.ENABLED == false) {
+            return;
+        }
+        
         kickerMotor.set(throttle);
     }
 }

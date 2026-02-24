@@ -1,8 +1,12 @@
 package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -11,8 +15,9 @@ import swervelib.SwerveDrive;
 
 public class LimelightSubsystem extends SubsystemBase {
     
-    private SwerveDrive swerveDrive = RobotContainer.swerveSubsystem.getSwerveDrive();
     private LimelightHelpers.PoseEstimate limelightMeasurement;
+
+    private static final Matrix<N3, N1> visionStandardDevs = VecBuilder.fill(.5, .5, 9999999);
 
     public LimelightSubsystem() {
 
@@ -20,7 +25,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        LimelightHelpers.SetRobotOrientation("limelight", RobotContainer.swerveSubsystem.getNavXAngle().in(Degree), 0.0, 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers.SetRobotOrientation("limelight", RobotContainer.swerveSubsystem.getNavXAngle().in(Degree), RobotContainer.swerveSubsystem.getNavXVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
         
         getVisionEstimate();
     }
@@ -30,9 +35,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
         try {
             if (limelightMeasurement != null && limelightMeasurement.pose != null) {
-                if (limelightMeasurement.pose.getX() != 0) {
-                    swerveDrive.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-                    swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+                if (limelightMeasurement.tagCount > 0) {
+                    RobotContainer.swerveSubsystem.setVisionMeasurementStdDevs(visionStandardDevs);
+                    RobotContainer.swerveSubsystem.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
                     SmartDashboard.putBoolean("LimeLight/Tag", true);
                 } else {
                     SmartDashboard.putBoolean("LimeLight/Tag", false);

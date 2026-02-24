@@ -8,8 +8,11 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,21 +44,31 @@ public class RobotContainer {
 	
 
 	// Transforms controller input into swerve drive speeds
-	static SwerveInputStream driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
-        () -> driverController.getLeftY() * -1,
-        () -> driverController.getLeftX() * -1)
-        .withControllerRotationAxis(
-            () -> -driverController.getRightX() * Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
-        .deadband(Constants.OperatorConstants.DEADBAND)
-        .scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
-
-        .allianceRelativeControl(true);
+	public static Supplier<ChassisSpeeds> driveAngularVelocity;
 	
-	public static final Command driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
-	public static final Command turretAutoAimCommand = new TurretAutoAimCommand();
+	public static Command driveFieldOrientedAngularVelocity;
+	public static Command turretAutoAimCommand;
 	
 
 	public RobotContainer() {
+		if (Constants.SwerveConstants.ENABLED) {
+			driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
+					() -> driverController.getLeftY() * -1,
+					() -> driverController.getLeftX() * -1)
+					.withControllerRotationAxis(
+						() -> -driverController.getRightX() * Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
+					.deadband(Constants.OperatorConstants.DEADBAND)
+					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
+					.allianceRelativeControl(true);
+			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+		} else {
+			driveAngularVelocity = () -> new ChassisSpeeds(0.0, 0.0, 0.0);
+		}
+
+		if (Constants.TurretConstants.ENABLED) {
+			turretAutoAimCommand = new TurretAutoAimCommand();
+		}
+
 		configureBindings();
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
@@ -93,8 +106,13 @@ public class RobotContainer {
 	}
 
 	private void configureBindings() {
-		swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
-		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+		if (Constants.SwerveConstants.ENABLED) {
+			swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
+		}
+
+		if (Constants.TurretConstants.ENABLED) {
+			turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+		}
 
 
 	}

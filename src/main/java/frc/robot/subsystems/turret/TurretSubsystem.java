@@ -138,7 +138,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public Angle getTurretPointAngle(Angle globalAngle) {
         return Radian.of(
-            MathUtil.angleModulus(globalAngle.in(Radian) - RobotContainer.swerveSubsystem.getSwerveDrive().getPose().getRotation().getRadians())
+            MathUtil.angleModulus(globalAngle.in(Radian) - RobotContainer.swerveSubsystem.getPose2d().getRotation().getRadians())
         );
     }
 
