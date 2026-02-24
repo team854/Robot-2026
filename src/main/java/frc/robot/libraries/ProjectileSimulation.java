@@ -444,8 +444,8 @@ public class ProjectileSimulation {
             return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), new TargetDebug(0, 0, 0));
         }
 
-        double pitchLimitUpper = Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians);
-        double pitchLimitLower = Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians);
+        double pitchLimitUpper = Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radians);
+        double pitchLimitLower = Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radians);
 
         double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
         double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
@@ -531,9 +531,9 @@ public class ProjectileSimulation {
         TargetErrorCode solutionFound = TargetErrorCode.NONE;
         if (Math.abs(launchYaw) > (Math.PI * 3)) {
             solutionFound = TargetErrorCode.EXCESSIVE_YAW;
-        } else if (launchPitch > Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radians)) {
+        } else if (launchPitch > Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radians)) {
             solutionFound = TargetErrorCode.PITCH_UPPER_LIMIT;
-        } else if (launchPitch < Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radians)) {
+        } else if (launchPitch < Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radians)) {
             solutionFound = TargetErrorCode.PITCH_LOWER_LIMIT;
         } else if (Math.abs(error[0]) > 0.1) {
             solutionFound = TargetErrorCode.FORWARD_ERROR_HIGH;

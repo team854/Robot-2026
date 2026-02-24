@@ -40,14 +40,14 @@ public class ShooterSubsystem extends SubsystemBase {
         Constants.ShooterConstants.SHOOTER_D,
         new TrapezoidProfile.Constraints(
             Constants.ShooterConstants.SHOOTER_MAX_ACCELERATION.in(RotationsPerSecondPerSecond),
-            Constants.ShooterConstants.SHOOTER_MAX_JERK // Unit is RPS/s^3
+            Constants.ShooterConstants.SHOOTER_MAX_JERK // Unit is rotations/s^3
         )
     );
 
     private final SimpleMotorFeedforward shooterFF = new SimpleMotorFeedforward(
         Constants.ShooterConstants.SHOOTER_S.in(Volts),
-        Constants.ShooterConstants.SHOOTER_V, // Unit is V/(RPS/s)
-        Constants.ShooterConstants.SHOOTER_A // Unit is V/(RPS/s^2)
+        Constants.ShooterConstants.SHOOTER_V, // Unit is V/(rotations/s)
+        Constants.ShooterConstants.SHOOTER_A // Unit is V/(rotations/s^2)
     );
 
     private double shooterPrevSetpointVelocity = 0;
@@ -60,8 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
             shooterEncoder1 = shooterMotor1.getEncoder();
             shooterEncoder2 = shooterMotor2.getEncoder();
 
-
-            double velocityConversionFactor = (1.0 / 60.0) * Constants.ShooterConstants.SHOOTER_GEAR_RATIO;
+            double velocityConversionFactor = (1.0 / 60.0) * Constants.ShooterConstants.SHOOTER_GEAR_RATIO; // Convert from RPM to RPS
 
             shooterConfig1 = new SparkMaxConfig();
             shooterConfig1.idleMode(IdleMode.kCoast);
@@ -96,6 +95,12 @@ public class ShooterSubsystem extends SubsystemBase {
         double speed2 = shooterEncoder2.getVelocity();
 
         return RotationsPerSecond.of((speed1 + speed2) / 2.0);
+    }
+
+    public void resetShooter() {
+        double currentSpeed = getSpeed().in(RotationsPerSecond);
+        shooterPID.reset(currentSpeed);
+        shooterPrevSetpointVelocity = currentSpeed;
     }
 
     @Override

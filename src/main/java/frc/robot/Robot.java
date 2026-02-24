@@ -65,6 +65,8 @@ public class Robot extends LoggedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();
 		}
+
+		RobotContainer.shooterSubsystem.resetShooter();
 	}
 
 	@Override
@@ -82,6 +84,8 @@ public class Robot extends LoggedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+
+		RobotContainer.shooterSubsystem.resetShooter();
 	}
 
 	@Override
@@ -97,6 +101,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		CommandScheduler.getInstance().cancelAll();
+
+		RobotContainer.shooterSubsystem.resetShooter();
 	}
 
 	@Override

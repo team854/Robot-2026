@@ -36,6 +36,8 @@ public final class Constants {
     }
 
     public final class TurretConstants {
+        public static final boolean ENABLED = false;
+
         public static final int TURRET_YAW_MOTOR_ID = 10;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
         public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
@@ -44,8 +46,8 @@ public final class Constants {
         public static final double TURRET_YAW_I = 0;
         public static final double TURRET_YAW_D = 0;
         public static final Voltage TURRET_YAW_S = Volts.of(0);
-        public static final Voltage TURRET_YAW_V = Volts.of(0); // Unit is V/(rad/s)
-        public static final Voltage TURRET_YAW_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final double TURRET_YAW_V = 0; // Unit is V/(rad/s)
+        public static final double TURRET_YAW_A = 0; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(10);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
 
@@ -58,15 +60,15 @@ public final class Constants {
         public static final double TURRET_PITCH_D = 0;
         public static final Voltage TURRET_PITCH_S = Volts.of(0);
         public static final Voltage TURRET_PITCH_G = Volts.of(0);
-        public static final Voltage TURRET_PITCH_V = Volts.of(0); // Unit is V/(rad/s)
-        public static final Voltage TURRET_PITCH_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final double TURRET_PITCH_V = 0; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_A = 0; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(10);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
         
         
 
-        public static final Angle TURRET_UPPER_LIMIT = Degree.of(90);
-        public static final Angle TURRET_LOWER_LIMIT = Degree.of(45);
+        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(90);
+        public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(45);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-135);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(135);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
@@ -92,13 +94,13 @@ public final class Constants {
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0);
-        public static final double SHOOTER_V = 0; // Unit is V/(RPS/s)
-        public static final double SHOOTER_A = 0; // Unit is V/(RPS/s^2)
+        public static final double SHOOTER_V = 0; // Unit is V/(rotations/s)
+        public static final double SHOOTER_A = 0; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
-        public static final double SHOOTER_MAX_JERK = 10; // Unit is RPS/s^3
+        public static final double SHOOTER_MAX_JERK = 10; // Unit is rotations/s^3
            
     }
     

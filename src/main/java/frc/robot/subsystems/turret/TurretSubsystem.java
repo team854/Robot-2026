@@ -29,9 +29,9 @@ import frc.robot.RobotContainer;
 
 public class TurretSubsystem extends SubsystemBase {
 
-    private final SparkMax turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
-    private final RelativeEncoder turretYawEncoder = turretYawMotor.getEncoder();
-    private final SparkMaxConfig turretYawConfig = new SparkMaxConfig();
+    private SparkMax turretYawMotor; 
+    private RelativeEncoder turretYawEncoder;
+    private SparkMaxConfig turretYawConfig;
     private final ProfiledPIDController turretYawPID = new ProfiledPIDController(
         Constants.TurretConstants.TURRET_YAW_P,
         Constants.TurretConstants.TURRET_YAW_I,
@@ -43,15 +43,15 @@ public class TurretSubsystem extends SubsystemBase {
     );
     private final SimpleMotorFeedforward turretYawFF = new SimpleMotorFeedforward(
         Constants.TurretConstants.TURRET_YAW_S.in(Volts),
-        Constants.TurretConstants.TURRET_YAW_V.in(Volts), // Unit is V/(rad/s)
-        Constants.TurretConstants.TURRET_YAW_A.in(Volts) // Unit is V/(rad/s^2)
+        Constants.TurretConstants.TURRET_YAW_V, // Unit is V/(rad/s)
+        Constants.TurretConstants.TURRET_YAW_A // Unit is V/(rad/s^2)
     );
     private double turretPrevYawSetpointVelocity = 0;
 
 
-    private final SparkMax turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
-    private final AbsoluteEncoder turretPitchAbsoluteEncoder = turretPitchMotor.getAbsoluteEncoder();
-    private final SparkMaxConfig turretPitchConfig = new SparkMaxConfig();
+    private SparkMax turretPitchMotor;
+    private AbsoluteEncoder turretPitchAbsoluteEncoder;
+    private SparkMaxConfig turretPitchConfig;
     private final ProfiledPIDController turretPitchPID = new ProfiledPIDController(
         Constants.TurretConstants.TURRET_PITCH_P,
         Constants.TurretConstants.TURRET_PITCH_I,
@@ -64,26 +64,36 @@ public class TurretSubsystem extends SubsystemBase {
     private final ArmFeedforward turretPitchFF = new ArmFeedforward(
         Constants.TurretConstants.TURRET_PITCH_S.in(Volts),
         Constants.TurretConstants.TURRET_PITCH_G.in(Volts),
-        Constants.TurretConstants.TURRET_PITCH_V.in(Volts), // Unit is V/(rad/s)
-        Constants.TurretConstants.TURRET_PITCH_A.in(Volts) // Unit is V/(rad/s^2)
+        Constants.TurretConstants.TURRET_PITCH_V, // Unit is V/(rad/s)
+        Constants.TurretConstants.TURRET_PITCH_A // Unit is V/(rad/s^2)
     );
     private double turretPrevPitchSetpointVelocity = 0;
 
     public TurretSubsystem() {
-        // Configure motors
-        turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
-        double yawConverstionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
-        turretYawConfig.encoder.positionConversionFactor(yawConverstionFactor);
-        turretYawConfig.encoder.velocityConversionFactor(yawConverstionFactor / 60.0);
-        turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        if (Constants.TurretConstants.ENABLED) {
+            turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
+            turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
 
-        turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
-        double pitchConverstionFactor = (2.0 * Math.PI);
-        turretPitchConfig.absoluteEncoder.positionConversionFactor(pitchConverstionFactor);
-        turretPitchConfig.absoluteEncoder.velocityConversionFactor(pitchConverstionFactor / 60);
-        turretPitchConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
-        turretPitchConfig.absoluteEncoder.zeroOffset(Constants.TurretConstants.TURRET_PITCH_ZERO_OFFSET);
-        turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            turretYawEncoder = turretYawMotor.getEncoder();
+            turretPitchAbsoluteEncoder = turretPitchMotor.getAbsoluteEncoder();
+
+            // Configure motors
+            turretYawConfig = new SparkMaxConfig();
+            turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
+            double yawConverstionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
+            turretYawConfig.encoder.positionConversionFactor(yawConverstionFactor);
+            turretYawConfig.encoder.velocityConversionFactor(yawConverstionFactor / 60.0);
+            turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+            turretPitchConfig = new SparkMaxConfig();
+            turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
+            double pitchConverstionFactor = (2.0 * Math.PI);
+            turretPitchConfig.absoluteEncoder.positionConversionFactor(pitchConverstionFactor);
+            turretPitchConfig.absoluteEncoder.velocityConversionFactor(pitchConverstionFactor / 60.0);
+            turretPitchConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
+            turretPitchConfig.absoluteEncoder.zeroOffset(Constants.TurretConstants.TURRET_PITCH_ZERO_OFFSET);
+            turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        }
     }
 
     public void setTurretYaw(Angle angle) {
@@ -96,7 +106,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void setTurretPitch(Angle angle) {
         turretPitchPID.setGoal(
-            MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_UPPER_LIMIT.in(Radian))
+            MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian))
         );
 
         SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
@@ -111,10 +121,18 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Angle getTurretYaw() {
+        if (Constants.TurretConstants.ENABLED == false) {
+            return Radian.of(0);
+        }
+
         return Radian.of(turretYawEncoder.getPosition());
     }
 
     public Angle getTurretPitch() {
+        if (Constants.TurretConstants.ENABLED == false) {
+            return Radian.of(0);
+        }
+
         return Radian.of(turretPitchAbsoluteEncoder.getPosition());
     }
 
@@ -126,33 +144,35 @@ public class TurretSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (Constants.TurretConstants.ENABLED) {
 
-        double turretYawVoltage = turretYawPID.calculate(turretYawEncoder.getPosition());
-        TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
-        turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
-        turretYawVoltage = MathUtil.clamp(
-            turretYawVoltage, 
-           -10.0, 
-           10.0
-        );
-        turretYawMotor.setVoltage(turretYawVoltage);
-        turretPrevYawSetpointVelocity = turretYawState.velocity;
-
-        double turretPitchVoltage = turretPitchPID.calculate(turretPitchAbsoluteEncoder.getPosition());
-        TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
-        turretPitchVoltage += turretPitchFF.calculateWithVelocities(turretPitchState.position, turretPrevPitchSetpointVelocity, turretPitchState.velocity);
-        turretPitchVoltage = MathUtil.clamp(
-            turretPitchVoltage, 
+            double turretYawVoltage = turretYawPID.calculate(turretYawEncoder.getPosition());
+            TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
+            turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
+            turretYawVoltage = MathUtil.clamp(
+                turretYawVoltage, 
             -10.0, 
             10.0
-        );
-        turretPitchMotor.setVoltage(turretPitchVoltage);
-        turretPrevPitchSetpointVelocity = turretPitchState.velocity;
+            );
+            turretYawMotor.setVoltage(turretYawVoltage);
+            turretPrevYawSetpointVelocity = turretYawState.velocity;
 
-        SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
-        SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);
+            double turretPitchVoltage = turretPitchPID.calculate(turretPitchAbsoluteEncoder.getPosition());
+            TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
+            turretPitchVoltage += turretPitchFF.calculateWithVelocities(turretPitchState.position, turretPrevPitchSetpointVelocity, turretPitchState.velocity);
+            turretPitchVoltage = MathUtil.clamp(
+                turretPitchVoltage, 
+                -10.0, 
+                10.0
+            );
+            turretPitchMotor.setVoltage(turretPitchVoltage);
+            turretPrevPitchSetpointVelocity = turretPitchState.velocity;
 
-        SmartDashboard.putNumber("Turret/Current Yaw", turretYawEncoder.getPosition() * (180 / Math.PI));
-        SmartDashboard.putNumber("Turret/Current Pitch", turretPitchAbsoluteEncoder.getPosition() * (180 / Math.PI));
+            SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
+            SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);
+
+            SmartDashboard.putNumber("Turret/Current Yaw", turretYawEncoder.getPosition() * (180 / Math.PI));
+            SmartDashboard.putNumber("Turret/Current Pitch", turretPitchAbsoluteEncoder.getPosition() * (180 / Math.PI));
+        }
     }
 }
