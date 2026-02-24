@@ -16,6 +16,7 @@ import static edu.wpi.first.units.Units.Volts;
 import java.io.File;
 
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -23,6 +24,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
 
@@ -76,6 +78,8 @@ public final class Constants {
     }
 
     public final class ShooterConstants {
+        public static final boolean ENABLED = false;
+
         public static final int SHOOTER_MOTOR_1_ID = 15;
         public static final boolean SHOOTER_MOTOR_1_INVERTED = false;
 
@@ -88,13 +92,14 @@ public final class Constants {
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0);
-        public static final Voltage SHOOTER_V = Volts.of(0); // Unit is V/(rad/s)
-        public static final Voltage SHOOTER_A = Volts.of(0); // Unit is V/(rad/s^2)
+        public static final double SHOOTER_V = 0; // Unit is V/(RPS/s)
+        public static final double SHOOTER_A = 0; // Unit is V/(RPS/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
-        
+        public static final double SHOOTER_MAX_JERK = 10; // Unit is RPS/s^3
+           
     }
     
     public final class LightConstants {
