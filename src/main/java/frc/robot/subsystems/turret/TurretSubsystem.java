@@ -94,16 +94,16 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             // Configure motors
             turretYawConfig = new SparkMaxConfig();
             turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
-            double yawConverstionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
-            turretYawConfig.encoder.positionConversionFactor(yawConverstionFactor);
-            turretYawConfig.encoder.velocityConversionFactor(yawConverstionFactor / 60.0);
+            double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
+            turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
+            turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
             turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
             turretPitchConfig = new SparkMaxConfig();
             turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
-            double pitchConverstionFactor = (2.0 * Math.PI);
-            turretPitchConfig.absoluteEncoder.positionConversionFactor(pitchConverstionFactor);
-            turretPitchConfig.absoluteEncoder.velocityConversionFactor(pitchConverstionFactor / 60.0);
+            double pitchConversionFactor = (2.0 * Math.PI);
+            turretPitchConfig.absoluteEncoder.positionConversionFactor(pitchConversionFactor);
+            turretPitchConfig.absoluteEncoder.velocityConversionFactor(pitchConversionFactor / 60.0);
             turretPitchConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
             turretPitchConfig.absoluteEncoder.zeroOffset(Constants.TurretConstants.TURRET_PITCH_ZERO_OFFSET);
             turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -239,7 +239,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
                     break;
 
-                case STOWED:   
+                case STOWED:
+                    // Only stow pitch as that is the only attribute that affects height
                     setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);    
                     turretVoltage = calculateTurretVoltage();
 
@@ -280,8 +281,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     } else if (getDesiredState() == TurretState.HOMING) {
                         transitionTo(TurretState.HOMING);
                     } else if (
-                        Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= TURRET_THRESHOLD ||
-                        Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= TURRET_THRESHOLD
+                        Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= (TURRET_THRESHOLD + 0.02) ||
+                        Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (TURRET_THRESHOLD + 0.02)
                     ) {
                         transitionTo(TurretState.AIMING);
                     }

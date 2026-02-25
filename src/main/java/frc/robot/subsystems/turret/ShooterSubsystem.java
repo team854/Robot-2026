@@ -169,7 +169,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
                 if (getDesiredState() == ShooterState.IDLE) {
                     transitionTo(ShooterState.IDLE);
-                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) > SHOOTER_THRESHOLD) {
+                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) > (SHOOTER_THRESHOLD + 0.1)) {
                     transitionTo(ShooterState.SPOOLING);
                 }
 
