@@ -66,8 +66,6 @@ public final class Constants {
         public static final double TURRET_PITCH_A = 0; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(10);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
-        
-        
 
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(90);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(45);
@@ -79,6 +77,8 @@ public final class Constants {
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
+
+        public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_UPPER_LIMIT;
     }
 
     public final class ShooterConstants {
