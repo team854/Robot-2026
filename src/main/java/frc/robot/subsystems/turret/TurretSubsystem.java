@@ -71,10 +71,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         super(TurretState.IDLE);
 
         this.io = io;
-
-        if (Constants.TurretConstants.ENABLED) {
-
-        }
     }
 
     public void setTurretYaw(Angle angle) {

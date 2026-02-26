@@ -24,6 +24,9 @@ import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
+import frc.robot.subsystems.turret.KickerIO;
+import frc.robot.subsystems.turret.KickerIOReal;
+import frc.robot.subsystems.turret.KickerSubsystem;
 import frc.robot.subsystems.turret.ShooterIO;
 import frc.robot.subsystems.turret.ShooterIOReal;
 import frc.robot.subsystems.turret.ShooterSubsystem;
@@ -42,6 +45,9 @@ public class RobotContainer {
 	);
 	public static final TurretSubsystem turretSubsystem = new TurretSubsystem(
 		Constants.TurretConstants.ENABLED ? new TurretIOReal() : new TurretIO() {}
+	);
+	public static final KickerSubsystem kickerSubsystem = new KickerSubsystem(
+		Constants.ShooterConstants.ENABLED ? new KickerIOReal() : new KickerIO() {}
 	);
 	public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();

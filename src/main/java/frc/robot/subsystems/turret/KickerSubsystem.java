@@ -19,32 +19,18 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         READY,
     }
 
-    private SparkMaxConfig kickerConfig;
-    private SparkMax kickerMotor;
+    private final KickerIO io;
 
-    public KickerSubsystem() {
+    public KickerSubsystem(KickerIO io) {
         super(KickerState.IDLE);
 
-        if (Constants.KickerConstants.ENABLED) {
-            kickerMotor = new SparkMax(Constants.KickerConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
-
-            kickerConfig = new SparkMaxConfig();
-            kickerConfig.idleMode(IdleMode.kCoast);
-            kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
-            kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        }
+        this.io = io;
     }
 
     @Override
     public void periodic() {
-        if (Constants.KickerConstants.ENABLED == false) {
-            return;
-        }
-
         switch (getCurrentState()) {
             case IDLE:
-                kickerMotor.set(0);
-
                 if (getDesiredState() == KickerState.READY_REVERSE) {
                     transitionTo(KickerState.READY_REVERSE);
                 } else if (getDesiredState() == KickerState.READY) {
@@ -52,8 +38,6 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 }
                 break;
             case READY_REVERSE:
-                kickerMotor.set(-1);
-                
                 if (getDesiredState() == KickerState.READY) {
                     transitionTo(KickerState.READY);
                 } else if (getDesiredState() == KickerState.IDLE) {
@@ -62,14 +46,24 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
                 break;
             case READY:
-                kickerMotor.set(1);
-                
                 if (getDesiredState() == KickerState.READY_REVERSE) {
                     transitionTo(KickerState.READY_REVERSE);
                 } else if (getDesiredState() == KickerState.IDLE) {
                     transitionTo(KickerState.IDLE);
                 }
 
+                break;
+        }
+
+        switch (getCurrentState()) {
+            case IDLE:
+                io.setMotorVoltage(0);
+                break;
+            case READY_REVERSE:
+                io.setMotorVoltage(-12);
+                break;
+            case READY:
+                io.setMotorVoltage(12);
                 break;
         }
     }
