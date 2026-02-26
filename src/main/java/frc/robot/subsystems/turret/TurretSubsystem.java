@@ -5,15 +5,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -40,9 +31,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         READY
     }
 
-    private SparkMax turretYawMotor; 
-    private RelativeEncoder turretYawEncoder;
-    private SparkMaxConfig turretYawConfig;
+    private final TurretIO io;
+
+    
     private final ProfiledPIDController turretYawPID = new ProfiledPIDController(
         Constants.TurretConstants.TURRET_YAW_P,
         Constants.TurretConstants.TURRET_YAW_I,
@@ -59,10 +50,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     );
     private double turretPrevYawSetpointVelocity = 0;
 
-
-    private SparkMax turretPitchMotor;
-    private AbsoluteEncoder turretPitchAbsoluteEncoder;
-    private SparkMaxConfig turretPitchConfig;
     private final ProfiledPIDController turretPitchPID = new ProfiledPIDController(
         Constants.TurretConstants.TURRET_PITCH_P,
         Constants.TurretConstants.TURRET_PITCH_I,
@@ -80,33 +67,13 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     );
     private double turretPrevPitchSetpointVelocity = 0;
 
-    public TurretSubsystem() {
+    public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE);
 
+        this.io = io;
 
         if (Constants.TurretConstants.ENABLED) {
-            turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
-            turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
 
-            turretYawEncoder = turretYawMotor.getEncoder();
-            turretPitchAbsoluteEncoder = turretPitchMotor.getAbsoluteEncoder();
-
-            // Configure motors
-            turretYawConfig = new SparkMaxConfig();
-            turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
-            double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
-            turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
-            turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
-            turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-            turretPitchConfig = new SparkMaxConfig();
-            turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
-            double pitchConversionFactor = (2.0 * Math.PI);
-            turretPitchConfig.absoluteEncoder.positionConversionFactor(pitchConversionFactor);
-            turretPitchConfig.absoluteEncoder.velocityConversionFactor(pitchConversionFactor / 60.0);
-            turretPitchConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
-            turretPitchConfig.absoluteEncoder.zeroOffset(Constants.TurretConstants.TURRET_PITCH_ZERO_OFFSET);
-            turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
     }
 
@@ -135,19 +102,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     public Angle getTurretYaw() {
-        if (Constants.TurretConstants.ENABLED == false) {
-            return Radian.of(0);
-        }
-
-        return Radian.of(turretYawEncoder.getPosition());
+        return Radian.of(io.getYawRadians());
     }
 
     public Angle getTurretPitch() {
-        if (Constants.TurretConstants.ENABLED == false) {
-            return Radian.of(0);
-        }
-
-        return Radian.of(turretPitchAbsoluteEncoder.getPosition());
+        return Radian.of(io.getPitchRadians());
     }
 
     public Angle getTurretPointAngle(Angle globalAngle) {
@@ -168,139 +127,158 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretPrevYawSetpointVelocity = 0;
     }
 
-    private double[] calculateTurretVoltage() {
-        double turretYawVoltage = turretYawPID.calculate(turretYawEncoder.getPosition());
+    private double calculateTurretYawVoltage() {
+        double turretYawVoltage = turretYawPID.calculate(io.getYawRadians());
         TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
         turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
         turretYawVoltage = MathUtil.clamp(
             turretYawVoltage, 
-        -10.0, 
-        10.0
+            -10.0, 
+            10.0
         );
         turretPrevYawSetpointVelocity = turretYawState.velocity;
 
-        double turretPitchVoltage = turretPitchPID.calculate(turretPitchAbsoluteEncoder.getPosition());
+        return turretYawVoltage;
+    }
+
+    private double caclulateTurretPitchVoltage() {
+        double turretPitchVoltage = turretPitchPID.calculate(io.getPitchRadians());
         TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
         turretPitchVoltage += turretPitchFF.calculateWithVelocities(turretPitchState.position, turretPrevPitchSetpointVelocity, turretPitchState.velocity);
         turretPitchVoltage = MathUtil.clamp(
             turretPitchVoltage, 
             -10.0, 
-            10.0
+        10.0
         );
         turretPrevPitchSetpointVelocity = turretPitchState.velocity;
 
-        return new double[]{turretYawVoltage, turretPitchVoltage};
+        return turretPitchVoltage;
     }
 
     @Override
-    public void periodic() {
-        if (Constants.TurretConstants.ENABLED) {
-
-            double[] turretVoltage = new double[]{0, 0};
-
-            // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, or READY
-            if (getDesiredState() == TurretState.AIMING) {
-                setDesiredState(TurretState.IDLE);
-            }
-
-            switch (getCurrentState()) {
-                case IDLE:
-                    turretVoltage = new double[]{0, 0};
-
-                    if (getDesiredState() == TurretState.READY) {
-                        resetTurretPitch();
-                        resetTurretYaw();
-                        transitionTo(TurretState.AIMING);
-                    } else if (getDesiredState() == TurretState.STOWED) {
-                        resetTurretPitch();
-                        resetTurretYaw();
-                        transitionTo(TurretState.STOWED);
-                    } else if (getDesiredState() == TurretState.HOMING) {
-                        resetTurretPitch();
-                        resetTurretYaw();
-                        transitionTo(TurretState.HOMING);
-                    }
-
-                    break;
-                case HOMING:
-                    // TODO
-
-                    if (getDesiredState() == TurretState.IDLE) {
-                        transitionTo(TurretState.IDLE);
-                    } else if (getDesiredState() == TurretState.STOWED) {
-                        resetTurretPitch();
-                        resetTurretYaw();
-                        transitionTo(TurretState.STOWED);
-                    } else if (getDesiredState() == TurretState.READY) {
-                        resetTurretPitch();
-                        resetTurretYaw();
-                        transitionTo(TurretState.AIMING);
-                    }
-
-                    break;
-
-                case STOWED:
-                    // Only stow pitch as that is the only attribute that affects height
-                    setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);    
-                    turretVoltage = calculateTurretVoltage();
-
-                    if (getDesiredState() == TurretState.IDLE) {
-                        transitionTo(TurretState.IDLE);
-                    } else if (getDesiredState() == TurretState.HOMING) {
-                        transitionTo(TurretState.HOMING);
-                    } else if (getDesiredState() == TurretState.READY) {
-                        transitionTo(TurretState.AIMING);
-                    }
-                    break;
-
-                case AIMING:
-                    turretVoltage = calculateTurretVoltage();
-
-                    if (getDesiredState() == TurretState.IDLE) {
-                        transitionTo(TurretState.IDLE);
-                    } else if (getDesiredState() == TurretState.STOWED) {
-                        transitionTo(TurretState.STOWED);
-                    } else if (getDesiredState() == TurretState.HOMING) {
-                        transitionTo(TurretState.HOMING);
-                    } else if (
-                        Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) <= TURRET_THRESHOLD &&
-                        Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) <= TURRET_THRESHOLD
-                    ) {
-                        transitionTo(TurretState.READY);
-                    }
-
-                    break;
-
-                case READY:
-                    turretVoltage = calculateTurretVoltage();
-
-                     if (getDesiredState() == TurretState.IDLE) {
-                        transitionTo(TurretState.IDLE);
-                    } else if (getDesiredState() == TurretState.STOWED) {
-                        transitionTo(TurretState.STOWED);
-                    } else if (getDesiredState() == TurretState.HOMING) {
-                        transitionTo(TurretState.HOMING);
-                    } else if (
-                        Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= (TURRET_THRESHOLD + 0.02) ||
-                        Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (TURRET_THRESHOLD + 0.02)
-                    ) {
-                        transitionTo(TurretState.AIMING);
-                    }
-
-                    break;
-            }
-
-            turretYawMotor.setVoltage(turretVoltage[0]);
-            turretPitchMotor.setVoltage(turretVoltage[1]);
-
-            SmartDashboard.putNumber("Turret/Yaw Voltage", turretVoltage[0]);
-            SmartDashboard.putNumber("Turret/Pitch Voltage", turretVoltage[1]);
-
-            SmartDashboard.putNumber("Turret/Current Yaw", turretYawEncoder.getPosition() * (180 / Math.PI));
-            SmartDashboard.putNumber("Turret/Current Pitch", turretPitchAbsoluteEncoder.getPosition() * (180 / Math.PI));
-
-            SmartDashboard.putString("Turret/Current State", getCurrentState().name());
-            SmartDashboard.putString("Turret/Desired State", getDesiredState().name());
+public void periodic() {
+        // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, or READY
+        if (getDesiredState() == TurretState.AIMING) {
+            setDesiredState(TurretState.IDLE);
         }
+
+        switch (getCurrentState()) {
+            case IDLE:
+                if (getDesiredState() == TurretState.READY) {
+                    resetTurretPitch();
+                    resetTurretYaw();
+                    transitionTo(TurretState.AIMING);
+                } else if (getDesiredState() == TurretState.STOWED) {
+                    resetTurretPitch();
+                    resetTurretYaw();
+                    transitionTo(TurretState.STOWED);
+                } else if (getDesiredState() == TurretState.HOMING) {
+                    resetTurretPitch();
+                    resetTurretYaw();
+                    transitionTo(TurretState.HOMING);
+                }
+
+                break;
+            case HOMING:
+                // TODO
+
+                if (getDesiredState() == TurretState.IDLE) {
+                    transitionTo(TurretState.IDLE);
+                } else if (getDesiredState() == TurretState.STOWED) {
+                    resetTurretPitch();
+                    resetTurretYaw();
+                    transitionTo(TurretState.STOWED);
+                } else if (getDesiredState() == TurretState.READY) {
+                    resetTurretPitch();
+                    resetTurretYaw();
+                    transitionTo(TurretState.AIMING);
+                }
+
+                break;
+
+            case STOWED:
+                if (getDesiredState() == TurretState.IDLE) {
+                    transitionTo(TurretState.IDLE);
+                } else if (getDesiredState() == TurretState.HOMING) {
+                    transitionTo(TurretState.HOMING);
+                } else if (getDesiredState() == TurretState.READY) {
+                    transitionTo(TurretState.AIMING);
+                }
+                break;
+
+            case AIMING:
+                if (getDesiredState() == TurretState.IDLE) {
+                    transitionTo(TurretState.IDLE);
+                } else if (getDesiredState() == TurretState.STOWED) {
+                    transitionTo(TurretState.STOWED);
+                } else if (getDesiredState() == TurretState.HOMING) {
+                    transitionTo(TurretState.HOMING);
+                } else if (
+                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) <= TURRET_THRESHOLD &&
+                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) <= TURRET_THRESHOLD
+                ) {
+                    transitionTo(TurretState.READY);
+                }
+
+                break;
+
+            case READY:
+                if (getDesiredState() == TurretState.IDLE) {
+                    transitionTo(TurretState.IDLE);
+                } else if (getDesiredState() == TurretState.STOWED) {
+                    transitionTo(TurretState.STOWED);
+                } else if (getDesiredState() == TurretState.HOMING) {
+                    transitionTo(TurretState.HOMING);
+                } else if (
+                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= (TURRET_THRESHOLD + 0.02) ||
+                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (TURRET_THRESHOLD + 0.02)
+                ) {
+                    transitionTo(TurretState.AIMING);
+                }
+
+                break;
+        }
+
+        double turretYawVoltage = 0.0;
+        double turretPitchVoltage = 0.0;
+        switch (getCurrentState()) {
+            case IDLE:
+                turretYawVoltage = 0.0;
+                turretPitchVoltage = 0.0;
+                break;
+                
+            case HOMING:
+                // TODO
+                turretYawVoltage = 0.0;
+                turretPitchVoltage = 0.0;
+                break;
+
+            case STOWED:
+                // Only stow pitch as that is the only attribute that affects height
+                setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);
+                turretYawVoltage = calculateTurretYawVoltage();
+                turretPitchVoltage = caclulateTurretPitchVoltage();
+                break;
+            case AIMING:
+                turretYawVoltage = calculateTurretYawVoltage();
+                turretPitchVoltage = caclulateTurretPitchVoltage();
+                break;
+            case READY:
+                turretYawVoltage = calculateTurretYawVoltage();
+                turretPitchVoltage = caclulateTurretPitchVoltage();
+                break;
+        }
+
+        io.setYawMotorVoltage(turretYawVoltage);
+        io.setPitchMotorVoltage(turretPitchVoltage);
+
+        SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
+        SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);
+
+        SmartDashboard.putNumber("Turret/Current Yaw", io.getYawRadians() * (180 / Math.PI));
+        SmartDashboard.putNumber("Turret/Current Pitch", io.getPitchRadians() * (180 / Math.PI));
+
+        SmartDashboard.putString("Turret/Current State", getCurrentState().name());
+        SmartDashboard.putString("Turret/Desired State", getDesiredState().name());
     }
 }

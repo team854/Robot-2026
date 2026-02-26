@@ -31,7 +31,7 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             kickerConfig = new SparkMaxConfig();
             kickerConfig.idleMode(IdleMode.kCoast);
             kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
-            kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+            kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
     }
 

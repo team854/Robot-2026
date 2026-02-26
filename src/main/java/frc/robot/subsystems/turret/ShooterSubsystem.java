@@ -1,29 +1,15 @@
 package frc.robot.subsystems.turret;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
 
@@ -36,13 +22,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
         READY
     }
 
-    private SparkMaxConfig shooterConfig1;
-    private SparkMaxConfig shooterConfig2;
-    private SparkMax shooterMotor1;
-    private SparkMax shooterMotor2;
-
-    private RelativeEncoder shooterEncoder1;
-    private RelativeEncoder shooterEncoder2;
+    private final ShooterIO io;
 
     private final ProfiledPIDController shooterPID = new ProfiledPIDController(
         Constants.ShooterConstants.SHOOTER_P,
@@ -62,30 +42,10 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
     private double shooterPrevSetpointVelocity = 0;
 
-    public ShooterSubsystem() {
+    public ShooterSubsystem(ShooterIO io) {
         super(ShooterState.IDLE);
 
-        if (Constants.ShooterConstants.ENABLED) { 
-            shooterMotor1 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_1_ID, MotorType.kBrushless);
-            shooterMotor2 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_2_ID, MotorType.kBrushless);
-
-            shooterEncoder1 = shooterMotor1.getEncoder();
-            shooterEncoder2 = shooterMotor2.getEncoder();
-
-            double velocityConversionFactor = (1.0 / 60.0) * Constants.ShooterConstants.SHOOTER_GEAR_RATIO; // Convert from RPM to RPS
-
-            shooterConfig1 = new SparkMaxConfig();
-            shooterConfig1.idleMode(IdleMode.kCoast);
-            shooterConfig1.inverted(Constants.ShooterConstants.SHOOTER_MOTOR_1_INVERTED);
-            shooterConfig1.encoder.velocityConversionFactor(velocityConversionFactor);
-            shooterMotor1.configure(shooterConfig1, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
-            shooterConfig2 = new SparkMaxConfig();
-            shooterConfig2.idleMode(IdleMode.kCoast);
-            shooterConfig2.inverted(Constants.ShooterConstants.SHOOTER_MOTOR_2_INVERTED);
-            shooterConfig2.encoder.velocityConversionFactor(velocityConversionFactor); // One of these might need to be inverted
-            shooterMotor2.configure(shooterConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        }
+        this.io = io;
     }
 
     public void setTargetSpeed(AngularVelocity speed) {
@@ -99,14 +59,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     }
 
     public AngularVelocity getSpeed() {
-        if (shooterEncoder1 == null || shooterEncoder2 == null) {
-            return RotationsPerSecond.of(0);
-        } 
-        
-        double speed1 = shooterEncoder1.getVelocity();
-        double speed2 = shooterEncoder2.getVelocity();
-
-        return RotationsPerSecond.of((speed1 + speed2) / 2.0);
+        return RotationsPerSecond.of((io.getMotor1RPS() + io.getMotor2RPS()) / 2.0);
     }
 
     public void resetShooter() {
@@ -135,28 +88,20 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
     @Override
     public void periodic() {
-        
-        if (Constants.ShooterConstants.ENABLED == false) {
-            return;
-        }
         // Safety Check as the desired state should only ever IDLE or READY
         if (getDesiredState() == ShooterState.SPOOLING) {
             setDesiredState(ShooterState.IDLE);
         }
         
-        double shooterVoltage = 0.0;
+        
         switch (getCurrentState()) {
             case IDLE:
-                shooterVoltage = 0.0;
-
                 if (getDesiredState() == ShooterState.READY) {
                     resetShooter();
                     transitionTo(ShooterState.SPOOLING);
                 }
                 break;
             case SPOOLING:
-                shooterVoltage = calculateShooterVoltage();
-
                 if (getDesiredState() == ShooterState.IDLE) {
                     transitionTo(ShooterState.IDLE);
                 } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) < SHOOTER_THRESHOLD) {
@@ -165,8 +110,6 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
                 break;
             case READY:
-                shooterVoltage = calculateShooterVoltage();
-
                 if (getDesiredState() == ShooterState.IDLE) {
                     transitionTo(ShooterState.IDLE);
                 } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) > (SHOOTER_THRESHOLD + 0.1)) {
@@ -175,13 +118,26 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
                 break;
         }
-        shooterMotor1.setVoltage(shooterVoltage);
-        shooterMotor2.setVoltage(shooterVoltage);
+
+        double shooterVoltage = 0.0;
+        switch (getCurrentState()) {
+            case IDLE:
+                shooterVoltage = 0.0;
+                break;
+            case SPOOLING:
+                shooterVoltage = calculateShooterVoltage();
+                break;
+            case READY:
+                shooterVoltage = calculateShooterVoltage();
+                break;
+        }
+
+        io.setMotorsVoltage(shooterVoltage);
 
         SmartDashboard.putNumber("Shooter/Motor Voltage", shooterVoltage);
 
-        SmartDashboard.putNumber("Shooter/Motor 1 Speed", shooterEncoder1.getVelocity() * 60.0);
-        SmartDashboard.putNumber("Shooter/Motor 2 Speed", shooterEncoder2.getVelocity() * 60.0);
+        SmartDashboard.putNumber("Shooter/Motor 1 Speed", io.getMotor1RPS() * 60.0);
+        SmartDashboard.putNumber("Shooter/Motor 2 Speed", io.getMotor2RPS() * 60.0);
 
         SmartDashboard.putString("Shooter/Current State", getCurrentState().name());
         SmartDashboard.putString("Shooter/Desired State", getDesiredState().name());
