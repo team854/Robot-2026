@@ -14,15 +14,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class LightSubsystem extends SubsystemBase {
-    private final AddressableLED ledStrip = new AddressableLED(9);
+    private final AddressableLED ledStrip = new AddressableLED(Constants.LightConstants.LIGHT_PORT);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(Constants.LightConstants.LIGHT_LENGTH);
-    private final LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+    private final LEDPattern rainbow = LEDPattern.rainbow(255, 128).scrollAtRelativeSpeed(Hertz.of(1));
 
     public LightSubsystem() {
         ledStrip.setLength(Constants.LightConstants.LIGHT_LENGTH);
+        rainbow.applyTo(ledBuffer);
+        ledStrip.setData(ledBuffer);
         ledStrip.start();
-
-        rainbow.scrollAtRelativeSpeed(Hertz.of(1));
     }
 
     @Override
