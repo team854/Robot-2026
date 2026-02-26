@@ -43,7 +43,7 @@ public final class Constants {
         public static final int TURRET_YAW_MOTOR_ID = 10;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
         public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
-        public static final double TURRET_YAW_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the turret
+        public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 14.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_P = 0;
         public static final double TURRET_YAW_I = 0;
         public static final double TURRET_YAW_D = 0;

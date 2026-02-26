@@ -17,12 +17,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.ManualAimCommand;
 import frc.robot.commands.TurretAutoAimCommand;
 import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.lights.LightSubsystem;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
 import frc.robot.subsystems.turret.KickerIO;
 import frc.robot.subsystems.turret.KickerIOReal;
@@ -53,6 +55,7 @@ public class RobotContainer {
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final ProjectileSimulation projectileSimulation = new ProjectileSimulation();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
+	public static final LightSubsystem lightSubsystem = new LightSubsystem();
 
 	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 	
@@ -125,7 +128,7 @@ public class RobotContainer {
 		}
 
 		if (Constants.TurretConstants.ENABLED) {
-			turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+			turretSubsystem.setDefaultCommand(new ManualAimCommand());
 		}
 
 
