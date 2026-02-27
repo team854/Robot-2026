@@ -27,6 +27,8 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
     public static class SwerveConstants {
@@ -43,7 +45,7 @@ public final class Constants {
         public static final int TURRET_YAW_MOTOR_ID = 10;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
         public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
-        public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 14.0; // Rotations of the motor for one rotation of the turret
+        public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_P = 0;
         public static final double TURRET_YAW_I = 0;
         public static final double TURRET_YAW_D = 0;
@@ -109,12 +111,21 @@ public final class Constants {
     public final class LightConstants {
         public static final int LIGHT_PORT = 9;
         public static final int LIGHT_LENGTH = 10;
+
+        public static final LEDPattern CAN_HIT_TARGET = LEDPattern.solid(Color.fromHSV(165, 100, 100));
+        public static final LEDPattern CANNOT_HIT_TARGET = LEDPattern.solid(Color.fromHSV(359, 100, 100));
     }
 
     public final class KickerConstants {
         public static final boolean ENABLED = false;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
+    }
+
+    public final class SpindexerConstants {
+        public static final boolean ENABLED = false;
+        public static final int SPINDEXER_MOTOR_ID = 29;
+        public static final boolean SPINDEXER_MOTOR_INVERTED = false;
     }
 
     public final class OperatorConstants {
