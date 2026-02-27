@@ -11,8 +11,8 @@ import frc.robot.Constants;
 
 public class KickerIOReal implements KickerIO {
     
-    private SparkMaxConfig kickerConfig;
-    private SparkMax kickerMotor;
+    private final SparkMaxConfig kickerConfig;
+    private final SparkMax kickerMotor;
 
     public KickerIOReal() {
         kickerMotor = new SparkMax(Constants.KickerConstants.KICKER_MOTOR_ID, MotorType.kBrushless);

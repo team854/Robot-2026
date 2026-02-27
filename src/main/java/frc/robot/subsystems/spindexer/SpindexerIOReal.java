@@ -10,8 +10,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants;
 
 public class SpindexerIOReal implements SpindexerIO {
-    private SparkMaxConfig spindexerConfig;
-    private SparkMax spindexerMotor;
+    private final SparkMaxConfig spindexerConfig;
+    private final SparkMax spindexerMotor;
 
     public SpindexerIOReal() {
         spindexerMotor = new SparkMax(Constants.SpindexerConstants.SPINDEXER_MOTOR_ID, MotorType.kBrushless);

@@ -34,8 +34,32 @@ public class LightSubsystem extends SubsystemStateMachine<frc.robot.subsystems.l
 
     @Override
     public void periodic() {
-        transitionTo(getDesiredState());
+        switch (getCurrentState()) {
+            case OFF:
+                transitionTo(getDesiredState());
+                break;
+            case RED:
+                transitionTo(getDesiredState());
+                break;
+            case GREEN:
+                transitionTo(getDesiredState());
+                break;
+        }
 
+        LEDPattern ledPattern = LEDPattern.kOff;
+
+        switch (getCurrentState()) {
+            case OFF:
+                break;
+            case RED:
+                ledPattern = Constants.LightConstants.RED;
+                break;
+            case GREEN:
+                ledPattern = Constants.LightConstants.GREEN;
+                break;
+        }
+
+        ledPattern.applyTo(ledBuffer);
         ledStrip.setData(ledBuffer);
     }
 }

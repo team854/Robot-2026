@@ -12,9 +12,9 @@ import frc.robot.Constants;
 
 public class TurretIOReal implements TurretIO {
 
-    private SparkMax turretYawMotor; 
-    private RelativeEncoder turretYawEncoder;
-    private SparkMaxConfig turretYawConfig;
+    private final SparkMax turretYawMotor; 
+    private final RelativeEncoder turretYawEncoder;
+    private final SparkMaxConfig turretYawConfig;
 
     /*
     private SparkMax turretPitchMotor;

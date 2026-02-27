@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Pound;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
@@ -112,8 +113,8 @@ public final class Constants {
         public static final int LIGHT_PORT = 9;
         public static final int LIGHT_LENGTH = 10;
 
-        public static final LEDPattern CAN_HIT_TARGET = LEDPattern.solid(Color.fromHSV(165, 100, 100));
-        public static final LEDPattern CANNOT_HIT_TARGET = LEDPattern.solid(Color.fromHSV(359, 100, 100));
+        public static final LEDPattern GREEN = LEDPattern.solid(Color.fromHSV(165, 100, 100));
+        public static final LEDPattern RED = LEDPattern.solid(Color.fromHSV(359, 100, 100));
     }
 
     public final class KickerConstants {
@@ -133,6 +134,20 @@ public final class Constants {
         public static final double SWERVE_TRANSLATION_SCALE = 1;
         public static final double SWERVE_ROTATION_SCALE = 1;
         public static final int DRIVER_CONTROLLER_PORT = 0;
+    }
+
+    public final class IntakeConstants {
+        public static final boolean ENABLED = false;
+
+        public static final int INTAKE_DEPLOYMENT_MOTOR_ID = 13;
+        public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED = false;
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(6.0);
+
+        public static final int INTAKE_MOTOR_ID = 14;
+        public static final boolean INTAKE_MOTOR_INVERTED = false;
+
+        public static final int INTAKE_RETRACTED_SENSOR_ID = 15;
+        public static final int INTAKE_DEPLOYED_SENSOR_ID = 16;
     }
 
     public final class FuelPhysicsConstants {

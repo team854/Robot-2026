@@ -23,6 +23,11 @@ import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.intake.IntakeDeploymentIO;
+import frc.robot.subsystems.intake.IntakeDeploymentIOReal;
+import frc.robot.subsystems.intake.IntakeDeploymentSubsystem;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
@@ -51,7 +56,12 @@ public class RobotContainer {
 	public static final KickerSubsystem kickerSubsystem = new KickerSubsystem(
 		Constants.ShooterConstants.ENABLED ? new KickerIOReal() : new KickerIO() {}
 	);
-	public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(
+		Constants.IntakeConstants.ENABLED ? new IntakeIOReal() : new IntakeIO() {}
+	);
+	public static final IntakeDeploymentSubsystem intakeDeploymentSubsystem = new IntakeDeploymentSubsystem(
+		Constants.IntakeConstants.ENABLED ? new IntakeDeploymentIOReal() : new IntakeDeploymentIO() {}
+	);
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final ProjectileSimulation projectileSimulation = new ProjectileSimulation();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
@@ -141,5 +151,9 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return Commands.print("No autonomous command configured");
+	}
+
+	public void periodic() {
+		
 	}
 }

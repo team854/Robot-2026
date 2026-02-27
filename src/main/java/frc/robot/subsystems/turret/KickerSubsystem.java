@@ -18,7 +18,7 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         READY_REVERSE,
         READY,
     }
-
+    
     private final KickerIO io;
 
     public KickerSubsystem(KickerIO io) {

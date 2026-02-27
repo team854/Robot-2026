@@ -11,13 +11,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants;
 
 public class ShooterIOReal implements ShooterIO {
-    private SparkMaxConfig shooterConfig1;
-    private SparkMaxConfig shooterConfig2;
-    private SparkMax shooterMotor1;
-    private SparkMax shooterMotor2;
+    private final SparkMaxConfig shooterConfig1;
+    private final SparkMaxConfig shooterConfig2;
+    private final SparkMax shooterMotor1;
+    private final SparkMax shooterMotor2;
 
-    private RelativeEncoder shooterEncoder1;
-    private RelativeEncoder shooterEncoder2;
+    private final RelativeEncoder shooterEncoder1;
+    private final RelativeEncoder shooterEncoder2;
 
     public ShooterIOReal() {
         shooterMotor1 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_1_ID, MotorType.kBrushless);
