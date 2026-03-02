@@ -167,9 +167,9 @@ public final class Constants {
         public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
         public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
         public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.9);
-        public static final Distance PASS_SIDE_DISTANCE = Meter.of(3);
+        public static final Distance PASS_SIDE_DISTANCE = Meter.of(3.25);
         public static final Distance PASS_OFFSET = Meter.of(2);
-        public static final Distance TRENCH_OFFSET = Meter.of(2);
+        public static final Distance TRENCH_OFFSET = Meter.of(3);
         public static final Distance TRENCH_RADIUS = Meter.of(1);
     }
 }
