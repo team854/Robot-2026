@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ManualAimCommand;
+import frc.robot.commands.ManualAimVotageCommand;
 import frc.robot.commands.TurretAutoAimCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
@@ -105,7 +106,7 @@ public class RobotContainer {
 		}
 
 		if (Constants.TurretConstants.ENABLED) {
-			turretAutoAimCommand = new ManualAimCommand();
+			turretAutoAimCommand = new ManualAimVotageCommand();
 		}
 
 		registerCommands();
