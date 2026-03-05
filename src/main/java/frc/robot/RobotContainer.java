@@ -10,6 +10,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -20,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ManualAimCommand;
 import frc.robot.commands.TurretAutoAimCommand;
+import frc.robot.commands.intake.DeployIntakeCommand;
+import frc.robot.commands.intake.RetractIntakeCommand;
+import frc.robot.commands.kicker.ActivateKickerCommand;
 import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
@@ -99,6 +105,8 @@ public class RobotContainer {
 			turretAutoAimCommand = new TurretAutoAimCommand();
 		}
 
+		registerCommands();
+
 		configureBindings();
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
@@ -133,6 +141,13 @@ public class RobotContainer {
 		}
 		*/
 		
+	}
+
+	private void registerCommands() {
+		NamedCommands.registerCommand("RetractIntakeCommand", new RetractIntakeCommand());
+		NamedCommands.registerCommand("DeployIntakeCommand", new DeployIntakeCommand());
+
+		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
 	}
 
 	private void configureBindings() {

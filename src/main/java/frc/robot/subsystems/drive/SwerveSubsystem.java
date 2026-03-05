@@ -8,7 +8,13 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -18,6 +24,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -33,6 +40,8 @@ public class SwerveSubsystem extends SubsystemBase{
         0.0,
         Constants.SwerveConstants.GYRO_OFFSET.in(Radian)
     );
+
+
 
     public SwerveSubsystem() {
         if (Constants.SwerveConstants.ENABLED) {
@@ -53,7 +62,46 @@ public class SwerveSubsystem extends SubsystemBase{
             }
 
             swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
+            swerveDrive.chassisVelocityCorrection = true;
+            swerveDrive.setChassisDiscretization(true, 0.02);
             swerveDrive.setGyroOffset(gyroOffset);
+
+
+            RobotConfig config;
+            try {
+                config = RobotConfig.fromGUISettings();
+            } catch (Exception e) {
+                DriverStation.reportError("Failed to load PathPlanner config", true);
+                e.printStackTrace();
+                return;
+            }
+
+            AutoBuilder.configure(
+                this::getPose2d,                 // Pose2d supplier
+                this::resetOdometry,               // Pose2d consumer, used to reset odometry at the beginning of auto
+                this::getRobotChassisSpeeds,  // ChassisSpeeds supplier (MUST BE ROBOT-RELATIVE)
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Drive method (MUST BE ROBOT-RELATIVE)
+                new PPHolonomicDriveController(
+                    new PIDConstants(Constants.SwerveConstants.DRIVE_P, Constants.SwerveConstants.DRIVE_I, Constants.SwerveConstants.DRIVE_D), // Translation PID constants
+                    new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)  // Rotation PID constants
+                ),
+                config, 
+                () -> {
+                    // Boolean supplier that controls whether paths should be mirrored based on alliance color
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+            );
+        }
+    }
+
+    public void resetOdometry(Pose2d initialPose) {
+        if (Constants.SwerveConstants.ENABLED) {
+            swerveDrive.resetOdometry(initialPose);
         }
     }
 
@@ -84,6 +132,14 @@ public class SwerveSubsystem extends SubsystemBase{
         return swerveDrive.getRobotVelocity();
     }
 
+    public ChassisSpeeds getRobotChassisSpeeds() {
+        if (Constants.SwerveConstants.ENABLED == false) {
+            return new ChassisSpeeds();
+        } 
+
+        return swerveDrive.getRobotVelocity();
+    }
+
     public ChassisSpeeds getFieldChassisSpeeds() {
         if (Constants.SwerveConstants.ENABLED == false) {
             return new ChassisSpeeds();
@@ -100,7 +156,7 @@ public class SwerveSubsystem extends SubsystemBase{
         swerveDrive.driveFieldOriented(speeds);
     }
 
-    public Angle getNavXAngle() {
+    public Angle getAngle() {
         if (Constants.SwerveConstants.ENABLED == false) {
             return Degree.of(0);
         }
@@ -108,7 +164,7 @@ public class SwerveSubsystem extends SubsystemBase{
         return Degree.of(swerveDrive.getYaw().getDegrees());
     }
 
-    public AngularVelocity getNavXVelocity() {
+    public AngularVelocity getAngularVelocity() {
         if (Constants.SwerveConstants.ENABLED == false) {
             return RadiansPerSecond.of(0);
         }
@@ -131,6 +187,15 @@ public class SwerveSubsystem extends SubsystemBase{
 
         swerveDrive.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
     }
+
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        if (Constants.SwerveConstants.ENABLED == false) {
+            return;
+        }
+
+        swerveDrive.setChassisSpeeds(speeds); 
+    }
+
 
     public Command driveFieldOriented(Supplier<ChassisSpeeds> speeds) {
         if (Constants.SwerveConstants.ENABLED == false) {

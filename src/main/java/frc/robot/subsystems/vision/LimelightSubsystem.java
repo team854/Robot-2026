@@ -27,7 +27,7 @@ public class LimelightSubsystem extends SubsystemBase {
     public void periodic() {
         double robotAngle = RobotContainer.swerveSubsystem.getPose2d().getRotation().getDegrees();
 
-        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getNavXVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getAngularVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
         
         getVisionEstimate();
     }
