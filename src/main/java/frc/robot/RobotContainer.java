@@ -181,9 +181,6 @@ public class RobotContainer {
     }
 
 	public Command getAutonomousCommand() {
-		if (Constants.SwerveConstants.ENABLED == false) {
-			return Commands.run(() -> {});
-		}
 		return autoChooser.getSelected();
 	}
 
