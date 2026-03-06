@@ -67,7 +67,7 @@ public class Robot extends LoggedRobot {
 		m_autonomousCommand = robotContainer.getAutonomousCommand();
 
 		if (m_autonomousCommand != null) {
-			m_autonomousCommand.schedule();
+			CommandScheduler.getInstance().schedule(m_autonomousCommand);
 		}
 
 		robotContainer.initAll();
@@ -86,7 +86,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void teleopInit() {
 		if (m_autonomousCommand != null) {
-			m_autonomousCommand.cancel();
+			CommandScheduler.getInstance().cancel(m_autonomousCommand);
 		}
 
 		robotContainer.initAll();
