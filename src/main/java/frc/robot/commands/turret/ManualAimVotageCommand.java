@@ -1,30 +1,30 @@
-package frc.robot.commands;
+package frc.robot.commands.turret;
 
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Volt;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
-public class ManualAimCommand extends Command {
+public class ManualAimVotageCommand extends Command {
+    
 
 
-
-    public ManualAimCommand() {
+    public ManualAimVotageCommand() {
         addRequirements(RobotContainer.turretSubsystem);
     }
     
     @Override
     public void initialize() {
-        SmartDashboard.putNumber("Turret/TargetYawAngle", 0);
+        SmartDashboard.putNumber("Turret/TargetYawVoltage", 0);
     }
 
     @Override
     public void execute() {
         //System.out.println(SmartDashboard.getNumber("Turret/TargetYawAngle", 0));
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
-        RobotContainer.turretSubsystem.setTurretYaw(Degree.of(SmartDashboard.getNumber("Turret/TargetYawAngle", 0)));
+        RobotContainer.turretSubsystem.setOverrideState(TurretState.MANUAL);
+        RobotContainer.turretSubsystem.setOverrideVoltages(Volt.of(SmartDashboard.getNumber("Turret/TargetYawVoltage", 0)),Volt.of(0));
     }
 
     @Override
@@ -35,6 +35,6 @@ public class ManualAimCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 0);
+        RobotContainer.turretSubsystem.setOverrideState(null);
     }
 }

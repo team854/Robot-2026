@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volt;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
@@ -101,5 +102,10 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
         }
 
         io.setDeploymentMotorVoltage(intakeDeploymentVoltage);
+
+        SmartDashboard.putNumber("Intake Deployment/Voltage", intakeDeploymentVoltage);
+
+        SmartDashboard.putString("Intake Deployment/Current State", getCurrentState().name());
+        SmartDashboard.putString("Intake Deployment/Desired State", getDesiredState().name());
     }
 }

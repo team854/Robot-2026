@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.turret;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volt;

@@ -59,6 +59,7 @@ public final class Constants {
         public static final double TURRET_YAW_A = 0.026; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
+        public static final int TURRET_YAW_HOMING_SENSOR_DIO = 0;
 
         public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;

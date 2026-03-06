@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class TurretIOReal implements TurretIO {
@@ -17,12 +18,15 @@ public class TurretIOReal implements TurretIO {
     private final SparkMax turretYawMotor; 
     private final RelativeEncoder turretYawEncoder;
     private final SparkMaxConfig turretYawConfig;
+    private double turretYawZeroOffset = 0;
 
     /*
     private SparkMax turretPitchMotor;
     private RelativeEncoder turretPitchEncoder;
     private SparkMaxConfig turretPitchConfig;
     */
+
+    private final DigitalInput yawHomingSensor;
 
     public TurretIOReal() {
         turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
@@ -48,6 +52,10 @@ public class TurretIOReal implements TurretIO {
         turretPitchConfig.encoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
         turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         */
+
+        yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
+
+
     }
 
     @Override
@@ -64,7 +72,7 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public double getYawRadians() {
-        return turretYawEncoder.getPosition();
+        return turretYawEncoder.getPosition() - turretYawZeroOffset;
     }
 
     
@@ -73,5 +81,14 @@ public class TurretIOReal implements TurretIO {
         return 0.5;
         //return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
     }
-    
+
+    @Override
+    public void setYawEncoderPosition(double position) {
+        turretYawEncoder.setPosition(position);
+    }
+
+    @Override
+    public boolean getHomingSensor() {
+        return !yawHomingSensor.get();
+    }
 }

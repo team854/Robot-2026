@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.intake.IntakeSubsystem.IntakeState>{
@@ -12,7 +13,7 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private final IntakeIO io;
 
     public IntakeSubsystem(IntakeIO io) {
-        super(IntakeState.IDLE, null);
+        super(IntakeState.IDLE, IntakeState.IDLE);
 
         this.io = io;
     }
@@ -47,16 +48,24 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 break;
         }
 
+        double intakeVoltage = 0.0;
         switch (getCurrentState()) {
             case IDLE:
-                io.setIntakeMotorVoltage(0);
+                intakeVoltage = 0.0;
                 break;
             case READY_REVERSE:
-                io.setIntakeMotorVoltage(-12);
+                intakeVoltage = -12;
                 break;
             case READY:
-                io.setIntakeMotorVoltage(12);
+                intakeVoltage = 12;
                 break;
         }
+
+        io.setIntakeMotorVoltage(intakeVoltage);
+
+        SmartDashboard.putNumber("Intake/Voltage", intakeVoltage);
+
+        SmartDashboard.putString("Intake/Current State", getCurrentState().name());
+        SmartDashboard.putString("Intake/Desired State", getDesiredState().name());
     }
 }

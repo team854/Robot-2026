@@ -58,17 +58,22 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 break;
         }
 
+        double kickerVoltage = 0.0;
         switch (getCurrentState()) {
             case IDLE:
-                io.setMotorVoltage(0);
+                kickerVoltage = 0.0;
                 break;
             case READY_REVERSE:
-                io.setMotorVoltage(-12);
+                kickerVoltage = -12;
                 break;
             case READY:
-                io.setMotorVoltage(12);
+                kickerVoltage = 12;
                 break;
         }
+
+        io.setMotorVoltage(kickerVoltage);
+
+        SmartDashboard.putNumber("Kicker/Voltage", kickerVoltage);
 
         SmartDashboard.putString("Kicker/Current State", getCurrentState().name());
         SmartDashboard.putString("Kicker/Desired State", getDesiredState().name());

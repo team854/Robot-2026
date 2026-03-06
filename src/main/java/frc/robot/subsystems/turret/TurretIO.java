@@ -6,4 +6,8 @@ public interface TurretIO {
 
     default double getYawRadians() {return 0;}
     default double getPitchRadians() {return 0;}
+
+    default void setYawEncoderPosition(double position) {}
+
+    default boolean getHomingSensor() {return false;}
 }

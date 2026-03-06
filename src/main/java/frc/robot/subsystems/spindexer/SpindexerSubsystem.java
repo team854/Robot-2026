@@ -1,5 +1,6 @@
 package frc.robot.subsystems.spindexer;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.libraries.SubsystemStateMachine;
 
@@ -49,16 +50,25 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
                 break;
         }
 
+        double spindexerVoltage = 0.0;
         switch (getCurrentState()) {
             case IDLE:
-                io.setMotorVoltage(0);
+                spindexerVoltage = 0;
                 break;
             case READY_REVERSE:
-                io.setMotorVoltage(-12);
+                spindexerVoltage = -12;
                 break;
             case READY:
-                io.setMotorVoltage(12);
+                spindexerVoltage = 12;
+                
                 break;
         }
+
+        io.setMotorVoltage(spindexerVoltage);
+
+        SmartDashboard.putNumber("Spindexer/Voltage", spindexerVoltage);
+
+        SmartDashboard.putString("Spindexer/Current State", getCurrentState().name());
+        SmartDashboard.putString("Spindexer/Desired State", getDesiredState().name());
     }
 }
