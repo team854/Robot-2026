@@ -106,7 +106,7 @@ public class RobotContainer {
 		}
 
 		if (Constants.TurretConstants.ENABLED) {
-			turretAutoAimCommand = new ManualAimVotageCommand();
+			turretAutoAimCommand = new ManualAimCommand();
 		}
 
 		registerCommands();
