@@ -53,6 +53,9 @@ import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOReal;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -196,6 +199,5 @@ public class RobotContainer {
 
 		calculationSubsystem.updateBotZone(botPose);
 		calculationSubsystem.updateTrajectoryCalculations(botPose);
-		System.out.println(calculationSubsystem.getTargetSolutions());
 	}
 }

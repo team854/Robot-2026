@@ -194,18 +194,22 @@ public class CalculationSubsystem {
     }
 
     public void startPhysicsSimulation() {
-         projectileThread = new Thread(() -> {
+        if (projectileThread != null && projectileThread.isAlive()) {
+            return; 
+        }
 
-            ProjectileSimulation projectileSimulationInstance = RobotContainer.calculationSubsystem.getProjectileSimulation();
+        projectileThread = new Thread(() -> {
+
+            ProjectileSimulation projectileSimulationInstance = this.getProjectileSimulation();
 
             while (!Thread.currentThread().isInterrupted()) {
                 double startTime = Timer.getFPGATimestamp();
 
-                TargetInput targetInput = RobotContainer.calculationSubsystem.getTargetInputs();
+                TargetInput targetInput = this.getTargetInputs();
 
                 TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
                 
-                RobotContainer.calculationSubsystem.setTargetSolutions(solution);
+                this.setTargetSolutions(solution);
 
                 double elapsedTime = Timer.getFPGATimestamp() - startTime;
                 long sleepTimeMs = Math.max(0, 20 - (long)(elapsedTime * 1000));

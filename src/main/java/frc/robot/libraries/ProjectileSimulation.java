@@ -548,7 +548,7 @@ public class ProjectileSimulation {
 
             error = newError;
 
-            if (Math.abs(error[0]) < 0.02 && Math.abs(error[1]) < 0.02) {
+            if (Math.abs(error[0]) < 0.03 && Math.abs(error[1]) < 0.03) {
                 break;
             }
         }
