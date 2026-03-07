@@ -51,12 +51,12 @@ public final class Constants {
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
         public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
         public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 13.0; // Rotations of the motor for one rotation of the turret
-        public static final double TURRET_YAW_P = 5.5;
+        public static final double TURRET_YAW_P = 4;
         public static final double TURRET_YAW_I = 0;
-        public static final double TURRET_YAW_D = 0.11;
+        public static final double TURRET_YAW_D = 0.015;
         public static final Voltage TURRET_YAW_S = Volts.of(0.15);
-        public static final double TURRET_YAW_V = 0.165; // Unit is V/(rad/s)
-        public static final double TURRET_YAW_A = 0.026; // Unit is V/(rad/s^2)
+        public static final double TURRET_YAW_V = 0.173; // Unit is V/(rad/s)
+        public static final double TURRET_YAW_A = 0.0186; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 0;

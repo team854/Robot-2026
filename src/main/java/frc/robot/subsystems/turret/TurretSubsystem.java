@@ -205,7 +205,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 break;
             case HOMING:
                 if (io.getHomingSensor() == false && turretHomingSeenZero) {
-                    io.setYawEncoderPosition((io.getYawRadians() - turretHomingStart) / 2.0);
+                    io.setYawEncoderPosition((io.getYawRadians() - turretHomingStart));
                     resetTurretPitch();
                     turretYawPID.reset(0);
                     turretPrevYawSetpointVelocity = 0;
@@ -293,9 +293,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 
             case HOMING:
                 if (turretHomeingStartedActive) {
-                    turretYawVoltage = -1;
+                    turretYawVoltage = -0.5;
                 } else {
-                    turretYawVoltage = 1;
+                    turretYawVoltage = 0.4;
                 }
                 
                 turretPitchVoltage = 0.0;
@@ -350,5 +350,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         SmartDashboard.putNumber("Turret/Target Yaw", turretYawPID.getGoal().position * (180 / Math.PI));
         SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
+
+        SmartDashboard.putBoolean("Turret/Homing Sensor", io.getHomingSensor());
     }
 }
