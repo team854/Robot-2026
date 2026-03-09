@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
@@ -18,8 +19,10 @@ public class TurretIOReal implements TurretIO {
 
     private final SparkMax turretYawMotor; 
     private final RelativeEncoder turretYawEncoder;
+    private final AbsoluteEncoder turretYawAbsoluteEncoder;
     private final SparkMaxConfig turretYawConfig;
-    private double turretYawZeroOffset = 0;
+    private final double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
+    private double yawAbsoluteOffset = 0;
 
     /*
     private SparkMax turretPitchMotor;
@@ -34,15 +37,18 @@ public class TurretIOReal implements TurretIO {
         //turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
 
         turretYawEncoder = turretYawMotor.getEncoder();
+        turretYawAbsoluteEncoder = turretYawMotor.getAbsoluteEncoder();
         //turretPitchEncoder = turretPitchMotor.getEncoder();
 
         // Configure motors
         turretYawConfig = new SparkMaxConfig();
         turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
         turretYawConfig.idleMode(IdleMode.kCoast);
-        double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
+        
         turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
+        turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
+        turretYawConfig.signals.absoluteEncoderPositionPeriodMs(20);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*
@@ -75,7 +81,16 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public double getYawRadians() {
-        return turretYawEncoder.getPosition() - turretYawZeroOffset;
+        double relativeEncoder = turretYawEncoder.getPosition();
+        double absoluteEncoder = MathUtil.inputModulus(turretYawAbsoluteEncoder.getPosition() - yawAbsoluteOffset, 0, yawConversionFactor);
+
+        double difference = relativeEncoder - absoluteEncoder;
+
+        long relativeRadians = Math.round(difference / yawConversionFactor);
+
+        double fusedRadians = (relativeRadians * yawConversionFactor) + absoluteEncoder;
+
+        return fusedRadians;
     }
 
     
@@ -88,6 +103,10 @@ public class TurretIOReal implements TurretIO {
     @Override
     public void setYawEncoderPosition(double position) {
         turretYawEncoder.setPosition(position);
+
+        double expectedPosition = MathUtil.inputModulus(position, 0, yawConversionFactor);
+
+        yawAbsoluteOffset = MathUtil.inputModulus(turretYawAbsoluteEncoder.getPosition() - expectedPosition, -yawConversionFactor / 2.0, yawConversionFactor / 2.0);
     }
 
     @Override
