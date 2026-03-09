@@ -19,8 +19,8 @@ public class IntakeDeploymentIOReal implements IntakeDeploymentIO {
     private final DigitalInput intakeRetractedSensor;
 
     public IntakeDeploymentIOReal() {
-        intakeDeployedSensor = new DigitalInput(Constants.IntakeConstants.INTAKE_DEPLOYED_SENSOR_ID);
-        intakeRetractedSensor = new DigitalInput(Constants.IntakeConstants.INTAKE_RETRACTED_SENSOR_ID);
+        intakeDeployedSensor = new DigitalInput(Constants.IntakeConstants.INTAKE_DEPLOYED_SENSOR_DIO);
+        intakeRetractedSensor = new DigitalInput(Constants.IntakeConstants.INTAKE_RETRACTED_SENSOR_DIO);
 
         intakeDeploymentMotor = new SparkMax(Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_ID, MotorType.kBrushless);
 

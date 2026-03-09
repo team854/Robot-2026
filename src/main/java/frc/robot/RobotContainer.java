@@ -33,6 +33,9 @@ import frc.robot.commands.turret.TurretAutoAimCommand;
 import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
+import frc.robot.subsystems.climb.ClimbIO;
+import frc.robot.subsystems.climb.ClimbIOReal;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeDeploymentIO;
 import frc.robot.subsystems.intake.IntakeDeploymentIOReal;
@@ -77,6 +80,10 @@ public class RobotContainer {
 	public static final IntakeDeploymentSubsystem intakeDeploymentSubsystem = new IntakeDeploymentSubsystem(
 		Constants.IntakeConstants.ENABLED ? new IntakeDeploymentIOReal() : new IntakeDeploymentIO() {}
 	);
+	public static final ClimbSubsystem climbSubsystem = new ClimbSubsystem(
+		Constants.ClimbConstants.ENABLED ? new ClimbIOReal() : new ClimbIO() {}
+	);
+
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
 	public static final LightSubsystem lightSubsystem = new LightSubsystem();

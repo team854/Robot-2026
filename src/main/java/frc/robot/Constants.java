@@ -152,8 +152,15 @@ public final class Constants {
         public static final int INTAKE_MOTOR_ID = 14;
         public static final boolean INTAKE_MOTOR_INVERTED = false;
 
-        public static final int INTAKE_RETRACTED_SENSOR_ID = 15;
-        public static final int INTAKE_DEPLOYED_SENSOR_ID = 16;
+        public static final int INTAKE_RETRACTED_SENSOR_DIO = 15;
+        public static final int INTAKE_DEPLOYED_SENSOR_DIO = 16;
+    }
+
+    public final class ClimbConstants {
+        public static final boolean ENABLED = false;
+        public static final int CLIMB_MOTOR_ID = 10;
+
+        public static final int CLIMB_SENSOR_DIO = 5;
     }
 
     public final class FuelPhysicsConstants {

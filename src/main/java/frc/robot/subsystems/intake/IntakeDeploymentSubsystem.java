@@ -29,7 +29,7 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
     public void periodic() {
         updateDesiredState();
 
-        // Safety Check as the desired state should only ever RETRACTED, OR DEPLOYED
+        // Safety Check as the desired state should only ever be RETRACTED, OR DEPLOYED
         if (getDesiredState() == IntakeDeploymentState.UNKNOWN || getDesiredState() == IntakeDeploymentState.RETRACTING || getDesiredState() == IntakeDeploymentState.DEPLOYING) {
             requestDesiredState(IntakeDeploymentState.RETRACTED, 5);
         }
