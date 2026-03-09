@@ -62,6 +62,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
+	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -88,8 +89,6 @@ public class RobotContainer {
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
 	public static final LightSubsystem lightSubsystem = new LightSubsystem();
 	public static final CalculationSubsystem calculationSubsystem = new CalculationSubsystem();
-
-	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 	
 	private static SendableChooser<Command> autoChooser;
 
@@ -103,11 +102,10 @@ public class RobotContainer {
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
 			driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
-					() -> driverController.getLeftY() * -1,
-					() -> driverController.getLeftX() * -1)
+					swerveSubsystem.controlXSupplier(),//() -> driverController.getLeftY() * -1,
+					swerveSubsystem.controlYSupplier())//() -> driverController.getLeftX() * -1)
 					.withControllerRotationAxis(
-						() -> -driverController.getRightX() * Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
-					.deadband(Constants.OperatorConstants.DEADBAND)
+						swerveSubsystem.controlRotationSupplier())
 					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
 					.allianceRelativeControl(true);
 			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);

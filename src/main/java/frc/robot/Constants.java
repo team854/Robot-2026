@@ -139,6 +139,7 @@ public final class Constants {
         public static final double DEADBAND = 0.1;
         public static final double SWERVE_TRANSLATION_SCALE = 1;
         public static final double SWERVE_ROTATION_SCALE = 1;
+        public static final double SWERVE_EXPONENT = 2;
         public static final int DRIVER_CONTROLLER_PORT = 0;
     }
 

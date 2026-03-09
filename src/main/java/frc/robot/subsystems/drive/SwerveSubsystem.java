@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
@@ -95,7 +97,60 @@ public class SwerveSubsystem extends SubsystemBase{
                 },
                 this
             );
+
+            swerveDrive.stopOdometryThread();
         }
+    }
+
+    public DoubleSupplier controlXSupplier() {
+        return () -> {
+            double leftY = -RobotContainer.driverController.getLeftY();
+            double leftX = -RobotContainer.driverController.getLeftX();
+            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
+
+            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
+                return 0;
+            }
+
+            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
+
+            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
+            return (leftY / magnitude) * curvedMagnitude;
+        };
+    }
+
+    public DoubleSupplier controlYSupplier() {
+        return () -> {
+            double leftY = -RobotContainer.driverController.getLeftY();
+            double leftX = -RobotContainer.driverController.getLeftX();
+            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
+
+            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
+                return 0;
+            }
+
+            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
+
+            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
+            return (leftX / magnitude) * curvedMagnitude;
+        };
+    }
+
+    public DoubleSupplier controlRotationSupplier() {
+        return () -> {
+            double turn = -RobotContainer.driverController.getRightX();
+
+            if (Math.abs(turn) <= Constants.OperatorConstants.DEADBAND) {
+                return 0;
+            }
+
+            double mappedTurn = (Math.abs(turn) - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
+
+            double curvedTurn = Math.abs(Math.pow(mappedTurn, Constants.OperatorConstants.SWERVE_EXPONENT));
+
+            return curvedTurn * Math.signum(turn) * Constants.OperatorConstants.SWERVE_ROTATION_SCALE;
+
+        };
     }
 
     public void resetOdometry(Pose2d initialPose) {
@@ -206,6 +261,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        
+        RobotContainer.limelightSubsystem.getVisionEstimate();
+        swerveDrive.updateOdometry();
     }
 }

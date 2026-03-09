@@ -25,14 +25,14 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double robotAngle = RobotContainer.swerveSubsystem.getPose2d().getRotation().getDegrees();
-
-        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getAngularVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
         
-        getVisionEstimate();
     }
 
     public void getVisionEstimate() {
+        double robotAngle = RobotContainer.swerveSubsystem.getPose2d().getRotation().getDegrees();
+
+        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getAngularVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
+
         limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
 
         try {
