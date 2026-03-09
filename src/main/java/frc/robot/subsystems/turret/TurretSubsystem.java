@@ -84,6 +84,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         super(TurretState.IDLE, TurretState.IDLE);
 
         this.io = io;
+
+        turretYawPID.setIZone(Constants.TurretConstants.TURRET_YAW_IZONE.in(Radian));
     }
 
     public void setTurretYaw(Angle angle) {
@@ -139,12 +141,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     private double calculateTurretYawVoltage() {
-        double rawTurretYawVoltage = turretYawPID.calculate(io.getYawRadians());
-
-        double turretYawVoltage = 0;
-        if (Math.abs(rawTurretYawVoltage) > 0.02) {
-            turretYawVoltage = (((Math.abs(rawTurretYawVoltage) - 0.02) * ((10 - 0.1)/(10 - 0.02))) + 0.1) * Math.signum(rawTurretYawVoltage);
-        }
+        double turretYawVoltage = turretYawPID.calculate(io.getYawRadians());
 
         TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
         turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
