@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.function.Supplier;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.climb.ClimbCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
@@ -31,9 +33,14 @@ import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
 import frc.robot.commands.turret.ManualAimVotageCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
+import frc.robot.libraries.FieldHelpers;
+import frc.robot.libraries.PoseHelpers;
 import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
+import frc.robot.libraries.control.ControllerIO;
+import frc.robot.libraries.control.ControllerIOPS5;
+import frc.robot.libraries.control.ControllerIOXbox;
 import frc.robot.subsystems.climb.ClimbIO;
 import frc.robot.subsystems.climb.ClimbIOReal;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -65,7 +72,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -105,10 +112,11 @@ public class RobotContainer {
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
 			driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
-					swerveSubsystem.controlXSupplier(),//() -> driverController.getLeftY() * -1,
-					swerveSubsystem.controlYSupplier())//() -> driverController.getLeftX() * -1)
+					driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
+					driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
 					.withControllerRotationAxis(
-						swerveSubsystem.controlRotationSupplier())
+						driverController.rightXSupplier())
+					.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
 					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
 					.allianceRelativeControl(true);
 			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
@@ -116,9 +124,8 @@ public class RobotContainer {
 			driveAngularVelocity = () -> new ChassisSpeeds(0.0, 0.0, 0.0);
 		}
 
-		if (Constants.TurretConstants.ENABLED) {
-			turretAutoAimCommand = new ManualAimCommand();
-		}
+		turretAutoAimCommand = new ManualAimCommand();
+		
 
 		registerCommands();
 
@@ -186,6 +193,9 @@ public class RobotContainer {
 		}
 
 		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+
+
+
 	}
 	
 
@@ -208,6 +218,10 @@ public class RobotContainer {
 		calculationSubsystem.updateAimingPositions();
 
 		calculationSubsystem.startPhysicsSimulation();
+
+		swerveSubsystem.resetOdometry(
+			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)))
+		);
 	}
 
 	public void periodic() {

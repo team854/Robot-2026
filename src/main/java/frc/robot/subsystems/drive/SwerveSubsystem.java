@@ -26,6 +26,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -65,9 +66,9 @@ public class SwerveSubsystem extends SubsystemBase{
 
             swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
             swerveDrive.chassisVelocityCorrection = true;
+
             swerveDrive.setChassisDiscretization(true, 0.02);
             swerveDrive.setGyroOffset(gyroOffset);
-
 
             RobotConfig config;
             try {
@@ -92,65 +93,23 @@ public class SwerveSubsystem extends SubsystemBase{
                 this
             );
 
-            swerveDrive.stopOdometryThread();
+            //swerveDrive.stopOdometryThread();
         }
-    }
-
-    public DoubleSupplier controlXSupplier() {
-        return () -> {
-            double leftY = -RobotContainer.driverController.getLeftY();
-            double leftX = -RobotContainer.driverController.getLeftX();
-            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
-
-            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
-            return (leftY / magnitude) * curvedMagnitude;
-        };
-    }
-
-    public DoubleSupplier controlYSupplier() {
-        return () -> {
-            double leftY = -RobotContainer.driverController.getLeftY();
-            double leftX = -RobotContainer.driverController.getLeftX();
-            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
-
-            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
-            return (leftX / magnitude) * curvedMagnitude;
-        };
-    }
-
-    public DoubleSupplier controlRotationSupplier() {
-        return () -> {
-            double turn = -RobotContainer.driverController.getRightX();
-
-            if (Math.abs(turn) <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedTurn = (Math.abs(turn) - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedTurn = Math.abs(Math.pow(mappedTurn, Constants.OperatorConstants.SWERVE_EXPONENT));
-
-            return curvedTurn * Math.signum(turn) * Constants.OperatorConstants.SWERVE_ROTATION_SCALE;
-
-        };
     }
 
     public void resetOdometry(Pose2d initialPose) {
         if (Constants.SwerveConstants.ENABLED) {
             swerveDrive.resetOdometry(initialPose);
         }
+    }
+
+    public void resetOdometry(Translation2d initialTranslation) {
+        resetOdometry(
+            new Pose2d(
+                initialTranslation,
+                Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 0 : 180)
+            )
+        );
     }
 
     public void zeroGyro() {
@@ -261,7 +220,8 @@ public class SwerveSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        RobotContainer.limelightSubsystem.getVisionEstimate();
-        swerveDrive.updateOdometry();
+        if (Constants.SwerveConstants.ENABLED == true) {
+            RobotContainer.limelightSubsystem.getVisionEstimate();
+        }
     }
 }
