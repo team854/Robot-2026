@@ -48,9 +48,10 @@ public class TurretIOReal implements TurretIO {
         
         turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
+        turretYawConfig.signals.primaryEncoderPositionPeriodMs(10);
         turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_YAW_ABSOLUTE_ENCODER_INVERTED);
-        turretYawConfig.signals.absoluteEncoderPositionPeriodMs(20);
+        turretYawConfig.signals.absoluteEncoderPositionPeriodMs(10);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*

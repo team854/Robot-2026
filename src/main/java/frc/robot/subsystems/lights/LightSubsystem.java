@@ -18,8 +18,9 @@ public class LightSubsystem extends SubsystemStateMachine<frc.robot.subsystems.l
 
     public enum LightState {
         OFF,
-        RED,
-        GREEN
+        AIM_ERROR,
+        AIM_SUCCESS,
+        AIM_STOWED
     }
 
     private final AddressableLED ledStrip = new AddressableLED(Constants.LightConstants.LIGHT_PORT);
@@ -40,10 +41,13 @@ public class LightSubsystem extends SubsystemStateMachine<frc.robot.subsystems.l
             case OFF:
                 transitionTo(getDesiredState());
                 break;
-            case RED:
+            case AIM_ERROR:
                 transitionTo(getDesiredState());
                 break;
-            case GREEN:
+            case AIM_SUCCESS:
+                transitionTo(getDesiredState());
+                break;
+            case AIM_STOWED:
                 transitionTo(getDesiredState());
                 break;
         }
@@ -53,12 +57,16 @@ public class LightSubsystem extends SubsystemStateMachine<frc.robot.subsystems.l
         switch (getCurrentState()) {
             case OFF:
                 break;
-            case RED:
+            case AIM_ERROR:
                 ledPattern = Constants.LightConstants.RED;
                 break;
-            case GREEN:
+            case AIM_SUCCESS:
                 ledPattern = Constants.LightConstants.GREEN;
                 break;
+            case AIM_STOWED:
+                ledPattern = Constants.LightConstants.ORANGE;
+                break;
+
         }
 
         ledPattern.applyTo(ledBuffer);

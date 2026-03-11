@@ -45,6 +45,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
+import frc.robot.subsystems.lights.LightSubsystem.LightState;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
 import frc.robot.subsystems.turret.CalculationSubsystem;
 import frc.robot.subsystems.turret.KickerIO;
@@ -56,6 +57,7 @@ import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOReal;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -189,8 +191,12 @@ public class RobotContainer {
 
 	public static boolean isBlueAlliance(){
         var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() ? alliance.get() != DriverStation.Alliance.Red : false;
+        return alliance.isPresent() ? alliance.get() != DriverStation.Alliance.Red : true;
     }
+
+	public static boolean isRedAlliance() {
+		return !isBlueAlliance();
+	}
 
 	public Command getAutonomousCommand() {
 		return autoChooser.getSelected();
@@ -209,5 +215,16 @@ public class RobotContainer {
 
 		calculationSubsystem.updateBotZone(botPose);
 		calculationSubsystem.updateTrajectoryCalculations(botPose);
+
+		if (calculationSubsystem.getTargetSolutions().errorCode() == TargetErrorCode.NONE) {
+			lightSubsystem.requestDesiredState(LightState.AIM_SUCCESS, 5);
+		} else {
+			lightSubsystem.requestDesiredState(LightState.AIM_ERROR, 5);
+		}
+
+		if (turretSubsystem.getCurrentState() == TurretState.STOWED) {
+			lightSubsystem.requestDesiredState(LightState.AIM_STOWED, 6);
+		}
+		
 	}
 }

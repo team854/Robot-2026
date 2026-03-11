@@ -124,6 +124,7 @@ public final class Constants {
 
         public static final LEDPattern GREEN = LEDPattern.solid(Color.fromHSV(165, 100, 100));
         public static final LEDPattern RED = LEDPattern.solid(Color.fromHSV(359, 100, 100));
+        public static final LEDPattern ORANGE = LEDPattern.solid(Color.fromHSV(33, 100, 100));
     }
 
     public final class KickerConstants {

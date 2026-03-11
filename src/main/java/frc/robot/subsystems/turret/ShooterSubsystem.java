@@ -43,7 +43,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     private double shooterPrevSetpointVelocity = 0;
 
     public ShooterSubsystem(ShooterIO io) {
-        super(ShooterState.IDLE, ShooterState.IDLE);
+        super(ShooterState.IDLE, null);
 
         this.io = io;
     }

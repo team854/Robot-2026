@@ -88,13 +88,7 @@ public class SwerveSubsystem extends SubsystemBase{
                     new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)
                 ),
                 config, 
-                () -> {
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
+                RobotContainer::isRedAlliance,
                 this
             );
 
@@ -161,7 +155,13 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public void zeroGyro() {
         if (Constants.SwerveConstants.ENABLED) {
-            swerveDrive.zeroGyro();
+
+            swerveDrive.resetOdometry(
+                new Pose2d(
+                    swerveDrive.getPose().getTranslation(),
+                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 0 : 180)
+                )
+            );
             System.out.println("Zeroed Swerve");
         }
     }
