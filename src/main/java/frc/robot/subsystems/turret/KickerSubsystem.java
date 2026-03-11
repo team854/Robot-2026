@@ -1,5 +1,7 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -64,10 +66,10 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 kickerVoltage = 0.0;
                 break;
             case READY_REVERSE:
-                kickerVoltage = -12;
+                kickerVoltage = -Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
             case READY:
-                kickerVoltage = 12;
+                kickerVoltage = Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
         }
 

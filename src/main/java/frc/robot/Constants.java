@@ -53,6 +53,7 @@ public final class Constants {
         public static final boolean TURRET_YAW_ABSOLUTE_ENCODER_INVERTED = false;
         public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
+        public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
         public static final double TURRET_YAW_P = 4;
         public static final double TURRET_YAW_I = 0.01;
         public static final double TURRET_YAW_D = 0.015;
@@ -131,12 +132,14 @@ public final class Constants {
         public static final boolean ENABLED = false;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(10);
     }
 
     public final class SpindexerConstants {
         public static final boolean ENABLED = false;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = false;
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(10);
     }
 
     public final class OperatorConstants {
@@ -152,10 +155,11 @@ public final class Constants {
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED = false;
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(6.0);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(2.0);
 
         public static final int INTAKE_MOTOR_ID = 14;
         public static final boolean INTAKE_MOTOR_INVERTED = false;
+        public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(10.0);
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 15;
         public static final int INTAKE_DEPLOYED_SENSOR_DIO = 16;
@@ -164,6 +168,7 @@ public final class Constants {
     public final class ClimbConstants {
         public static final boolean ENABLED = false;
         public static final int CLIMB_MOTOR_ID = 10;
+        public static final Voltage CLIMB_MOTOR_VOLTAGE = Volt.of(10);
 
         public static final int CLIMB_SENSOR_DIO = 5;
     }

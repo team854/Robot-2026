@@ -1,6 +1,9 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.intake.IntakeSubsystem.IntakeState>{
@@ -54,10 +57,10 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 intakeVoltage = 0.0;
                 break;
             case READY_REVERSE:
-                intakeVoltage = -12;
+                intakeVoltage = -Constants.IntakeConstants.INTAKE_MOTOR_VOLTAGE.in(Volt);
                 break;
             case READY:
-                intakeVoltage = 12;
+                intakeVoltage = Constants.IntakeConstants.INTAKE_MOTOR_VOLTAGE.in(Volt);
                 break;
         }
 

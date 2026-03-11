@@ -90,7 +90,7 @@ public class TurretIOReal implements TurretIO {
         double difference = MathUtil.inputModulus(absoluteEncoder - relativeEncoder, -yawConversionFactor / 2.0, yawConversionFactor / 2.0);
         
         // Two relative encoder tick correction window because at high speeds the relative and absolute can become too desynced
-        difference = MathUtil.clamp(difference, -relativeStepSize * 2.0, relativeStepSize * 2.0);
+        difference = MathUtil.clamp(difference, -relativeStepSize * Constants.TurretConstants.TURRET_YAW_FUSION_MULTIPLIER, relativeStepSize * Constants.TurretConstants.TURRET_YAW_FUSION_MULTIPLIER);
 
         return relativeEncoder + difference;
     }

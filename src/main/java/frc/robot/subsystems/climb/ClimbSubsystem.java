@@ -1,5 +1,8 @@
 package frc.robot.subsystems.climb;
 
+import static edu.wpi.first.units.Units.Volt;
+
+import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class ClimbSubsystem extends SubsystemStateMachine<frc.robot.subsystems.climb.ClimbSubsystem.ClimbState> {
@@ -52,7 +55,7 @@ public class ClimbSubsystem extends SubsystemStateMachine<frc.robot.subsystems.c
                 climbVoltage = 0;
                 break;
             case CLIMBING:
-                climbVoltage = 10;
+                climbVoltage = Constants.ClimbConstants.CLIMB_MOTOR_VOLTAGE.in(Volt);
                 break;
             case CLIMBED:
                 climbVoltage = 0;

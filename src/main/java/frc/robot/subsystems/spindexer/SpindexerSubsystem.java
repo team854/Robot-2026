@@ -1,7 +1,10 @@
 package frc.robot.subsystems.spindexer;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.spindexer.SpindexerSubsystem.SpindexerState> {
@@ -56,10 +59,10 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
                 spindexerVoltage = 0;
                 break;
             case READY_REVERSE:
-                spindexerVoltage = -12;
+                spindexerVoltage = -Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);
                 break;
             case READY:
-                spindexerVoltage = 12;
+                spindexerVoltage = Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);
                 
                 break;
         }
