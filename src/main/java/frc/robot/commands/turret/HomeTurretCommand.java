@@ -37,6 +37,6 @@ public class HomeTurretCommand extends Command{
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 0);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 5);
     }
 }

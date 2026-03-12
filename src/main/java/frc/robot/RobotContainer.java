@@ -23,15 +23,19 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.climb.ClimbCommand;
+import frc.robot.commands.intake.ActivateIntakeCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.kicker.ActivateKickerCommand;
+import frc.robot.commands.spindexer.ActivateSpindexerCommand;
+import frc.robot.commands.turret.ActivateShooterCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
 import frc.robot.commands.turret.ToggleManualCommand;
@@ -57,6 +61,9 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem.LightState;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
+import frc.robot.subsystems.spindexer.SpindexerIO;
+import frc.robot.subsystems.spindexer.SpindexerIOReal;
+import frc.robot.subsystems.spindexer.SpindexerSubsystem;
 import frc.robot.subsystems.turret.CalculationSubsystem;
 import frc.robot.subsystems.turret.KickerIO;
 import frc.robot.subsystems.turret.KickerIOReal;
@@ -97,6 +104,9 @@ public class RobotContainer {
 	public static final ClimbSubsystem climbSubsystem = new ClimbSubsystem(
 		Constants.ClimbConstants.ENABLED ? new ClimbIOReal() : new ClimbIO() {}
 	);
+	public static final SpindexerSubsystem spindexerSubsystem = new SpindexerSubsystem(
+		Constants.SpindexerConstants.ENABLED ? new SpindexerIOReal() : new SpindexerIO() {}
+	);
 
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
@@ -109,6 +119,7 @@ public class RobotContainer {
 	public SwerveInputStream swerveInputStream;
 
 	public static boolean rotationalAiming = false;
+	public static boolean turretHomed = false;
 
 	public static Command driveFieldOrientedAngularVelocity;
 	public static Command turretAutoAimCommand;
@@ -219,6 +230,18 @@ public class RobotContainer {
 				}
 			})
 		);
+
+		driverController.rightButton().toggleOnTrue(new ActivateShooterCommand());
+
+		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
+				new ActivateKickerCommand(),
+				new ActivateSpindexerCommand()
+			)
+		);
+
+		driverController.leftButton().toggleOnTrue(new DeployIntakeCommand()).toggleOnFalse(new RetractIntakeCommand());
+
+		driverController.leftTrigger().whileTrue(new ActivateIntakeCommand());
 	}
 	
 
@@ -245,6 +268,8 @@ public class RobotContainer {
 		swerveSubsystem.resetOdometry(
 			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)))
 		);
+
+		CommandScheduler.getInstance().schedule(new HomeTurretCommand());
 	}
 
 	public void periodic() {

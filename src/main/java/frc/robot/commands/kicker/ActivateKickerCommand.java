@@ -29,6 +29,6 @@ public class ActivateKickerCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 0);
+        RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 5);
     }
 }

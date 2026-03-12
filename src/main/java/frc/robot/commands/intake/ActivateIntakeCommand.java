@@ -26,6 +26,6 @@ public class ActivateIntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.intakeSubsystem.requestDesiredState(IntakeState.IDLE, 0);
+        RobotContainer.intakeSubsystem.requestDesiredState(IntakeState.IDLE, 5);
     }
 }

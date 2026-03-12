@@ -18,6 +18,7 @@ public class Robot extends LoggedRobot {
 	private Command m_autonomousCommand;
 
 	private final RobotContainer robotContainer;
+	
 
 	//Sets up advantage scope
 	public Robot() {
@@ -65,12 +66,12 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = robotContainer.getAutonomousCommand();
-
+		robotContainer.initAll();
 		if (m_autonomousCommand != null) {
 			CommandScheduler.getInstance().schedule(m_autonomousCommand);
 		}
 
-		robotContainer.initAll();
+		
 	}
 
 	@Override

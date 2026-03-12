@@ -22,7 +22,7 @@ import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 public class TurretAutoAimCommand extends Command {
 
     public TurretAutoAimCommand() {
-        addRequirements(RobotContainer.turretSubsystem, RobotContainer.shooterSubsystem);
+        addRequirements(RobotContainer.turretSubsystem);
     }
     
     @Override
@@ -33,7 +33,6 @@ public class TurretAutoAimCommand extends Command {
     @Override
     public void execute() {
         RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
-        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.READY, 5);
 
         TargetSolution targetSolution = RobotContainer.calculationSubsystem.getTargetSolutions();
         if (targetSolution.errorCode() == TargetErrorCode.NONE) {
@@ -59,7 +58,6 @@ public class TurretAutoAimCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 0);
-        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.IDLE, 0);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 5);
     }
 }
