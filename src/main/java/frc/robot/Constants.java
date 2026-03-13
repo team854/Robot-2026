@@ -104,11 +104,11 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0;
+        public static final double SHOOTER_P = 0.1;
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.15; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.175; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.05; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
@@ -131,7 +131,7 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = true;
-        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(10);
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(12);
     }
 
     public final class SpindexerConstants {
