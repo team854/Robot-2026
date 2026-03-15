@@ -13,4 +13,6 @@ public interface TurretIO {
     default void setYawEncoderPosition(double position) {}
 
     default boolean getHomingSensor() {return false;}
+    default boolean getHomingCounter() {return false;}
+    default void resetHomingCounter() {}
 }

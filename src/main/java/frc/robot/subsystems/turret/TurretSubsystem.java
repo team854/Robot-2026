@@ -76,8 +76,13 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private double turretStowedYawAngle = 0;
 
-    private boolean turretHomeingStartedActive = false;
-    private boolean turretHomingSeenZero = false;
+    private enum HomingStage {
+        SEARCHING,
+        REFINING_START,
+        REFINING_END
+    }
+
+    private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
 
     public TurretSubsystem(TurretIO io) {
@@ -136,9 +141,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     private void resetTurretHoming() {
-        turretHomeingStartedActive = io.getHomingSensor();
-        turretHomingSeenZero = false;
+        turretHomingStage = HomingStage.SEARCHING;
         turretHomingStart = 0;
+        io.resetHomingCounter();
     }
 
     private double calculateTurretYawVoltage() {
@@ -156,12 +161,12 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         return turretYawVoltage;
     }
 
-    private double caclulateTurretPitchVoltage() {
-        TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
-        double turretPitchVoltage = turretPitchPID.calculate(io.getPitchRadians(), turretPitchState);
+    private double calculateTurretPitchVoltage() {
+        double turretPitchVoltage = turretPitchPID.calculate(io.getPitchRadians());
         
-        turretPitchVoltage -= turretPitchFF.calculateWithVelocities( turretPrevPitchSetpointVelocity, turretPitchState.velocity);
-        turretPitchVoltage += Math.sin(turretPitchState.position) * Constants.TurretConstants.TURRET_PITCH_G.in(Volt);
+        TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
+        turretPitchVoltage += turretPitchFF.calculateWithVelocities( turretPrevPitchSetpointVelocity, turretPitchState.velocity);
+        turretPitchVoltage += Math.cos(turretPitchState.position) * Constants.TurretConstants.TURRET_PITCH_G.in(Volt);
         turretPitchVoltage = MathUtil.clamp(
             turretPitchVoltage, 
             -10.0, 
@@ -210,12 +215,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
                 break;
             case HOMING:
-                if (io.getHomingSensor() == false && turretHomingSeenZero) {
+                if (io.getHomingSensor() == false && turretHomingStage == HomingStage.REFINING_END) {
                     io.setYawEncoderPosition((io.getYawRadians() - turretHomingStart));
                     resetTurretPitch();
-                    turretYawPID.reset(0);
-                    turretPrevYawSetpointVelocity = 0;
-                    requestDesiredState(TurretState.IDLE, 0);
+                    resetTurretYaw();
+                    requestDesiredState(TurretState.IDLE, 6);
                     transitionTo(TurretState.IDLE);
                 }
 
@@ -298,23 +302,21 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 break;
                 
             case HOMING:
-                if (getStateTimer() < 0.5) {
-                    turretYawVoltage = -0.35;
+                if (turretHomingStage == HomingStage.SEARCHING) {
+                    turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);
+                    if (io.getHomingCounter()) {
+                        turretHomingStage = HomingStage.REFINING_START;
+                    }
                 } else {
-                    turretYawVoltage = 0.25;
-                    if (io.getHomingSensor()) {
-                        if (!turretHomingSeenZero && !turretHomeingStartedActive) {
-                            turretHomingSeenZero = true;
-                            turretHomingStart = io.getYawRadians();
-                        }
-                    } else {
-                        turretHomeingStartedActive = false;
+                    turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_REFINING_VOLTAGE.in(Volt);
+                    if (io.getHomingSensor() && turretHomingStage == HomingStage.REFINING_START) {
+                        turretHomingStart = io.getYawRadians();
+                        turretHomingStage = HomingStage.REFINING_END;
                     }
                 }
                 
                 turretPitchVoltage = 0.0;
                 
-
                 break;
 
             case STOWED:
@@ -323,21 +325,21 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 setTurretYaw(Radian.of(turretStowedYawAngle));
 
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case AIMING:
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case READY:
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case MANUAL:
                 setTurretYaw(turretManualYaw);
                 setTurretPitch(turretManualPitch);
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
 
         }
@@ -364,5 +366,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
 
         SmartDashboard.putBoolean("Turret/Homing Sensor", io.getHomingSensor());
+        SmartDashboard.putBoolean("Turret/Homing Counter", io.getHomingCounter());
     }
 }

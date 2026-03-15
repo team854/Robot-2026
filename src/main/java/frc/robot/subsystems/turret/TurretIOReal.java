@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
@@ -32,6 +33,7 @@ public class TurretIOReal implements TurretIO {
     
 
     private final DigitalInput yawHomingSensor;
+    private final Counter yawHomingCounter;
 
     public TurretIOReal() {
         turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
@@ -66,6 +68,8 @@ public class TurretIOReal implements TurretIO {
         
 
         yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
+        yawHomingCounter = new Counter(yawHomingSensor);
+        yawHomingCounter.setUpSourceEdge(true,false);
 
         setYawEncoderPosition(turretYawEncoder.getPosition());
     }
@@ -100,7 +104,7 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public double getPitchRadians() {
-        return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
+        return (Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian) + turretPitchEncoder.getPosition());
     }
 
     @Override
@@ -125,5 +129,15 @@ public class TurretIOReal implements TurretIO {
     @Override
     public boolean getHomingSensor() {
         return !yawHomingSensor.get();
+    }
+
+    @Override
+    public boolean getHomingCounter() {
+        return yawHomingCounter.get() > 0;
+    }
+
+    @Override
+    public void resetHomingCounter() {
+        yawHomingCounter.reset();
     }
 }

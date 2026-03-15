@@ -1,7 +1,9 @@
 package frc.robot.commands.turret;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Radian;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -42,7 +44,7 @@ public class TurretAutoAimCommand extends Command {
             Angle robotRelativeAngle = RobotContainer.turretSubsystem.getTurretPointAngle(targetSolution.launchYaw());
             RobotContainer.turretSubsystem.setTurretYaw(robotRelativeAngle);
 
-            RobotContainer.turretSubsystem.setTurretPitch(targetSolution.launchPitch());
+            RobotContainer.turretSubsystem.setTurretPitch(Degree.of(90).minus(targetSolution.launchPitch()));
 
             AngularVelocity shooterSpeed = RobotContainer.calculationSubsystem.getProjectileSimulation().convertVelocityToShooterSpeed(targetSolution.launchSpeed(), Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5);
 

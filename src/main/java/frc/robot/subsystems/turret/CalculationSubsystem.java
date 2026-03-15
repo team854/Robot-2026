@@ -213,7 +213,7 @@ public class CalculationSubsystem {
                 this.setTargetSolutions(solution);
 
                 double elapsedTime = Timer.getFPGATimestamp() - startTime;
-                long sleepTimeMs = Math.max(0, 20 - (long)(elapsedTime * 1000));
+                long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
                 
                 try {
                     Thread.sleep(sleepTimeMs);

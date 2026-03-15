@@ -64,6 +64,8 @@ public final class Constants {
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
         public static final Angle TURRET_YAW_IZONE = Degree.of(2);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.35);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.15);
 
         public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
@@ -79,8 +81,8 @@ public final class Constants {
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(150);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(80);
 
-        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(89);
-        public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(50);
+        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
+        public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-70);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(70);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
@@ -90,7 +92,7 @@ public final class Constants {
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
 
-        public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_UPPER_LIMIT;
+        public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_LOWER_LIMIT;
     }
 
     public final class ShooterConstants {
