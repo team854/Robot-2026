@@ -205,6 +205,7 @@ public class RobotContainer {
 		NamedCommands.registerCommand("ActivateSpindexerCommand", new ActivateSpindexerCommand());
 		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
 		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
+		NamedCommands.registerCommand("ActivateIntakeCommand", new ActivateIntakeCommand());
 
 		NamedCommands.registerCommand("ClimbCommand", new ClimbCommand());
 	}
