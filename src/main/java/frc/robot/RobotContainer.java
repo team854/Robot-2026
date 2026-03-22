@@ -200,8 +200,11 @@ public class RobotContainer {
 		NamedCommands.registerCommand("DeployIntakeCommand", new DeployIntakeCommand());
 
 		NamedCommands.registerCommand("HomeTurretCommand", new HomeTurretCommand());
+		NamedCommands.registerCommand("TurretAutoAimCommand", new TurretAutoAimCommand());
 
+		NamedCommands.registerCommand("ActivateSpindexerCommand", new ActivateSpindexerCommand());
 		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
+		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
 
 		NamedCommands.registerCommand("ClimbCommand", new ClimbCommand());
 	}

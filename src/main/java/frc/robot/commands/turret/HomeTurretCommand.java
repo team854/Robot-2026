@@ -23,6 +23,8 @@ public class HomeTurretCommand extends Command{
     public void execute() {
         if (RobotContainer.turretSubsystem.getCurrentState() == TurretState.HOMING) {
             hasStartedHoming = true;
+        } else if (hasStartedHoming == false) {
+            RobotContainer.turretSubsystem.requestDesiredState(TurretState.HOMING, 5);
         }
     }
 
