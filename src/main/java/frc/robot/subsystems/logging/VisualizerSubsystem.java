@@ -49,7 +49,7 @@ public class VisualizerSubsystem extends SubsystemBase {
             );
 
             Angle launchYaw = Radian.of(
-                RobotContainer.turretSubsystem.getTurretTargetYaw().in(Radian) + robotPose.getRotation().getRadians()
+                robotPose.getRotation().getRadians() - RobotContainer.turretSubsystem.getTurretTargetYaw().in(Radian) +  + Math.PI
             );
 
             ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
