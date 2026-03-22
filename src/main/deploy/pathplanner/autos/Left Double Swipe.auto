@@ -9,9 +9,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "TurretAutoAimCommand"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "HomeTurretCommand"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "TurretAutoAimCommand"
+                      }
+                    }
+                  ]
                 }
               },
               {
