@@ -3,7 +3,32 @@
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Go To Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Top Ball Collection"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Come Back From Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RIght Shoot"
+          }
+        }
+      ]
     }
   },
   "resetOdom": true,

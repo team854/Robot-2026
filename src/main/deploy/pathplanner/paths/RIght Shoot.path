@@ -8,30 +8,43 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.073595706618962,
-        "y": 0.5871019677996412
+        "x": 4.52456299268946,
+        "y": 0.5871019677996411
       },
       "isLocked": false,
       "linkedName": "Right Start"
     },
     {
       "anchor": {
-        "x": 6.679910554561717,
+        "x": 3.7755635062611805,
         "y": 0.5871019677996412
       },
       "prevControl": {
-        "x": 5.679910554561717,
-        "y": 0.5871019677996413
+        "x": 4.7009805862655085,
+        "y": 0.5871019677996411
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Collection Start"
+      "linkedName": "Right Shoot Pos"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ActivateShooterCommand",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "TurretAutoAimCommand",
+      "waypointRelativePos": 0.9898305084745754,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -41,7 +54,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.0,
+    "velocity": 0.0,
     "rotation": 0.0
   },
   "reversed": false,
