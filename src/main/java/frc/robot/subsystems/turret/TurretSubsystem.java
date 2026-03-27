@@ -162,7 +162,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private double calculateTurretYawVoltage() {
         double turretYawVoltage = MathUtil.clamp(
-            turretYawPID.calculate(io.getYawRadians()),
+            turretYawPID.calculate(io.getYawRadians()) * 1.5,
             -0.75,
             0.75
         );

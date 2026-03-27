@@ -75,12 +75,12 @@ public final class Constants {
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 4;
+        public static final double TURRET_PITCH_P = 5;
         public static final double TURRET_PITCH_I = 0;
         public static final double TURRET_PITCH_D = 0.04;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
-        public static final double TURRET_PITCH_V = 0.134; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_V = 0.135; // Unit is V/(rad/s)
         public static final double TURRET_PITCH_A = 0.019; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(600);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(600);
@@ -89,7 +89,7 @@ public final class Constants {
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
-            0,
+            0.0,
             0,
             0.18
         ); // In meters
@@ -109,9 +109,9 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0.15;
+        public static final double SHOOTER_P = 0.01;
         public static final double SHOOTER_I = 0;
-        public static final double SHOOTER_D = 0.01;
+        public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
         public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.05; // Unit is V/(rotations/s^2)

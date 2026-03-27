@@ -31,6 +31,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     public void getVisionEstimate() {
 
+        LimelightHelpers.SetIMUMode("limelight", 4);
 
         double robotAngle = RobotContainer.swerveSubsystem.getAngle().in(Degree);
 

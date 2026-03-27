@@ -16,7 +16,7 @@ public class ReverseSpindexerCommand extends Command{
 
     @Override
     public void execute() {
-        RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY, 5);
+        RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY_REVERSE, 5);
     }
 
     @Override
