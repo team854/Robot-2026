@@ -505,10 +505,9 @@ public class ProjectileSimulation {
         double yawDelta;
 
         double pitchForward = (pitchError[0] - error[0]) / perturbation;
-        double yawForward = (pitchError[1] - error[1]) / perturbation;
-        double pitchRight = (yawError[0] - error[0]) / perturbation;
+        double pitchRight = (pitchError[1] - error[1]) / perturbation;
+        double yawForward = (yawError[0] - error[0]) / perturbation;
         double yawRight = (yawError[1] - error[1]) / perturbation;
-
 
         int pitchYawSteps = 0;
         for (pitchYawSteps = 0; pitchYawSteps < maxSteps; pitchYawSteps++) {
