@@ -45,7 +45,7 @@ public class VisualizerSubsystem extends SubsystemBase {
             LinearVelocity launchSpeed = RobotContainer.calculationSubsystem.getProjectileSimulation().convertShooterSpeedToVelocity(
                 RobotContainer.shooterSubsystem.getTargetSpeed(),
                 Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
-                0.5
+                Constants.FuelPhysicsConstants.EFFICENCY
             );
 
             Angle launchYaw = Radian.of(

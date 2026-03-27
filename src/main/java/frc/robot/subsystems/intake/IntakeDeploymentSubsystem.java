@@ -88,10 +88,10 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
                 intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
                 break;
             case RETRACTED:
-                intakeDeploymentVoltage = 0.0;
+                intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
                 break;
             case DEPLOYED:
-                intakeDeploymentVoltage = 0.0;
+                intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
                 break;
             case RETRACTING:
                 intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
@@ -104,6 +104,9 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
         io.setDeploymentMotorVoltage(intakeDeploymentVoltage);
 
         SmartDashboard.putNumber("Intake Deployment/Voltage", intakeDeploymentVoltage);
+
+        SmartDashboard.putBoolean("Intake Deployment/Retracted Sensor", io.getRetractedSensor());
+        SmartDashboard.putBoolean("Intake Deployment/Deployed Sensor", io.getDeployedSensor());
 
         SmartDashboard.putString("Intake Deployment/Current State", getCurrentState().name());
         SmartDashboard.putString("Intake Deployment/Desired State", getDesiredState().name());

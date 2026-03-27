@@ -18,10 +18,10 @@ public class LimelightSubsystem extends SubsystemBase {
     
     private LimelightHelpers.PoseEstimate limelightMeasurement;
 
-    private static final Matrix<N3, N1> visionStandardDevs = VecBuilder.fill(.5, .5, 0.5);
+    private static final Matrix<N3, N1> visionStandardDevs = VecBuilder.fill(.7, .7, 99999999);
 
     public LimelightSubsystem() {
-
+        
     }
 
     @Override
@@ -30,11 +30,13 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     public void getVisionEstimate() {
+
+
         double robotAngle = RobotContainer.swerveSubsystem.getAngle().in(Degree);
 
-        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getAngularVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers.SetRobotOrientation("limelight", robotAngle, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-        limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         
         try {
             if (limelightMeasurement != null && limelightMeasurement.pose != null) {

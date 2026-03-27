@@ -162,7 +162,7 @@ public class CalculationSubsystem {
             getProjectileSimulation().convertShooterSpeedToVelocity(
                 Constants.ShooterConstants.SHOOTER_MAX_VELOCITY,
                 Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
-                0.5
+                Constants.FuelPhysicsConstants.EFFICENCY
             ),
             DegreesPerSecond.of(0),
             new Translation2d(
