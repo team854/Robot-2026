@@ -139,15 +139,15 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
-        public static final Current KICKER_STALL_CURRENT = Amp.of(20);
+        public static final Current KICKER_STALL_CURRENT = Amp.of(27);
     }
 
     public final class SpindexerConstants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(1.5);
-        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(20);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(4);
+        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(27);
     }
 
     public final class OperatorConstants {
@@ -190,7 +190,7 @@ public final class Constants {
         public static final int TPS = 20;
         public static final int MAX_STEPS = 15;
         public static final double DRAG_CONSTANT = 0.55;
-        public static final double EFFICENCY = 0.39;
+        public static final double EFFICENCY = 0.3925;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;

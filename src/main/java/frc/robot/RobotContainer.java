@@ -241,7 +241,7 @@ public class RobotContainer {
 
 		driverController.menuButton().onTrue(RobotContainer.swerveSubsystem.zeroGyroCommand());
 
-		driverController.leftBumper().toggleOnTrue(new ManualStowTurretCommand());
+		driverController.leftBumper().whileTrue(new ManualStowTurretCommand());
 
 		/*
 		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(

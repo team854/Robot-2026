@@ -104,6 +104,8 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
 
         SmartDashboard.putNumber("Spindexer/Voltage", spindexerVoltage);
 
+        SmartDashboard.putNumber("Spindexer/Current", io.getMotorCurrent());
+
         SmartDashboard.putString("Spindexer/Current State", getCurrentState().name());
         SmartDashboard.putString("Spindexer/Desired State", getDesiredState().name());
     }

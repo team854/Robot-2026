@@ -22,7 +22,7 @@ public class SmartShootCommand extends Command {
 
     public SmartShootCommand() {
         shootStateMachine = new StateMachine<SmartShootCommand.SmartShootStatus>(SmartShootStatus.FORWARD, null);
-        overCurrentDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
+        overCurrentDebouncer = new Debouncer(1, Debouncer.DebounceType.kRising);
         
         addRequirements(RobotContainer.spindexerSubsystem, RobotContainer.kickerSubsystem);
     }
@@ -45,7 +45,7 @@ public class SmartShootCommand extends Command {
                 }
                 break;
             case REVERSE:
-                if (shootStateMachine.getStateTimer() > 2) {
+                if (shootStateMachine.getStateTimer() > 1) {
                     shootStateMachine.transitionTo(SmartShootStatus.FORWARD);
                 }
                 break;

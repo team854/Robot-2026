@@ -111,6 +111,8 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         SmartDashboard.putNumber("Kicker/Voltage", kickerVoltage);
 
+        SmartDashboard.putNumber("Kicker/Current", io.getMotorCurrent());
+
         SmartDashboard.putString("Kicker/Current State", getCurrentState().name());
         SmartDashboard.putString("Kicker/Desired State", getDesiredState().name());
     }

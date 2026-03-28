@@ -59,6 +59,12 @@
                             "data": {
                               "name": "ActivateIntakeCommand"
                             }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "DeployIntakeCommand"
+                            }
                           }
                         ]
                       }
@@ -158,6 +164,12 @@
                             "type": "path",
                             "data": {
                               "pathName": "Left Bottom Collect Balls"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "DeployIntakeCommand"
                             }
                           },
                           {

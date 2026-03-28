@@ -20,7 +20,7 @@ public class KickerIOReal implements KickerIO {
         kickerConfig = new SparkMaxConfig();
         kickerConfig.idleMode(IdleMode.kCoast);
         kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
-        kickerConfig.smartCurrentLimit(40); 
+        kickerConfig.smartCurrentLimit(30); 
         kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
