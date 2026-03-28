@@ -27,6 +27,7 @@ public class Robot extends LoggedRobot {
 		Logger.recordMetadata("ProjectName", "2026 Robot");
 
 		if (isReal()) {
+			Logger.addDataReceiver(new WPILOGWriter());
 			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 		} else {
 			setUseTiming(false); // Run as fast as possible

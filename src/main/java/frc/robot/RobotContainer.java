@@ -249,13 +249,13 @@ public class RobotContainer {
 				new ActivateSpindexerCommand()
 			)
 		);
-
+		*/
 		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
 				new ReverseKickerCommand(),
 				new ReverseSpindexerCommand()
 			)
 		);
-		*/
+		
 		driverController.rightTrigger().whileTrue(new SmartShootCommand());
 
 		driverController.leftButton().toggleOnTrue(new ToggleIntakeDeployCommand());
