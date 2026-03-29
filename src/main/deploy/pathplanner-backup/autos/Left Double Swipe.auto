@@ -30,19 +30,6 @@
                           }
                         ]
                       }
-                    },
-                    {
-                      "type": "parallel",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "TurretAutoAimCommand"
-                            }
-                          }
-                        ]
-                      }
                     }
                   ]
                 }
@@ -171,6 +158,12 @@
                             "type": "path",
                             "data": {
                               "pathName": "Left Bottom Collect Balls"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "DeployIntakeCommand"
                             }
                           },
                           {

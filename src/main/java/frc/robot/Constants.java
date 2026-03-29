@@ -66,8 +66,8 @@ public final class Constants {
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(2400);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
-        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.6);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.2);
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.65);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.25);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(-3);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
@@ -138,16 +138,16 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
-        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(6);
-        public static final Current KICKER_STALL_CURRENT = Amp.of(27);
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Current KICKER_STALL_CURRENT = Amp.of(28);
     }
 
     public final class SpindexerConstants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(6);
-        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(27);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(28);
     }
 
     public final class OperatorConstants {

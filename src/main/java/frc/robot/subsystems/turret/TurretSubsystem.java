@@ -94,15 +94,17 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretPitchPID.setIZone(Constants.TurretConstants.TURRET_PITCH_IZONE.in(Radian));
     }
 
-    public void setTurretYaw(Angle angle) {
+    public void setTurretYaw(Angle angle, boolean rotationalVelocityCompensation) {
         double clampedAngle = MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian));
 
         double targetVelocity = 0;
-        double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
-        if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian)
-            && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) 
-            && Math.abs(robotVelocity) > 0.01) {
-            targetVelocity = robotVelocity;
+        if (rotationalVelocityCompensation) {
+            double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
+            if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian)
+                && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) 
+                && Math.abs(robotVelocity) > 0.01) {
+                targetVelocity = robotVelocity;
+            }
         }
 
         turretYawPID.setGoal(
@@ -351,7 +353,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case STOWED:
                 // Only stow pitch as that is the only attribute that affects height
                 setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);
-                setTurretYaw(Radian.of(turretStowedYawAngle));
+                setTurretYaw(Radian.of(turretStowedYawAngle), true);
 
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();
@@ -365,7 +367,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case MANUAL:
-                setTurretYaw(turretManualYaw);
+                setTurretYaw(turretManualYaw, false);
                 setTurretPitch(turretManualPitch);
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();

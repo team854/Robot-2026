@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.52151212553495,
-        "y": 3.8085734664764628
+        "x": 5.0735957066189625,
+        "y": 0.5871019677996412
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.559873571318082,
-        "y": 3.8304288881631976
+        "x": 4.52456299268946,
+        "y": 0.5871019677996411
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Start"
     },
     {
       "anchor": {
-        "x": 2.369971469329529,
-        "y": 3.8085734664764628
+        "x": 3.7755635062611805,
+        "y": 0.5871019677996412
       },
       "prevControl": {
-        "x": 2.906406926870785,
-        "y": 3.8292098664788385
+        "x": 4.7009805862655085,
+        "y": 0.5871019677996411
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Shoot Pos"
     }
   ],
   "rotationTargets": [],
@@ -33,15 +33,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "DeployIntakeCommand",
+      "name": "ActivateShooterCommand",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "ActivateIntakeCommand",
-      "waypointRelativePos": 0.1,
-      "endWaypointRelativePos": 1.0,
+      "name": "TurretAutoAimCommand",
+      "waypointRelativePos": 0.9898305084745754,
+      "endWaypointRelativePos": null,
       "command": null
     }
   ],
@@ -54,14 +54,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -179.24944320348249
+    "velocity": 0.0,
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Middle Paths",
+  "folder": "Right Auto Paths",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 3.0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

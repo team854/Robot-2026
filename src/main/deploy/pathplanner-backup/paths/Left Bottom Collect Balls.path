@@ -8,56 +8,72 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.544350879618826,
-        "y": 7.181709099242202
+        "x": 7.181417069243156,
+        "y": 7.408864734299517
       },
       "isLocked": false,
       "linkedName": "Left Collection Start"
     },
     {
       "anchor": {
-        "x": 8.30245080500418,
-        "y": 6.752754919499105
+        "x": 7.24,
+        "y": 6.363345259391771
       },
       "prevControl": {
-        "x": 8.286225402504472,
-        "y": 7.547799642218246
+        "x": 7.24,
+        "y": 6.613345259391771
       },
       "nextControl": {
-        "x": 8.316028372588802,
-        "y": 6.087454107657206
+        "x": 7.24,
+        "y": 6.113345259391771
       },
       "isLocked": false,
-      "linkedName": "Left Top Ball Collection Start"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.30245080500418,
-        "y": 4.513649373881932
+        "x": 7.24,
+        "y": 5.633202146690519
       },
       "prevControl": {
-        "x": 8.302450805008949,
-        "y": 5.065649373881931
+        "x": 7.223774597495527,
+        "y": 6.590500894454383
       },
       "nextControl": {
-        "x": 8.302450804999413,
-        "y": 3.9619856887298734
+        "x": 7.247743150302403,
+        "y": 5.176356278848774
       },
       "isLocked": false,
-      "linkedName": "Left Top Ball Collection End"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.30245080500418,
-        "y": 6.752754919499105
+        "x": 7.24,
+        "y": 4.5298747763864045
       },
       "prevControl": {
-        "x": 8.351127012522362,
-        "y": 6.136189624329159
+        "x": 7.24,
+        "y": 6.265992844364939
       },
       "nextControl": {
-        "x": 8.264344144688208,
-        "y": 7.235439283454148
+        "x": 7.24,
+        "y": 2.7937567084078703
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.24,
+        "y": 6.882558139534883
+      },
+      "prevControl": {
+        "x": 7.256225402504471,
+        "y": 5.049087656529516
+      },
+      "nextControl": {
+        "x": 7.236398981493966,
+        "y": 7.289473230716731
       },
       "isLocked": false,
       "linkedName": null
@@ -68,8 +84,8 @@
         "y": 7.408864734299517
       },
       "prevControl": {
-        "x": 7.463223867096466,
-        "y": 7.262836111764563
+        "x": 7.13871581700702,
+        "y": 7.327737721782452
       },
       "nextControl": null,
       "isLocked": false,
@@ -78,16 +94,12 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0000000000000016,
-      "rotationDegrees": -90.0
-    },
-    {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.0,
       "rotationDegrees": -90.0
     },
     {
       "waypointRelativePos": 3.0,
-      "rotationDegrees": 180.0
+      "rotationDegrees": -90.0
     },
     {
       "waypointRelativePos": 4.0,
@@ -99,7 +111,7 @@
   "eventMarkers": [
     {
       "name": "DeployIntakeCommand",
-      "waypointRelativePos": 0.27394540942928636,
+      "waypointRelativePos": 0.1736972704714654,
       "endWaypointRelativePos": null,
       "command": null
     }

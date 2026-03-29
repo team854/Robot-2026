@@ -44,7 +44,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 if (limelightMeasurement.tagCount > 0) {
                     double distance = limelightMeasurement.avgTagDist;
 
-                    if (limelightMeasurement.tagCount == 1 && distance > 4.0) {
+                    if (limelightMeasurement.tagCount == 1 && distance > 5.0) {
                         return;
                     }
 
