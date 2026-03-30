@@ -44,14 +44,18 @@ public class LimelightSubsystem extends SubsystemBase {
                 if (limelightMeasurement.tagCount > 0) {
                     double distance = limelightMeasurement.avgTagDist;
 
-                    if (limelightMeasurement.tagCount == 1 && distance > 4.0) {
-                        return;
+                    double stdDevs = Double.MAX_VALUE;
+                    if (limelightMeasurement.tagCount == 1) {
+                        if (distance >= 5) {
+                            return;
+                        }
+
+                        stdDevs = (1 + (Math.pow(distance, 2.0) * 0.5));
+                    } else {
+                        stdDevs = (0.4 + (distance * 0.1));
                     }
 
-                    double stdDevs = 0.6 + (distance * distance * 0.15);
-
-                    RobotContainer.swerveSubsystem.setVisionMeasurementStdDevs(VecBuilder.fill(stdDevs, stdDevs, 99999999));
-                    RobotContainer.swerveSubsystem.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+                    RobotContainer.swerveSubsystem.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(stdDevs, stdDevs, 99999999));
                     SmartDashboard.putNumber("Limelight/StdDevs", stdDevs);
                     SmartDashboard.putBoolean("LimeLight/Tag", true);
                     SmartDashboard.putNumberArray("LimeLight/Position", PoseHelpers.convertPoseToNumbers(limelightMeasurement.pose));

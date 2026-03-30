@@ -45,7 +45,7 @@ public class SmartShootCommand extends Command {
                 }
                 break;
             case REVERSE:
-                if (shootStateMachine.getStateTimer() > 1) {
+                if (shootStateMachine.getStateTimer() > 0.5) {
                     shootStateMachine.transitionTo(SmartShootStatus.FORWARD);
                 }
                 break;
@@ -58,7 +58,7 @@ public class SmartShootCommand extends Command {
                 break;
             case REVERSE:
                 RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY_REVERSE, 5);
-                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY_REVERSE, 5);
+                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY, 5);
                 break;
         }
         

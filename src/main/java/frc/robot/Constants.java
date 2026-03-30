@@ -56,7 +56,7 @@ public final class Constants {
         public static final double TURRET_YAW_GEAR_RATIO = 113.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
         public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
-        public static final double TURRET_YAW_P = 2.6;
+        public static final double TURRET_YAW_P = 2.75;
         public static final double TURRET_YAW_I = 0.4;
         public static final double TURRET_YAW_D = 0.1;
         public static final Voltage TURRET_YAW_S = Volts.of(0.2);
@@ -66,8 +66,8 @@ public final class Constants {
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(2400);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
-        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.7);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.2);
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.65);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.25);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(-3);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
@@ -77,9 +77,9 @@ public final class Constants {
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 5;
+        public static final double TURRET_PITCH_P = 4.5;
         public static final double TURRET_PITCH_I = 0;
-        public static final double TURRET_PITCH_D = 0.04;
+        public static final double TURRET_PITCH_D = 0.031;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
         public static final double TURRET_PITCH_V = 0.135; // Unit is V/(rad/s)
@@ -111,12 +111,12 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0.01;
+        public static final double SHOOTER_P = 0.015;
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
         public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
-        public static final double SHOOTER_A = 0.05; // Unit is V/(rotations/s^2)
+        public static final double SHOOTER_A = 0.04; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(80);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
@@ -138,16 +138,16 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
-        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
-        public static final Current KICKER_STALL_CURRENT = Amp.of(32);
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Current KICKER_STALL_CURRENT = Amp.of(28);
     }
 
     public final class SpindexerConstants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(6);
-        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(32);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(28);
     }
 
     public final class OperatorConstants {

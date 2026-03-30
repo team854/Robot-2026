@@ -44,6 +44,7 @@ import frc.robot.commands.turret.ActivateShooterCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
 import frc.robot.commands.turret.ManualStowTurretCommand;
+import frc.robot.commands.turret.ToggleFixedAimCommand;
 import frc.robot.commands.turret.ToggleManualCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
 import frc.robot.libraries.FieldHelpers;
@@ -255,6 +256,8 @@ public class RobotContainer {
 				new ReverseSpindexerCommand()
 			)
 		);
+
+		driverController.upButton().toggleOnTrue(new ToggleFixedAimCommand());
 		
 		driverController.rightTrigger().whileTrue(new SmartShootCommand());
 

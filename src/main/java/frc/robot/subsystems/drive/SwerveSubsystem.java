@@ -16,6 +16,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -202,6 +203,14 @@ public class SwerveSubsystem extends SubsystemBase{
         }
 
         swerveDrive.addVisionMeasurement(robotPose, timestamp);
+    }
+
+    public void addVisionMeasurement(Pose2d robotPose, double timestamp, Matrix<N3, N1> stdDevs) {
+        if (Constants.SwerveConstants.ENABLED == false) {
+            return;
+        }
+
+        swerveDrive.addVisionMeasurement(robotPose, timestamp, stdDevs);
     }
 
     public void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs) {
