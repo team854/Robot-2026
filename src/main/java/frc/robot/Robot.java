@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -67,7 +68,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = robotContainer.getAutonomousCommand();
-		robotContainer.initAll();
+		Pose2d autonomousStartingPose = robotContainer.getAutonomousStartingPose(m_autonomousCommand);
+		robotContainer.initAll(autonomousStartingPose);
 		if (m_autonomousCommand != null) {
 			CommandScheduler.getInstance().schedule(m_autonomousCommand);
 		}
@@ -91,7 +93,7 @@ public class Robot extends LoggedRobot {
 			CommandScheduler.getInstance().cancel(m_autonomousCommand);
 		}
 
-		robotContainer.initAll();
+		robotContainer.initAll(null);
 	}
 
 	@Override
@@ -107,7 +109,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		CommandScheduler.getInstance().cancelAll();
-		robotContainer.initAll();
+		robotContainer.initAll(null);
 	}
 
 	@Override

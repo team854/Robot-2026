@@ -70,7 +70,7 @@ public class LimelightSubsystem extends SubsystemBase {
         
         double robotTranslationalVelocity = Math.hypot(robotChassisSpeeds.vxMetersPerSecond, robotChassisSpeeds.vyMetersPerSecond);
 
-        double stdDevs = robotAngularVelocity.in(DegreesPerSecond) / 720.0;
+        double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / 720.0;
 
         stdDevs += robotTranslationalVelocity / 10.0;
 
