@@ -165,7 +165,7 @@ public class CalculationSubsystem {
                 targetPosition = hubPosition;
                 break;
         }
-        
+
         ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
         ChassisSpeeds targetSpeeds = RobotContainer.swerveChassisSpeedsSupplier.get();
 
@@ -225,6 +225,12 @@ public class CalculationSubsystem {
         SmartDashboard.putBoolean("Auto Aim/Error", lastSolution.errorCode() != TargetErrorCode.NONE);
 
         SmartDashboard.putNumberArray("Auto Aim/Predicted Position", PoseHelpers.convertTranslationToNumbers(new Translation3d(predictedPositionX, predictedPositionY, 0.0)));
+
+        SmartDashboard.putNumber("Auto Aim/Predicted Velocity X", predictedVelocityX);
+        SmartDashboard.putNumber("Auto Aim/Predicted Velocity Y", predictedVelocityY);
+
+        SmartDashboard.putNumber("Auto Aim/Predicted Acceleration X", predictedAccelerationX);
+        SmartDashboard.putNumber("Auto Aim/Predicted Acceleration Y", predictedAccelerationY);
     }
 
     public void setTargetInputs(TargetInput targetInput) {

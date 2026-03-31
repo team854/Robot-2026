@@ -40,10 +40,10 @@ public final class Constants {
         public static final boolean ENABLED = true;
         
         public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
-        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(7); // Maximum speed the swerve drive can go
+        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(3.75); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
 
-        public static final double DRIVE_P = 1;
+        public static final double DRIVE_P = 1.1;
         public static final double DRIVE_I = 0;
         public static final double DRIVE_D = 0;
 
@@ -103,7 +103,7 @@ public final class Constants {
 
         public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_LOWER_LIMIT;
 
-        public static final Time TURRET_LATENCY = Second.of(0.2);
+        public static final Time TURRET_LATENCY = Second.of(0.1);
     }
 
     public final class ShooterConstants {
