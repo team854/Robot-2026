@@ -114,18 +114,22 @@ public class SwerveSubsystem extends SubsystemBase{
         resetOdometry(
             new Pose2d(
                 initialTranslation,
-                Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
+                Rotation2d.fromDegrees(RobotContainer.isRedAlliance() ? 180 : 0)
             )
         );
     }
 
     public void zeroGyro() {
         if (Constants.SwerveConstants.ENABLED) {
+            Rotation2d desiredHeading = Rotation2d.fromDegrees(RobotContainer.isRedAlliance() ? 180 : 0);
+            Translation2d currentTranslation = swerveDrive.getPose().getTranslation();
+
+            swerveDrive.setGyro(new Rotation3d(0.0, 0.0, desiredHeading.getRadians()));
 
             resetOdometry(
                 new Pose2d(
-                    swerveDrive.getPose().getTranslation(),
-                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
+                    currentTranslation,
+                    desiredHeading
                 )
             );
             System.out.println("Zeroed Swerve");
@@ -134,7 +138,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public Command zeroGyroCommand() {
 
-        return Commands.runOnce(() -> {resetOdometry(FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), RobotContainer.isRedAlliance()));});
+        return Commands.runOnce(this::zeroGyro);
     }
 
     public Pose2d getPose2d() {
@@ -186,7 +190,7 @@ public class SwerveSubsystem extends SubsystemBase{
             return Degree.of(0);
         }
 
-        return Degree.of(swerveDrive.getPose().getRotation().getDegrees());
+        return Degree.of(swerveDrive.getYaw().getDegrees());
     }
 
     public AngularVelocity getAngularVelocity() {
@@ -194,7 +198,7 @@ public class SwerveSubsystem extends SubsystemBase{
             return RadiansPerSecond.of(0);
         }
 
-        return RadiansPerSecond.of(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
+        return RadiansPerSecond.of(swerveDrive.getGyro().getYawAngularVelocity().in(RadiansPerSecond));
     }
     
     public void addVisionMeasurement(Pose2d robotPose, double timestamp) {

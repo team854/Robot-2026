@@ -283,16 +283,16 @@ public class RobotContainer {
 		return autoChooser.getSelected();
 	}
 
-	public void initAll() {
+	public void initAll(Pose2d startingPose) {
 		shooterSubsystem.resetShooter();
 
 		calculationSubsystem.updateAimingPositions();
 
 		calculationSubsystem.startPhysicsSimulation();
 
-		swerveSubsystem.resetOdometry(
-			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
-		);
+		if (startingPose != null) {
+			swerveSubsystem.resetOdometry(startingPose);
+		}
 
 		if (!turretHomed) {
 			if (Robot.isReal()) {
@@ -320,5 +320,22 @@ public class RobotContainer {
 			lightSubsystem.requestDesiredState(LightState.AIM_STOWED, 6);
 		}
 		
+	}
+
+	public Pose2d getAutonomousStartingPose(Command autoCommand) {
+		if (autoCommand instanceof PathPlannerAuto pathPlannerAuto) {
+			Pose2d startingPose = pathPlannerAuto.getStartingPose();
+
+			if (startingPose != null && isRedAlliance()) {
+				return new Pose2d(
+					FieldHelpers.rotateBlueFieldCoordinates(startingPose.getTranslation(), true),
+					startingPose.getRotation().rotateBy(Rotation2d.fromDegrees(180))
+				);
+			}
+
+			return startingPose;
+		}
+
+		return null;
 	}
 }
