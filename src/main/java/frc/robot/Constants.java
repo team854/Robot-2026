@@ -92,7 +92,7 @@ public final class Constants {
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             0.0,
-            0,
+            0.0,
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
@@ -212,5 +212,9 @@ public final class Constants {
 
     public final class VisionConstants {
         public static final String[] LIMELIGHT_NAMES = new String[] {"limelight"};
+
+        public static final Distance FIELD_CHECK_DISTANCE = Meter.of(1);
+
+        public static final double SINGLE_TAG_STARTING_STD_DEV = 1;
     }
 }

@@ -57,7 +57,7 @@ public class CalculationSubsystem {
 
     public CalculationSubsystem() {
         targetInputs = new AtomicReference<>(new TargetInput(MetersPerSecond.of(1), DegreesPerSecond.of(0), Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
-        targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0)));
+        targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0, Second.of(0))));
     }
 
     public ProjectileSimulation getProjectileSimulation() {
@@ -230,9 +230,11 @@ public class CalculationSubsystem {
                 TargetInput targetInput = this.getTargetInputs();
 
                 TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
-                this.setTargetSolutions(solution);
 
                 double elapsedTime = Timer.getFPGATimestamp() - startTime;
+
+                this.setTargetSolutions(solution);
+
                 long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
                 
                 try {
