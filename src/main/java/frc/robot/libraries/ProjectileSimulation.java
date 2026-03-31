@@ -66,7 +66,8 @@ public class ProjectileSimulation {
     public record TargetDebug (
         int pitchYawSteps,
         double forwardError,
-        double rightError
+        double rightError,
+        Time computationTime
     ) {};
 
     /**
@@ -84,6 +85,7 @@ public class ProjectileSimulation {
         Angle launchPitch,
         Angle launchYaw,
         Time timestamp,
+        
         TargetDebug targetDebug
     ) {};
 
@@ -439,7 +441,7 @@ public class ProjectileSimulation {
         }
 
         double baseVelocity = MathUtil.interpolate(
-            speedLimitUpper.in(MetersPerSecond) * 0.4,
+            speedLimitUpper.in(MetersPerSecond) * 0.6,
             speedLimitUpper.in(MetersPerSecond),
             MathUtil.inverseInterpolate(0, 10, targetDistance)
         );
@@ -479,13 +481,14 @@ public class ProjectileSimulation {
      * @return The target solution
      */
     public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Angle robotYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
+        double startTime = Timer.getFPGATimestamp();
         
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
 
         Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
 
         if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0));
+            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0, Second.of(Timer.getFPGATimestamp() - startTime)));
         }
 
         double pitchLimitUpper = (Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radians);
@@ -500,11 +503,11 @@ public class ProjectileSimulation {
 
         double perturbation = 0.05;
 
-        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
         double pitchDelta;
         double yawDelta;
@@ -537,7 +540,7 @@ public class ProjectileSimulation {
                 MetersPerSecond.of(launchSpeed), 
                 Radians.of(launchPitch), 
                 Radians.of(launchYaw), 
-                RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), 
+                RadiansPerSecond.of(-(launchSpeed / projectileRadius)), 
                 launchAngularYaw, 
                 robotVelocity, 
                 targetPosition, 
@@ -594,7 +597,7 @@ public class ProjectileSimulation {
             Radians.of(launchPitch),
             Radians.of(launchYaw),
             Second.of(Timer.getTimestamp()),
-            new TargetDebug(pitchYawSteps, error[0], error[1])
+            new TargetDebug(pitchYawSteps, error[0], error[1], Second.of(Timer.getFPGATimestamp() - startTime))
         );
 
         

@@ -92,7 +92,7 @@ public final class Constants {
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             0.0,
-            0,
+            0.0,
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
@@ -118,7 +118,7 @@ public final class Constants {
         public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.04; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(80);
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(400);
         public static final double SHOOTER_MAX_JERK = 50; // Unit is rotations/s^3
@@ -212,5 +212,9 @@ public final class Constants {
 
     public final class VisionConstants {
         public static final String[] LIMELIGHT_NAMES = new String[] {"limelight"};
+
+        public static final Distance FIELD_CHECK_DISTANCE = Meter.of(1);
+
+        public static final double SINGLE_TAG_STARTING_STD_DEV = 1;
     }
 }
