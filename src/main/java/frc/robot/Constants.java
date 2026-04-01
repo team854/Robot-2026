@@ -117,17 +117,15 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0.015;
+        public static final double SHOOTER_P = 0.0175;
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
-        public static final double SHOOTER_A = 0.04; // Unit is V/(rotations/s^2)
+        public static final double SHOOTER_V = 0.128; // Unit is V/(rotations/s)
+        public static final double SHOOTER_A = 0.02; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
-        public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(400);
-        public static final double SHOOTER_MAX_JERK = 50; // Unit is rotations/s^3
            
     }
     
@@ -182,14 +180,6 @@ public final class Constants {
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
         public static final int INTAKE_DEPLOYED_SENSOR_DIO = 1;
-    }
-
-    public final class ClimbConstants {
-        public static final boolean ENABLED = false;
-        public static final int CLIMB_MOTOR_ID = 10;
-        public static final Voltage CLIMB_MOTOR_VOLTAGE = Volt.of(10);
-
-        public static final int CLIMB_SENSOR_DIO = 5;
     }
 
     public final class FuelPhysicsConstants {

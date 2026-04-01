@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.climb.ClimbCommand;
 import frc.robot.commands.intake.ActivateIntakeCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
@@ -55,9 +54,6 @@ import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.libraries.control.ControllerIO;
 import frc.robot.libraries.control.ControllerIOPS5;
 import frc.robot.libraries.control.ControllerIOXbox;
-import frc.robot.subsystems.climb.ClimbIO;
-import frc.robot.subsystems.climb.ClimbIOReal;
-import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.intake.IntakeDeploymentIO;
 import frc.robot.subsystems.intake.IntakeDeploymentIOReal;
@@ -107,9 +103,6 @@ public class RobotContainer {
 	);
 	public static final IntakeDeploymentSubsystem intakeDeploymentSubsystem = new IntakeDeploymentSubsystem(
 		Constants.IntakeConstants.ENABLED ? new IntakeDeploymentIOReal() : new IntakeDeploymentIO() {}
-	);
-	public static final ClimbSubsystem climbSubsystem = new ClimbSubsystem(
-		Constants.ClimbConstants.ENABLED ? new ClimbIOReal() : new ClimbIO() {}
 	);
 	public static final SpindexerSubsystem spindexerSubsystem = new SpindexerSubsystem(
 		Constants.SpindexerConstants.ENABLED ? new SpindexerIOReal() : new SpindexerIO() {}
@@ -217,8 +210,6 @@ public class RobotContainer {
 		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
 		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
 		NamedCommands.registerCommand("ActivateIntakeCommand", new ActivateIntakeCommand());
-
-		NamedCommands.registerCommand("ClimbCommand", new ClimbCommand());
 	}
 
 	private void configureBindings() {

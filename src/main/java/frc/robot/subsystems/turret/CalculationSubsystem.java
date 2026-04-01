@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -53,6 +54,13 @@ public class CalculationSubsystem {
 
     private final AtomicReference<TargetInput> targetInputs;
     private final AtomicReference<TargetSolution> targetSolutions;
+
+    private double previousVelocityX = 0;
+    private double previousVelocityY = 0;
+    private double previousTimestamp = 0;
+
+    private final LinearFilter velocityFilterX = LinearFilter.movingAverage(5);
+    private final LinearFilter velocityFilterY = LinearFilter.movingAverage(5);
 
 	private final ProjectileSimulation projectileInstance = new ProjectileSimulation(
         Constants.FuelPhysicsConstants.DRAG_CONSTANT,
@@ -173,31 +181,41 @@ public class CalculationSubsystem {
                 break;
         }
 
+        double timestamp = Timer.getFPGATimestamp();
         ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
         ChassisSpeeds targetSpeeds = RobotContainer.swerveChassisSpeedsSupplier.get();
 
-        double predictedAccelerationX = (targetSpeeds.vxMetersPerSecond - fieldSpeeds.vxMetersPerSecond) * Constants.SwerveConstants.SWERVE_ACCELERATION_CONSTANT;
-        double predictedAccelerationY = (targetSpeeds.vyMetersPerSecond - fieldSpeeds.vyMetersPerSecond) * Constants.SwerveConstants.SWERVE_ACCELERATION_CONSTANT;
+        double deltaTime = MathUtil.clamp(timestamp - previousTimestamp, 0.005, 0.1);
 
-        double predictedVelocityX = fieldSpeeds.vxMetersPerSecond + (predictedAccelerationX * Constants.TurretConstants.TURRET_LATENCY.in(Second));
-        double predictedVelocityY = fieldSpeeds.vyMetersPerSecond + (predictedAccelerationY * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+        double velocityX = velocityFilterX.calculate(fieldSpeeds.vxMetersPerSecond);
+        double velocityY = velocityFilterY.calculate(fieldSpeeds.vyMetersPerSecond);
+
+        double accelerationX = (velocityX - previousVelocityX) / deltaTime;
+        double accelerationY = (velocityY - previousVelocityY) / deltaTime;
+
+        previousVelocityX = velocityX;
+        previousVelocityY = velocityY;
+        previousTimestamp = timestamp;
+
+        double predictedVelocityX = velocityX + (accelerationX * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+        double predictedVelocityY = velocityY + (accelerationY * Constants.TurretConstants.TURRET_LATENCY.in(Second));
 
         predictedVelocityX = MathUtil.clamp(
             predictedVelocityX,
-            -Math.max(Math.abs(fieldSpeeds.vxMetersPerSecond), Math.abs(targetSpeeds.vxMetersPerSecond)),
-            Math.max(Math.abs(fieldSpeeds.vxMetersPerSecond), Math.abs(targetSpeeds.vxMetersPerSecond))
+            -Math.max(Math.abs(velocityX), Math.abs(targetSpeeds.vxMetersPerSecond)),
+            Math.max(Math.abs(velocityX), Math.abs(targetSpeeds.vxMetersPerSecond))
         );
         predictedVelocityY = MathUtil.clamp(
             predictedVelocityY,
-            -Math.max(Math.abs(fieldSpeeds.vyMetersPerSecond), Math.abs(targetSpeeds.vyMetersPerSecond)),
-            Math.max(Math.abs(fieldSpeeds.vyMetersPerSecond), Math.abs(targetSpeeds.vyMetersPerSecond))
+            -Math.max(Math.abs(velocityY), Math.abs(targetSpeeds.vyMetersPerSecond)),
+            Math.max(Math.abs(velocityY), Math.abs(targetSpeeds.vyMetersPerSecond))
         );
 
-        predictedAccelerationX = (predictedVelocityX - fieldSpeeds.vxMetersPerSecond) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
-        predictedAccelerationY = (predictedVelocityY - fieldSpeeds.vyMetersPerSecond) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+        double predictedAccelerationX = (predictedVelocityX - velocityX) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+        double predictedAccelerationY = (predictedVelocityY - velocityY) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
 
-        double predictedPositionX = botPose.getX() + ((fieldSpeeds.vxMetersPerSecond * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationX * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
-        double predictedPositionY = botPose.getY() + ((fieldSpeeds.vyMetersPerSecond * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationY * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+        double predictedPositionX = botPose.getX() + ((velocityX * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationX * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+        double predictedPositionY = botPose.getY() + ((velocityY * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationY * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
 
         Translation3d robotTargetRelative = new Translation3d(
             targetPosition.getX() - predictedPositionX,
