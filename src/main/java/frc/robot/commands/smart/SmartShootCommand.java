@@ -10,6 +10,7 @@ import frc.robot.RobotContainer;
 import frc.robot.libraries.StateMachine;
 import frc.robot.subsystems.spindexer.SpindexerSubsystem.SpindexerState;
 import frc.robot.subsystems.turret.KickerSubsystem.KickerState;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class SmartShootCommand extends Command {
     public enum SmartShootStatus {
@@ -49,6 +50,12 @@ public class SmartShootCommand extends Command {
                     shootStateMachine.transitionTo(SmartShootStatus.FORWARD);
                 }
                 break;
+        }
+
+        if (RobotContainer.turretSubsystem.getCurrentState() != TurretState.READY) {
+            RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 7);
+            RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 7);
+            return;
         }
 
         switch (shootStateMachine.getCurrentState()) {
