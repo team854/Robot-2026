@@ -199,8 +199,6 @@ public class ProjectileSimulation {
         double angY = launchAngularPitch.in(RadiansPerSecond) * Math.sin(pitchSpinAxisYaw);
         double angZ = launchAngularYaw.in(RadiansPerSecond);
 
-        //double horizontalDistance = Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2));
-
         double prevX = posX;
         double prevY = posY;
         double prevZ = posZ;
@@ -339,10 +337,6 @@ public class ProjectileSimulation {
             if (velZ < 0 && posZ < targetPosition.getZ()) {
                 break;
             }
-            
-            /*if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
-                break;
-            }*/
         }
 
         if (logAllPositions) {

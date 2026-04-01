@@ -143,7 +143,7 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(8);
-        public static final Current KICKER_STALL_CURRENT = Amp.of(28);
+        public static final Current KICKER_REVERSE_CURRENT = Amp.of(28);
     }
 
     public final class SpindexerConstants {
@@ -151,7 +151,7 @@ public final class Constants {
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
         public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(8);
-        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(28);
+        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(28);
     }
 
     public final class OperatorConstants {
@@ -199,7 +199,7 @@ public final class Constants {
         public static final Distance FIELD_SIZE_X = Meter.of(16.54);
         public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
         public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
-        public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.9);
+        public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.8);
         public static final Distance PASS_SIDE_DISTANCE = Meter.of(2);
         public static final Distance PASS_OFFSET = Meter.of(2);
         public static final Distance TRENCH_OFFSET = Meter.of(3);
@@ -211,7 +211,7 @@ public final class Constants {
 
         public static final Distance FIELD_CHECK_DISTANCE = Meter.of(1);
 
-        public static final double SINGLE_TAG_STARTING_STD_DEV = 1;
+        public static final double SINGLE_TAG_STARTING_STD_DEV = 0.9;
         public static final double SINGLE_TAG_DISTANCE_FACTOR = 0.5;
 
         public static final double MULTI_TAG_STARTING_STD_DEV = 0.4;
