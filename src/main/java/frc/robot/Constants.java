@@ -39,10 +39,10 @@ public final class Constants {
         public static final boolean ENABLED = true;
         
         public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
-        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(3.75); // Maximum speed the swerve drive can go
+        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(4.25); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
 
-        public static final double DRIVE_P = 1.1;
+        public static final double DRIVE_P = 2;
         public static final double DRIVE_I = 0;
         public static final double DRIVE_D = 0;
 
@@ -120,7 +120,7 @@ public final class Constants {
 
         public static final double SHOOTER_P = 0.03;
         public static final double SHOOTER_I = 0.0;
-        public static final double SHOOTER_D = 0.003;
+        public static final double SHOOTER_D = 0.0075;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
         public static final double SHOOTER_V = 0.135; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.005; // Unit is V/(rotations/s^2)
@@ -155,7 +155,7 @@ public final class Constants {
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
         public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(7);
-        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(28);
+        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(35);
     }
 
     public final class OperatorConstants {
@@ -189,7 +189,7 @@ public final class Constants {
     public final class FuelPhysicsConstants {
         public static final int TPS = 25;
         public static final int MAX_STEPS = 15;
-        public static final double DRAG_CONSTANT = 0.57;
+        public static final double DRAG_CONSTANT = 0.6;
         public static final double EFFICENCY = 0.455;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
@@ -204,7 +204,7 @@ public final class Constants {
         public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
         public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
         public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.8);
-        public static final Distance PASS_SIDE_DISTANCE = Meter.of(2);
+        public static final Distance PASS_SIDE_DISTANCE = Meter.of(1);
         public static final Distance PASS_OFFSET = Meter.of(2);
         public static final Distance TRENCH_OFFSET = Meter.of(3);
         public static final Distance TRENCH_RADIUS = Meter.of(1);

@@ -36,6 +36,7 @@ public class Robot extends LoggedRobot {
 
 		Logger.start(); 
 		
+		RobotContainer.calculationSubsystem.startPhysicsSimulation();
 	}
 
 	@Override

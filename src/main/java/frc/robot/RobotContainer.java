@@ -118,6 +118,7 @@ public class RobotContainer {
 
 	public static Command driveFieldOrientedAngularVelocity;
 	
+	private int lastTeam = -1;
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
@@ -277,11 +278,13 @@ public class RobotContainer {
 
 		calculationSubsystem.updateAimingPositions();
 
-		calculationSubsystem.startPhysicsSimulation();
-
-		swerveSubsystem.resetOdometry(
-			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
-		);
+		int team = (RobotContainer.isBlueAlliance() ? 1 : 0);
+		if (lastTeam != team) {
+			swerveSubsystem.resetOdometry(
+				FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
+			);
+			lastTeam = team;
+		}
 
 		if (!turretHomed) {
 			if (Robot.isReal()) {
