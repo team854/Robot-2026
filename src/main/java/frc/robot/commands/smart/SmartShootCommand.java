@@ -53,6 +53,8 @@ public class SmartShootCommand extends Command {
                 break;
         }
 
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
+
         boolean shootingAllowed = true;
 
         if (RobotContainer.turretSubsystem.getCurrentState() != TurretState.READY) {
@@ -92,6 +94,7 @@ public class SmartShootCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.STOWED, 5);
         RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 5);
         RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 5);
     }

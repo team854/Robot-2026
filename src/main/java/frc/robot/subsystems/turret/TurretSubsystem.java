@@ -73,8 +73,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private Angle turretManualYaw = Degree.of(0);
     private Angle turretManualPitch = Degree.of(0);
 
-    private double turretStowedYawAngle = 0;
-
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
 
@@ -211,13 +209,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     public void periodic() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
-        } else {
-            requestDesiredState(TurretState.IDLE, 0);
         }
 
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, READY, or MANUAL
         if (getDesiredState() == TurretState.AIMING) {
-            requestDesiredState(TurretState.IDLE, 6);
+            requestDesiredState(TurretState.STOWED, 6);
         }
 
         updateDesiredState();
@@ -229,7 +225,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     resetTurretYaw();
                     transitionTo(TurretState.AIMING);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     resetTurretPitch();
                     resetTurretYaw();
                     transitionTo(TurretState.STOWED);
@@ -268,7 +263,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     transitionTo(TurretState.STOWED);
                 } else if (getDesiredState() == TurretState.HOMING) {
                     resetTurretHoming();
@@ -286,7 +280,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     transitionTo(TurretState.STOWED);
                 } else if (getDesiredState() == TurretState.HOMING) {
                     resetTurretHoming();
@@ -304,7 +297,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     resetTurretPitch();
                     resetTurretYaw();
                     transitionTo(TurretState.STOWED);
@@ -350,7 +342,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case STOWED:
                 // Only stow pitch as that is the only attribute that affects height
                 setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);
-                setTurretYaw(Radian.of(turretStowedYawAngle), true);
 
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();

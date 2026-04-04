@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.LimelightHelpers;
 import frc.robot.libraries.PoseHelpers;
 import swervelib.SwerveDrive;
@@ -61,10 +62,7 @@ public class LimelightSubsystem extends SubsystemBase {
             return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MAX_ANGULAR_VELOCITY);
         }
 
-        if (visionPose.getX() < -Constants.VisionConstants.FIELD_CHECK_DISTANCE.in(Meter)
-            || visionPose.getX() > Constants.FieldConstants.FIELD_SIZE_X.in(Meter) + Constants.VisionConstants.FIELD_CHECK_DISTANCE.in(Meter)
-            || visionPose.getY() < -Constants.VisionConstants.FIELD_CHECK_DISTANCE.in(Meter)
-            || visionPose.getY() > Constants.FieldConstants.FIELD_SIZE_Y.in(Meter) + Constants.VisionConstants.FIELD_CHECK_DISTANCE.in(Meter)) {
+        if (FieldHelpers.poseInField(visionPose)) {
             return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.OUT_OF_FIELD_BOUNDS);
         }
         
@@ -79,9 +77,9 @@ public class LimelightSubsystem extends SubsystemBase {
                 return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.SINGLE_TAG_MAX_DISTANCE);
             }
 
-            stdDevs += (Constants.VisionConstants.SINGLE_TAG_STARTING_STD_DEV + (Math.pow(averageTagDistance, 2.0) * Constants.VisionConstants.SINGLE_TAG_DISTANCE_FACTOR));
+            stdDevs += (Constants.LimelightConstants.SINGLE_TAG_STARTING_STD_DEV + (Math.pow(averageTagDistance, 2.0) * Constants.LimelightConstants.SINGLE_TAG_DISTANCE_FACTOR));
         } else {
-            stdDevs += (Constants.VisionConstants.MULTI_TAG_STARTING_STD_DEV + (averageTagDistance * Constants.VisionConstants.MULTI_TAG_DISTANCE_FACTOR));
+            stdDevs += (Constants.LimelightConstants.MULTI_TAG_STARTING_STD_DEV + (averageTagDistance * Constants.LimelightConstants.MULTI_TAG_DISTANCE_FACTOR));
         }
 
         stdDevs = Math.max(stdDevs, 0.05);
@@ -97,7 +95,7 @@ public class LimelightSubsystem extends SubsystemBase {
         AngularVelocity robotAngularVelocity = RobotContainer.swerveSubsystem.getAngularVelocity();
         ChassisSpeeds robotChassisSpeeds = RobotContainer.swerveSubsystem.getChassisSpeeds();
 
-        for (String limelight : Constants.VisionConstants.LIMELIGHT_NAMES) {
+        for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
             LimelightHelpers.SetRobotOrientation(limelight, robotAngle.in(Degree), robotAngularVelocity.in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
             
             try {

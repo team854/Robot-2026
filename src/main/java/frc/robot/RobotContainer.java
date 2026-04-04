@@ -76,6 +76,7 @@ import frc.robot.subsystems.turret.TurretIOReal;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.LimelightSubsystem;
+import frc.robot.subsystems.vision.QuestNavSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -103,6 +104,7 @@ public class RobotContainer {
 	);
 
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+	public static final QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
 	public static final LightSubsystem lightSubsystem = new LightSubsystem();
 	public static final CalculationSubsystem calculationSubsystem = new CalculationSubsystem();
