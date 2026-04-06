@@ -294,9 +294,8 @@ public class RobotContainer {
 				turretHomeCommand = new SequentialCommandGroup(new HomeTurretCommand(), Commands.runOnce(() -> {turretHomed = true;}));
 				CommandScheduler.getInstance().schedule(turretHomeCommand);
 			} else {
-				
+				turretHomed = true;
 			}
-			turretHomed = true;
 		}
 		
 	}

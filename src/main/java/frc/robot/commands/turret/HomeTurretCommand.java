@@ -14,7 +14,7 @@ public class HomeTurretCommand extends Command{
     
     @Override
     public void initialize() {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.HOMING, 5);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 6);
         hasStartedHoming = false;
     }
 
