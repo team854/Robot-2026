@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
+import java.util.Map;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -146,7 +147,7 @@ public final class Constants {
         public static final LEDPattern COLOR_SHOOTER_ON = LEDPattern.solid(new Color(0, 255, 0));
         public static final LEDPattern COLOR_SHOOTER_OFF = LEDPattern.solid(new Color(255, 0, 0));
         public static final LEDPattern COLOR_INVALID_SHOT = LEDPattern.solid(new Color(0, 0, 255));
-        public static final LEDPattern COLOR_DS_DISCONNECTED = LEDPattern.solid(new Color(255, 0, 0)).blink(Second.of(0.5));
+        public static final LEDPattern COLOR_TURRET_HOMING = LEDPattern.solid(Color.kPurple);
         public static final LEDPattern COLOR_BOT_DISABLED = LEDPattern.rainbow(255, 255).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.25), Meter.of(0.015));
     }
 
@@ -192,6 +193,10 @@ public final class Constants {
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
         public static final int INTAKE_DEPLOYED_SENSOR_DIO = 1;
+    }
+
+    public final class HealthConstants {
+        public static final Time CYCLE_TIME = Second.of(1);
     }
 
     public final class FuelPhysicsConstants {

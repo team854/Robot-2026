@@ -55,6 +55,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
+import frc.robot.subsystems.logging.HealthSubsystem;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
 import frc.robot.subsystems.spindexer.SpindexerIO;
 import frc.robot.subsystems.spindexer.SpindexerIOReal;
@@ -78,6 +79,7 @@ public class RobotContainer {
 	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
+	public static final HealthSubsystem healthSubsystem = new HealthSubsystem();
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(
 		Constants.SwerveConstants.ENABLED ? new SwerveIOReal() : new SwerveIO() {}
 	);
@@ -270,6 +272,20 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return autoChooser.getSelected();
+	}
+
+	public void periodicHealthChecks() {
+		if (!DriverStation.isJoystickConnected(0)) {
+			healthSubsystem.reportError(ErrorConstants.JOYSTICKS_DISCONNECTED);
+		} else {
+			healthSubsystem.clearError(ErrorConstants.JOYSTICKS_DISCONNECTED);
+		}
+
+		if (!DriverStation.isDSAttached()) {
+			healthSubsystem.reportError(ErrorConstants.DS_DISCONNECTED);
+		} else {
+			healthSubsystem.clearError(ErrorConstants.DS_DISCONNECTED);
+		}
 	}
 
 	public void initAll() {

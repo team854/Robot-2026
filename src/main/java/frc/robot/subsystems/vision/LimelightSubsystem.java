@@ -97,6 +97,8 @@ public class LimelightSubsystem extends SubsystemBase {
 
         for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
             LimelightHelpers.SetRobotOrientation(limelight, robotAngle.in(Degree), robotAngularVelocity.in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
+
+            System.out.println(LimelightHelpers.getLimelightNTDouble(limelight, "hb"));
             
             try {
                 LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);

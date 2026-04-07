@@ -14,6 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
 import frc.robot.subsystems.turret.CalculationSubsystem.Zone;

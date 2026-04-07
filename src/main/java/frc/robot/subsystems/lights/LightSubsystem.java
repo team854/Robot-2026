@@ -17,6 +17,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.SubsystemStateMachine;
+import frc.robot.subsystems.logging.HealthSubsystem.ErrorCode;
 import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
@@ -32,11 +33,17 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     private LEDPattern determineLEDPattern() {
-        if (!DriverStation.isDSAttached()) {
-            return Constants.LightConstants.COLOR_DS_DISCONNECTED;
+
+        ErrorCode errorCode = RobotContainer.healthSubsystem.getCurrentDisplayError();
+        
+        if (errorCode != null) {
+            return errorCode.ledPattern();
         }
 
         if (DriverStation.isEnabled()) {
+            if (RobotContainer.turretSubsystem.getCurrentState() == TurretState.HOMING) {
+                return Constants.LightConstants.COLOR_TURRET_HOMING;
+            }
             
             if (RobotContainer.calculationSubsystem.getTargetSolutions().errorCode() != TargetErrorCode.NONE) {
                 if (Timer.getFPGATimestamp() % 0.4d > 0.2) {

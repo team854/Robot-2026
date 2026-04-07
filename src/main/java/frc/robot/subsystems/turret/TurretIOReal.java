@@ -4,10 +4,12 @@ import static edu.wpi.first.units.Units.Radian;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -27,9 +29,9 @@ public class TurretIOReal implements TurretIO {
     private double yawAbsoluteOffset = 0;
     
     
-    private SparkMax turretPitchMotor;
-    private RelativeEncoder turretPitchEncoder;
-    private SparkMaxConfig turretPitchConfig;
+    private final SparkMax turretPitchMotor;
+    private final RelativeEncoder turretPitchEncoder;
+    private final SparkMaxConfig turretPitchConfig;
     
 
     private final DigitalInput yawHomingSensor;
@@ -151,4 +153,5 @@ public class TurretIOReal implements TurretIO {
     public void resetPitchPosition() {
         turretPitchEncoder.setPosition(0);
     }
+    
 }
