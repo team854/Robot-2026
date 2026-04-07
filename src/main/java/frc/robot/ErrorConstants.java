@@ -33,6 +33,14 @@ public final class ErrorConstants {
         true
     );
 
+    public static final ErrorCode SWERVE_ABSOLUTE_ENCODER_ERROR = new ErrorCode(
+        10,
+        "A swerve drive absolute encoder has an error",
+        LEDPattern.steps(Map.of(0, Color.kRed, 0.5, Color.kGreen)),
+        false,
+        true
+    );
+
     public static final ErrorCode PIGEON_DISCONNECTED = new ErrorCode(
         10,
         "The pigeon is not connected",

@@ -136,6 +136,17 @@ public class SwerveIOReal implements SwerveIO {
     }
 
     @Override
+    public boolean checkAngleAbsoluteEncodersError() {
+        for (SwerveModule swerveModule : swerveDrive.getModules()) {
+            if (swerveModule.getAbsoluteEncoderReadIssue()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean checkPigeonError() {
         Pigeon2 pigeon2 = (Pigeon2) swerveDrive.getGyro().getIMU();
         return !pigeon2.isConnected();

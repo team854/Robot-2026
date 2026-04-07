@@ -199,6 +199,7 @@ public final class Constants {
         public static final Time CYCLE_TIME = Second.of(1);
 
         public static final Time CAN_ERROR_PERSIST = Second.of(2.5);
+        public static final Time ABSOLUTE_ENCODER_ERROR_PERSIST = Second.of(1);
     }
 
     public final class FuelPhysicsConstants {

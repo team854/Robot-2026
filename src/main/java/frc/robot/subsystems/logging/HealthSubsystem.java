@@ -29,7 +29,11 @@ public class HealthSubsystem extends SubsystemBase {
      *      <li>6-10: Errors</li>
      *      <li>11-15: Critical</li>
      * </ul>
-     */    
+     * @param errorText Text describing the error
+     * @param ledPattern An {@link LEDPattern} that should be shown on the leds if this error is reported
+     * @param showEnabled Should the pattern be shown when the robot is enabled
+     * @param showDisabled Should the pattern be shown when the robot is disabled
+    **/    
     public record ErrorCode (
         int priority,
         String errorText,

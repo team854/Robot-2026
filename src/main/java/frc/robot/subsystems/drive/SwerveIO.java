@@ -37,5 +37,6 @@ public interface SwerveIO {
     default PIDConstants getHeadingPIDConstants() {return new PIDConstants(0, 0, 0);}
 
     default boolean checkCANError() {return false;}
+    default boolean checkAngleAbsoluteEncodersError() {return false;}
     default boolean checkPigeonError() {return false;}
 }

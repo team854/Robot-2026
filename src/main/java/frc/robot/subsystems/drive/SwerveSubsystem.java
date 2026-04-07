@@ -44,7 +44,8 @@ public class SwerveSubsystem extends SubsystemBase{
 
     private final SwerveIO io;
 
-    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
+    private double lastCANErrorTimestamp = Double.NEGATIVE_INFINITY;
+    private double lastAbsoluteEncoderErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public SwerveSubsystem(SwerveIO io) {
         this.io = io;
@@ -141,13 +142,26 @@ public class SwerveSubsystem extends SubsystemBase{
     public void checkCanHealth() {
         double timestamp = Timer.getFPGATimestamp();
         if (io.checkCANError()) {
-            lastErrorTimestamp = timestamp;
+            lastCANErrorTimestamp = timestamp;
         }
 
-        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+        if ((timestamp - lastCANErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
             RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         } else {
             RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
+    public void checkAngleAbsoluteEncodersHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkAngleAbsoluteEncodersError()) {
+            lastAbsoluteEncoderErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastAbsoluteEncoderErrorTimestamp) < Constants.HealthConstants.ABSOLUTE_ENCODER_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.SWERVE_ABSOLUTE_ENCODER_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.SWERVE_ABSOLUTE_ENCODER_ERROR);
         }
     }
 
@@ -164,6 +178,7 @@ public class SwerveSubsystem extends SubsystemBase{
         RobotContainer.limelightSubsystem.getVisionEstimate();
 
         checkCanHealth();
+        checkAngleAbsoluteEncodersHealth();
         checkPigeonHealth();
     }
 }
