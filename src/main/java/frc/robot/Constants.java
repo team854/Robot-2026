@@ -199,6 +199,7 @@ public final class Constants {
         public static final Time CYCLE_TIME = Second.of(1);
 
         public static final Time CAN_ERROR_PERSIST = Second.of(2.5);
+        public static final Time LIMELIGHT_ERROR_PERSIST = Second.of(1);
         public static final Time ABSOLUTE_ENCODER_ERROR_PERSIST = Second.of(1);
 
         public static final Voltage LOW_BATTERY_THRESHOLD = Volt.of(11.9);
@@ -231,7 +232,7 @@ public final class Constants {
     }
 
     public final class LimelightConstants {
-        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight"};
+        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-back", "limelight-back-left"};
 
         public static final double SINGLE_TAG_STARTING_STD_DEV = 0.9;
         public static final double SINGLE_TAG_DISTANCE_FACTOR = 0.5;

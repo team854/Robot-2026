@@ -37,7 +37,7 @@ public class LimelightSubsystem extends SubsystemBase {
     public enum VisionRejection {
         NONE,
         NO_TAGS,
-        MESUREMENT_NULL,
+        MEASUREMENT_NULL,
         SINGLE_TAG_MAX_DISTANCE,
         MAX_ANGULAR_VELOCITY,
         OUT_OF_FIELD_BOUNDS
@@ -58,8 +58,7 @@ public class LimelightSubsystem extends SubsystemBase {
         }
     }
 
-    @Override
-    public void periodic() {
+    public void checkLimelightHealth() {
         boolean limelightDisconnected = false;
 
         for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
@@ -69,7 +68,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 lastHeartbeats.put(limelight, heartbeat);
                 lastHeartbeatTimes.put(limelight, timestamp);
             } else {
-                if ((timestamp - lastHeartbeatTimes.get(limelight)) > 1.0) {
+                if ((timestamp - lastHeartbeatTimes.get(limelight)) > Constants.HealthConstants.LIMELIGHT_ERROR_PERSIST.in(Second)) {
                     limelightDisconnected = true;
                 }
             }
@@ -81,6 +80,11 @@ public class LimelightSubsystem extends SubsystemBase {
         } else {
             RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.LIMELIGHT_DISCONNECTED);
         }
+    }
+
+    @Override
+    public void periodic() {
+        checkLimelightHealth();
     }
 
     public VisionStdDevs calculateVisionStdDevs(Pose2d visionPose, int tagCount, double averageTagDistance, ChassisSpeeds robotChassisSpeeds, AngularVelocity robotAngularVelocity) {
@@ -142,7 +146,7 @@ public class LimelightSubsystem extends SubsystemBase {
                     );
 
                 } else {
-                    stdDevs = new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MESUREMENT_NULL);
+                    stdDevs = new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MEASUREMENT_NULL);
                 }
 
 
