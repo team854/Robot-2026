@@ -84,6 +84,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE, TurretState.IDLE);
 
+        if (io == null) {
+            throw new IllegalArgumentException("TurretIO cannot be null");
+        }
+
         this.io = io;
 
         turretYawPID.setIZone(Constants.TurretConstants.TURRET_YAW_IZONE.in(Radian));
@@ -388,6 +392,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 setTurretPitch(turretManualPitch);
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();
+                break;
+            default:
+                turretYawVoltage = 0.0;
+                turretPitchVoltage = 0.0;
+                System.err.println("Turret in unknown state: " + getCurrentState());
                 break;
 
         }

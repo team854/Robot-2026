@@ -30,7 +30,6 @@ public class ToggleFixedAimCommand extends Command{
         if (targetSolution.errorCode() == TargetErrorCode.NONE) {
 
 
-            Angle robotRelativeAngle = RobotContainer.turretSubsystem.getTurretPointAngle(targetSolution.launchYaw());
             RobotContainer.turretSubsystem.setTurretYaw(Degree.of(0), false);
 
             RobotContainer.turretSubsystem.setTurretPitch(Degree.of(90).minus(targetSolution.launchPitch()));

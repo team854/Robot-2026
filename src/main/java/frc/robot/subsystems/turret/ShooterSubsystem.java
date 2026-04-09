@@ -3,6 +3,7 @@ package frc.robot.subsystems.turret;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,11 +29,15 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     public ShooterSubsystem(ShooterIO io) {
         super(ShooterState.IDLE, null);
 
+        if (io == null) {
+            throw new IllegalArgumentException("ShooterIO cannot be null");
+        }
+        
         this.io = io;
     }
 
     public void setTargetSpeed(AngularVelocity speed) {
-        shooterTargetVelocity = speed.in(RotationsPerSecond);
+        shooterTargetVelocity = MathUtil.clamp(speed.in(RotationsPerSecond), Constants.ShooterConstants.SHOOTER_MIN_VELOCITY.in(RotationsPerSecond), Constants.ShooterConstants.SHOOTER_MAX_VELOCITY.in(RotationsPerSecond));
     }
 
     public AngularVelocity getTargetSpeed() {
@@ -106,6 +111,10 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
                 break;
             case READY:
                 io.setClosedVelocity(shooterTargetVelocity);
+                break;
+            default:
+                io.setMotorsVoltage(0.0); 
+                System.err.println("Shooter in unknown state: " + getCurrentState());
                 break;
         }
 

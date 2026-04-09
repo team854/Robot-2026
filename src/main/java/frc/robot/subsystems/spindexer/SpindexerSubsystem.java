@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,10 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
 
     public SpindexerSubsystem(SpindexerIO io) {
         super(SpindexerState.IDLE, SpindexerState.IDLE);
+
+        if (io == null) {
+            throw new IllegalArgumentException("SpindexerIO cannot be null");
+        }
 
         this.io = io;
     }
@@ -117,8 +122,13 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
             case READY:
                 spindexerVoltage = Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);
                 break;
+            default:
+                spindexerVoltage = 0.0;
+                System.err.println("Spindexer in unknown state: " + getCurrentState());
+                break;
         }
 
+        spindexerVoltage = MathUtil.clamp(spindexerVoltage, -10, 10);
         io.setMotorVoltage(spindexerVoltage);
 
         checkCanHealth();

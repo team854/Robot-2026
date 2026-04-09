@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,10 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     public KickerSubsystem(KickerIO io) {
         super(KickerState.IDLE, KickerState.IDLE);
+
+        if (io == null) {
+            throw new IllegalArgumentException("KickerIO cannot be null");
+        }
 
         this.io = io;
     }
@@ -117,8 +122,13 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case READY:
                 kickerVoltage = Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
+            default:
+                kickerVoltage = 0.0;
+                System.err.println("Kicker in unknown state: " + getCurrentState());
+                break;
         }
 
+        kickerVoltage = MathUtil.clamp(kickerVoltage, -12, 12);
         io.setMotorVoltage(kickerVoltage);
 
         checkCanHealth();

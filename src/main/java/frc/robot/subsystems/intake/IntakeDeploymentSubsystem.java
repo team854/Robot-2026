@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -25,6 +26,10 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
 
     public IntakeDeploymentSubsystem(IntakeDeploymentIO io) {
         super(IntakeDeploymentState.UNKNOWN, null);
+
+        if (io == null) {
+            throw new IllegalArgumentException("IntakeDeploymentIO cannot be null");
+        }
 
         this.io = io;
     }
@@ -119,8 +124,13 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
             case DEPLOYING:
                 intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
                 break;
+            default:
+                intakeDeploymentVoltage = 0.0;
+                System.err.println("IntakeDeployment in unknown state: " + getCurrentState());
+                break;
         }
 
+        intakeDeploymentVoltage = MathUtil.clamp(intakeDeploymentVoltage, -5, 5);
         io.setDeploymentMotorVoltage(intakeDeploymentVoltage);
 
         checkCanHealth();
