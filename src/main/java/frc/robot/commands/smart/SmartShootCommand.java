@@ -53,7 +53,7 @@ public class SmartShootCommand extends Command {
                 break;
         }
 
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 7);
 
         boolean shootingAllowed = true;
 
@@ -76,12 +76,12 @@ public class SmartShootCommand extends Command {
 
         switch (shootStateMachine.getCurrentState()) {
             case FORWARD:
-                RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY, 5);
-                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY, 5);
+                RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY, 7);
+                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY, 7);
                 break;
             case REVERSE:
-                RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY_REVERSE, 5);
-                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY, 5);
+                RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.READY_REVERSE, 7);
+                RobotContainer.kickerSubsystem.requestDesiredState(KickerState.READY, 7);
                 break;
         }
         
@@ -94,8 +94,8 @@ public class SmartShootCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.STOWED, 5);
-        RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 5);
-        RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 5);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.STOWED, 7);
+        RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 7);
+        RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 7);
     }
 }
