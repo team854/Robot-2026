@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.181417069243156,
-        "y": 7.408864734299517
+        "x": 6.342624999999999,
+        "y": 7.384715909090909
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.256569126488237,
-        "y": 7.4250901368092865
+        "x": 5.41777705724508,
+        "y": 7.400941311600679
       },
       "isLocked": false,
       "linkedName": "Left Collection Start"
@@ -52,7 +52,7 @@
   "reversed": false,
   "folder": "Left Auto Paths",
   "idealStartingState": {
-    "velocity": 3.0,
+    "velocity": 0.0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

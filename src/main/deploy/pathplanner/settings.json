@@ -1,10 +1,11 @@
 {
-  "robotWidth": 0.7874,
-  "robotLength": 0.9144,
+  "robotWidth": 0.787,
+  "robotLength": 0.914,
   "holonomicMode": true,
   "pathFolders": [
     "Left Auto Paths",
     "Middle Paths",
+    "test",
     "Not Being Used",
     "Right Auto Paths"
   ],
@@ -34,6 +35,7 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":true}}"
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.607,\"y\":0.0},\"size\":{\"width\":0.787,\"length\":0.3},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Circle\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.2,\"y\":0.15},\"radius\":0.181,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
