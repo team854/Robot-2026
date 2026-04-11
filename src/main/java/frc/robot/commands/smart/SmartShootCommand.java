@@ -1,15 +1,17 @@
 package frc.robot.commands.smart;
 
 import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Radian;
 
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.StateMachine;
 import frc.robot.subsystems.spindexer.SpindexerSubsystem.SpindexerState;
 import frc.robot.subsystems.turret.KickerSubsystem.KickerState;
+import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class SmartShootCommand extends Command {
     public enum SmartShootStatus {
@@ -38,8 +40,8 @@ public class SmartShootCommand extends Command {
             case FORWARD:
                 if (shootStateMachine.getStateTimer() > 0.5) {
                     if (overCurrentDebouncer.calculate(
-                        RobotContainer.spindexerSubsystem.getMotorCurrent().in(Amp) >= Constants.SpindexerConstants.SPINDEXER_STALL_CURRENT.in(Amp)
-                        || RobotContainer.kickerSubsystem.getMotorCurrent().in(Amp) >= Constants.KickerConstants.KICKER_STALL_CURRENT.in(Amp))) {
+                        RobotContainer.spindexerSubsystem.getMotorCurrent().in(Amp) >= Constants.SpindexerConstants.SPINDEXER_REVERSE_CURRENT.in(Amp)
+                        || RobotContainer.kickerSubsystem.getMotorCurrent().in(Amp) >= Constants.KickerConstants.KICKER_REVERSE_CURRENT.in(Amp))) {
                         shootStateMachine.transitionTo(SmartShootStatus.REVERSE);
                     }
                 }
@@ -49,6 +51,27 @@ public class SmartShootCommand extends Command {
                     shootStateMachine.transitionTo(SmartShootStatus.FORWARD);
                 }
                 break;
+        }
+
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
+
+        boolean shootingAllowed = true;
+
+        if (RobotContainer.turretSubsystem.getCurrentState() != TurretState.READY) {
+            shootingAllowed = false;
+        } else if (RobotContainer.turretSubsystem.getTurretYaw().in(Radian) < Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian) + Constants.ShooterConstants.SHOOTER_YAW_DEADZONE.in(Radian)
+            || RobotContainer.turretSubsystem.getTurretYaw().in(Radian) > Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) - Constants.ShooterConstants.SHOOTER_YAW_DEADZONE.in(Radian)) {
+            shootingAllowed = false;
+        } else if (RobotContainer.shooterSubsystem.getCurrentState() != ShooterState.READY) {
+            shootingAllowed = false;
+        }
+
+        
+
+        if (shootingAllowed == false) {
+            RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 7);
+            RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 7);
+            return;
         }
 
         switch (shootStateMachine.getCurrentState()) {
@@ -71,6 +94,7 @@ public class SmartShootCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.STOWED, 5);
         RobotContainer.spindexerSubsystem.requestDesiredState(SpindexerState.IDLE, 5);
         RobotContainer.kickerSubsystem.requestDesiredState(KickerState.IDLE, 5);
     }

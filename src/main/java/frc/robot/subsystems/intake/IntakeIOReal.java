@@ -28,4 +28,14 @@ public class IntakeIOReal implements IntakeIO {
     public void setIntakeMotorVoltage(double voltage) {
         intakeMotor.setVoltage(voltage);
     }
+
+    @Override
+    public boolean checkCANError() {
+        intakeMotor.getBusVoltage();
+        if (intakeMotor.getFaults().can == true) {
+            return true;
+        }
+
+        return false;
+    }
 }

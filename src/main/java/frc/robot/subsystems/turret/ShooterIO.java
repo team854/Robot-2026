@@ -7,4 +7,6 @@ public interface ShooterIO {
     default double getMotor2RPS() {return 0;}
 
     default void setClosedVelocity(double targetRPS) {}
+
+    default boolean checkCANError() {return false;}
 }

@@ -5,4 +5,6 @@ public interface IntakeDeploymentIO {
 
     default boolean getRetractedSensor() {return true;}
     default boolean getDeployedSensor() {return false;}
+
+    default boolean checkCANError() {return false;}
 }

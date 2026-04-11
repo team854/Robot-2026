@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.181417069243156,
-        "y": 7.408864734299517
+        "x": 1.5,
+        "y": 4.339058487874465
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.256569126488237,
-        "y": 7.4250901368092865
+        "x": 2.5,
+        "y": 4.339058487874465
       },
       "isLocked": false,
-      "linkedName": "Left Collection Start"
+      "linkedName": "teststart"
     },
     {
       "anchor": {
-        "x": 4.45,
-        "y": 7.408864734299517
+        "x": 2.5,
+        "y": 4.339058487874465
       },
       "prevControl": {
-        "x": 5.910286225407269,
-        "y": 7.408864734304814
+        "x": 1.5,
+        "y": 4.339058487874465
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Start"
+      "linkedName": "testend"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -46,13 +41,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.0,
+    "velocity": 0,
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Left Auto Paths",
+  "folder": null,
   "idealStartingState": {
-    "velocity": 3.0,
+    "velocity": 0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

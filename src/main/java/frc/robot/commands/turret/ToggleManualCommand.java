@@ -2,7 +2,6 @@ package frc.robot.commands.turret;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volt;
 
 import java.util.function.DoubleSupplier;
 
@@ -10,7 +9,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class ToggleManualCommand extends Command {
@@ -31,7 +29,7 @@ public class ToggleManualCommand extends Command {
 
     @Override
     public void initialize() {
-        RobotContainer.turretSubsystem.setOverrideState(TurretState.MANUAL);
+        
 
         targetYaw = RobotContainer.turretSubsystem.getTurretYaw().in(Degree);
         targetPitch = RobotContainer.turretSubsystem.getTurretPitch().in(Degree);
@@ -39,6 +37,8 @@ public class ToggleManualCommand extends Command {
 
     @Override
     public void execute() {
+
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.MANUAL, 15);
         
         targetYaw = turretYawSupplier.getAsDouble() * 0.1;
         targetPitch += turretPitchSupplier.getAsDouble() * 0.1;
@@ -66,7 +66,7 @@ public class ToggleManualCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.setOverrideState(null);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 0);
         RobotContainer.shooterSubsystem.setTargetSpeed(RotationsPerSecond.of(0));
     }
 }

@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start test"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "end test"
+            "pathName": "test start"
           }
         }
       ]

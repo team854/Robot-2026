@@ -5,9 +5,8 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 
-import java.time.Instant;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,102 +15,71 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
-import frc.robot.libraries.FieldHelpers;
 import swervelib.SwerveDrive;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase{
     
-    private SwerveDrive swerveDrive;
-    private final Rotation3d gyroOffset = new Rotation3d(
-        0.0,
-        0.0,
-        Constants.SwerveConstants.GYRO_OFFSET.in(Radian)
-    );
+    
 
+    private final SwerveIO io;
 
+    private double lastCANErrorTimestamp = Double.NEGATIVE_INFINITY;
+    private double lastAbsoluteEncoderErrorTimestamp = Double.NEGATIVE_INFINITY;
 
-    public SwerveSubsystem() {
-        if (Constants.SwerveConstants.ENABLED) {
-            swervelib.telemetry.SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    public SwerveSubsystem(SwerveIO io) {
+        this.io = io;
 
-            try {
-
-                // Will throw error if no swerve directory (Thats the purpose)
-                swerveDrive = new SwerveParser(Constants.SwerveConstants.SWERVE_DIRECTORY)
-                    .createSwerveDrive(
-                        Constants.SwerveConstants.MAX_SPEED.in(MetersPerSecond),
-                        new Pose2d(
-                            new Translation2d(Meter.of(3), Meter.of(4)),
-                            Rotation2d.fromDegrees(0)));
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
-            swerveDrive.chassisVelocityCorrection = true;
-
-            swerveDrive.setChassisDiscretization(true, 0.02);
-            swerveDrive.setGyroOffset(gyroOffset);
-
-            RobotConfig config;
-            try {
-                config = RobotConfig.fromGUISettings();
-            } catch (Exception e) {
-                DriverStation.reportError("Failed to load PathPlanner config", true);
-                e.printStackTrace();
-                return;
-            }
-            
-            AutoBuilder.configure(
-                this::getPose2d,
-                this::resetOdometry,
-                this::getRobotChassisSpeeds,
-                (speeds, feedforwards) -> driveRobotRelative(speeds),
-                new PPHolonomicDriveController(
-                    new PIDConstants(Constants.SwerveConstants.DRIVE_P, Constants.SwerveConstants.DRIVE_I, Constants.SwerveConstants.DRIVE_D),
-                    new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)
-                ),
-                config, 
-                RobotContainer::isRedAlliance,
-                this
-            );
-
-            //swerveDrive.stopOdometryThread();
+        RobotConfig config;
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            DriverStation.reportError("Failed to load PathPlanner config", true);
+            e.printStackTrace();
+            return;
         }
+        
+        AutoBuilder.configure(
+            this::getPose2d,
+            this::resetOdometry,
+            this::getRobotChassisSpeeds,
+            (speeds, feedforwards) -> driveRobotRelative(speeds),
+            new PPHolonomicDriveController(
+                new PIDConstants(Constants.SwerveConstants.DRIVE_P, Constants.SwerveConstants.DRIVE_I, Constants.SwerveConstants.DRIVE_D),
+                io.getHeadingPIDConstants()
+            ),
+            config, 
+            RobotContainer::isRedAlliance,
+            this
+        );
     }
 
     public void resetOdometry(Pose2d initialPose) {
-        if (Constants.SwerveConstants.ENABLED) {
-            swerveDrive.resetOdometry(initialPose);
-        }
+        io.resetOdometry(initialPose);
     }
 
     public void resetOdometry(Translation2d initialTranslation) {
-        resetOdometry(
+        io.resetOdometry(
             new Pose2d(
                 initialTranslation,
                 Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
@@ -120,128 +88,97 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void zeroGyro() {
-        if (Constants.SwerveConstants.ENABLED) {
-
-            resetOdometry(
-                new Pose2d(
-                    swerveDrive.getPose().getTranslation(),
-                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
-                )
-            );
-            System.out.println("Zeroed Swerve");
-        }
+        resetOdometry(io.getPose2d().getTranslation());
+        System.out.println("Zeroed Swerve");
     }
 
     public Command zeroGyroCommand() {
 
-        return Commands.runOnce(() -> {resetOdometry(FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), RobotContainer.isRedAlliance()));});
+        return Commands.runOnce(() -> {zeroGyro();});
     }
 
     public Pose2d getPose2d() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return new Pose2d();
-        }
-
-        return swerveDrive.getPose();
+        return io.getPose2d();
     }
 
      public SwerveDrive getSwerveDrive() {
-        return swerveDrive;
-    }
-
-    public ChassisSpeeds getChassisSpeeds() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return new ChassisSpeeds();
-        }
-
-        return swerveDrive.getRobotVelocity();
+        return io.getSwerveDrive();
     }
 
     public ChassisSpeeds getRobotChassisSpeeds() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return new ChassisSpeeds();
-        } 
-
-        return swerveDrive.getRobotVelocity();
+        return io.getRobotChassisSpeeds();
     }
 
     public ChassisSpeeds getFieldChassisSpeeds() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return new ChassisSpeeds();
-        }
-
-        return swerveDrive.getFieldVelocity();
+        return io.getFieldChassisSpeeds();
     }
 
     public void driveFieldOriented(ChassisSpeeds speeds) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return;
-        }
-
-        swerveDrive.driveFieldOriented(speeds);
+        io.driveFieldOriented(speeds);
     }
 
-    public Angle getAngle() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return Degree.of(0);
-        }
 
-        return Degree.of(swerveDrive.getPose().getRotation().getDegrees());
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        io.driveRobotRelative(speeds);
+    }
+
+
+    public Angle getAngle() {
+        return Radian.of(io.getAngle());
     }
 
     public AngularVelocity getAngularVelocity() {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return RadiansPerSecond.of(0);
-        }
-
-        return RadiansPerSecond.of(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
-    }
-    
-    public void addVisionMeasurement(Pose2d robotPose, double timestamp) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return;
-        }
-
-        swerveDrive.addVisionMeasurement(robotPose, timestamp);
+        return RadiansPerSecond.of(io.getAngularVelocity());
     }
 
     public void addVisionMeasurement(Pose2d robotPose, double timestamp, Matrix<N3, N1> stdDevs) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return;
-        }
-
-        swerveDrive.addVisionMeasurement(robotPose, timestamp, stdDevs);
+        io.addVisionMeasurement(robotPose, timestamp, stdDevs);
     }
-
-    public void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return;
-        }
-
-        swerveDrive.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
-    }
-
-    public void driveRobotRelative(ChassisSpeeds speeds) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return;
-        }
-
-        swerveDrive.setChassisSpeeds(speeds); 
-    }
-
 
     public Command driveFieldOriented(Supplier<ChassisSpeeds> speeds) {
-        if (Constants.SwerveConstants.ENABLED == false) {
-            return run(() -> {});
+        return run(() -> io.driveFieldOriented(speeds.get()));
+    }
+
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastCANErrorTimestamp = timestamp;
         }
-        
-        return run(() -> swerveDrive.driveFieldOriented(speeds.get()));
+
+        if ((timestamp - lastCANErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
+    public void checkAngleAbsoluteEncodersHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkAngleAbsoluteEncodersError()) {
+            lastAbsoluteEncoderErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastAbsoluteEncoderErrorTimestamp) < Constants.HealthConstants.ABSOLUTE_ENCODER_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.SWERVE_ABSOLUTE_ENCODER_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.SWERVE_ABSOLUTE_ENCODER_ERROR);
+        }
+    }
+
+    public void checkPigeonHealth() {
+        if (io.checkPigeonError()) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
+        }
     }
 
     @Override
     public void periodic() {
-        if (Constants.SwerveConstants.ENABLED == true) {
-            RobotContainer.limelightSubsystem.getVisionEstimate();
-        }
+        RobotContainer.limelightSubsystem.getVisionEstimate();
+
+        checkCanHealth();
+        checkAngleAbsoluteEncodersHealth();
+        checkPigeonHealth();
     }
 }

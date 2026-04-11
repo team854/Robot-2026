@@ -9,7 +9,8 @@
       "axisConfig": [
         {
           "decKey": 65,
-          "incKey": 68
+          "incKey": 68,
+          "maxAbsValue": 0.75
         },
         {
           "decKey": 87,

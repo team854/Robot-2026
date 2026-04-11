@@ -4,28 +4,24 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
 import frc.robot.subsystems.turret.CalculationSubsystem.Zone;
 
 public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.TurretSubsystem.TurretState> {
-
-    private final double TURRET_THRESHOLD = 0.02; // Radian
 
     public enum TurretState {
         IDLE,
@@ -80,13 +76,17 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private Angle turretManualYaw = Degree.of(0);
     private Angle turretManualPitch = Degree.of(0);
 
-    private double turretStowedYawAngle = 0;
-
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
 
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
+
     public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE, TurretState.IDLE);
+
+        if (io == null) {
+            throw new IllegalArgumentException("TurretIO cannot be null");
+        }
 
         this.io = io;
 
@@ -156,7 +156,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretPrevYawSetpointVelocity = 0;
     }
 
-    private void resetTurretHoming() {
+    public void resetTurretHoming() {
         turretHomingStage = HomingStage.SEARCHING;
         turretHomingStart = 0;
         io.resetHomingCounter();
@@ -210,20 +210,37 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretManualPitch = pitch;
     }
 
+    public void resetPitchPosition() {
+        io.resetPitchPosition();
+    }
+
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
     @Override
-    public void periodic() {
+    public void statePeriodicBefore() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
-        } else {
-            requestDesiredState(TurretState.IDLE, 0);
         }
 
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, READY, or MANUAL
         if (getDesiredState() == TurretState.AIMING) {
-            requestDesiredState(TurretState.IDLE, 6);
+            requestDesiredState(TurretState.IDLE, 25);
         }
+    }
 
-        updateDesiredState();
+    @Override
+    public void statePeriodic() {
 
         switch (getCurrentState()) {
             case IDLE:
@@ -232,7 +249,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     resetTurretYaw();
                     transitionTo(TurretState.AIMING);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     resetTurretPitch();
                     resetTurretYaw();
                     transitionTo(TurretState.STOWED);
@@ -241,6 +257,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     resetTurretYaw();
                     resetTurretHoming();
                     transitionTo(TurretState.HOMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;
@@ -264,23 +282,27 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     transitionTo(TurretState.HOMING);
                 } else if (getDesiredState() == TurretState.READY) {
                     transitionTo(TurretState.AIMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
+
                 break;
 
             case AIMING:
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     transitionTo(TurretState.STOWED);
                 } else if (getDesiredState() == TurretState.HOMING) {
                     resetTurretHoming();
                     transitionTo(TurretState.HOMING);
                 } else if (
-                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) <= TURRET_THRESHOLD &&
-                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) <= TURRET_THRESHOLD
+                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) <= Constants.TurretConstants.TURRET_PITCH_READY_THRESHOLD.in(Radian) &&
+                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) <= Constants.TurretConstants.TURRET_YAW_READY_THRESHOLD.in(Radian)
                 ) {
                     transitionTo(TurretState.READY);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;
@@ -289,16 +311,17 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     transitionTo(TurretState.STOWED);
                 } else if (getDesiredState() == TurretState.HOMING) {
                     resetTurretHoming();
                     transitionTo(TurretState.HOMING);
                 } else if (
-                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= (TURRET_THRESHOLD + 0.02) ||
-                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (TURRET_THRESHOLD + 0.02)
+                    Math.abs(getTurretTargetPitch().in(Radian) - getTurretPitch().in(Radian)) >= (Constants.TurretConstants.TURRET_PITCH_READY_THRESHOLD.in(Radian) + 0.02) ||
+                    Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (Constants.TurretConstants.TURRET_YAW_READY_THRESHOLD.in(Radian) + 0.02)
                 ) {
                     transitionTo(TurretState.AIMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;
@@ -307,7 +330,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (getDesiredState() == TurretState.IDLE) {
                     transitionTo(TurretState.IDLE);
                 } else if (getDesiredState() == TurretState.STOWED) {
-                    turretStowedYawAngle = io.getYawRadians();
                     resetTurretPitch();
                     resetTurretYaw();
                     transitionTo(TurretState.STOWED);
@@ -353,7 +375,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case STOWED:
                 // Only stow pitch as that is the only attribute that affects height
                 setTurretPitch(Constants.TurretConstants.TURRET_STOWED_PITCH_ANGLE);
-                setTurretYaw(Radian.of(turretStowedYawAngle), true);
 
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();
@@ -372,6 +393,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 turretYawVoltage = calculateTurretYawVoltage();
                 turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
+            default:
+                turretYawVoltage = 0.0;
+                turretPitchVoltage = 0.0;
+                System.err.println("Turret in unknown state: " + getCurrentState());
+                break;
 
         }
 
@@ -380,6 +406,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         io.setYawMotorVoltage(turretYawVoltage);
         io.setPitchMotorVoltage(turretPitchVoltage);
+
+        checkCanHealth();
 
         SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
         SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);

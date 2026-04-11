@@ -2,6 +2,8 @@ package frc.robot.libraries;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Constants;
@@ -37,5 +39,16 @@ public final class FieldHelpers {
         } else {
             return position;
         }
+    }
+
+    public static boolean poseInField(Pose2d pose) {
+        return poseInField(new Pose3d(pose));
+    }
+
+    public static boolean poseInField(Pose3d pose) {
+        return pose.getX() > -Constants.FieldConstants.FIELD_CHECK_DISTANCE.in(Meter)
+            && pose.getX() < Constants.FieldConstants.FIELD_SIZE_X.in(Meter) + Constants.FieldConstants.FIELD_CHECK_DISTANCE.in(Meter)
+            && pose.getY() > -Constants.FieldConstants.FIELD_CHECK_DISTANCE.in(Meter)
+            && pose.getY() < Constants.FieldConstants.FIELD_SIZE_Y.in(Meter) + Constants.FieldConstants.FIELD_CHECK_DISTANCE.in(Meter);
     }
 }

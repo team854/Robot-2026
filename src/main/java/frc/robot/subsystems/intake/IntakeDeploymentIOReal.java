@@ -56,4 +56,19 @@ public class IntakeDeploymentIOReal implements IntakeDeploymentIO {
     public boolean getDeployedSensor() {
         return !intakeDeployedSensor.get();
     }
+
+    @Override
+    public boolean checkCANError() {
+        intakeDeploymentMotor1.getBusVoltage();
+        if (intakeDeploymentMotor1.getFaults().can == true) {
+            return true;
+        }
+
+        intakeDeploymentMotor2.getBusVoltage();
+        if (intakeDeploymentMotor2.getFaults().can == true) {
+            return true;
+        }
+
+        return false;
+    }
 }

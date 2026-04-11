@@ -9,30 +9,56 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import java.util.ArrayList;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
 
 public class ProjectileSimulation {
-    public final double dragCoefficient = Constants.FuelPhysicsConstants.DRAG_CONSTANT;
-    public final double rotDragCoefficient = Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT; 
-    public final double crossSectionArea = Constants.FuelPhysicsConstants.CROSS_SECTION_AREA;
-    public final double mass = Constants.FuelPhysicsConstants.MASS.in(Kilogram);
-    public final double fluidDensity = Constants.FuelPhysicsConstants.FLUID_DENSITY;
-    public final double gravity = Constants.FuelPhysicsConstants.GRAVITY.in(MetersPerSecondPerSecond);
-    public final double projectileRadius = Math.sqrt(crossSectionArea / Math.PI);
-    public final double momentOfInertia = 0.4 * mass * Math.pow(projectileRadius, 2);
-    public final double liftCoefficient = Constants.FuelPhysicsConstants.LIFT_CONSTANT;
+    public final double dragCoefficient;
+    public final double rotDragCoefficient; 
+    public final double crossSectionArea;
+    public final double mass;
+    public final double fluidDensity;
+    public final double gravity;
+    public final double projectileRadius;
+    public final double momentOfInertia;
+    public final double liftCoefficient;
+    public final double fuelPivotOffset;
+    public final double shooterWheelRadius;
+    public final double pitchLimitLower;
+    public final double pitchLimitUpper;
+    public final double shooterMinVelocity;
+    public final double shooterMaxVelocity;
+    public final Translation3d turretOffset;
 
+    public ProjectileSimulation(double dragCoefficient, double rotDragCoefficient, double crossSectionArea, Mass mass, double fluidDensity, LinearAcceleration gravity, double liftCoefficient, Distance fuelPivotOffset, Distance shooterWheelRadius, Translation3d turretOffset, Angle pitchLimitLower, Angle pitchLimitUpper, AngularVelocity shooterMinVelocity, AngularVelocity shooterMaxVelocity) {
+        this.dragCoefficient = dragCoefficient;
+        this.rotDragCoefficient = rotDragCoefficient;
+        this.crossSectionArea = crossSectionArea;
+        this.mass = mass.in(Kilogram);
+        this.fluidDensity = fluidDensity;
+        this.gravity = gravity.in(MetersPerSecondPerSecond);
+        this.liftCoefficient = liftCoefficient;
+        this.fuelPivotOffset = fuelPivotOffset.in(Meter);
+        this.shooterWheelRadius = shooterWheelRadius.in(Meter);
+        this.turretOffset = turretOffset;
+        this.pitchLimitLower = pitchLimitLower.in(Radians);
+        this.pitchLimitUpper = pitchLimitUpper.in(Radians);
+        this.shooterMinVelocity = shooterMinVelocity.in(RadiansPerSecond);
+        this.shooterMaxVelocity = shooterMaxVelocity.in(RadiansPerSecond);
 
-    public ProjectileSimulation() {
+        this.projectileRadius = Math.sqrt(crossSectionArea / Math.PI);
+        this.momentOfInertia = 0.4 * this.mass * Math.pow(this.projectileRadius, 2);
 
     }
 
@@ -65,7 +91,8 @@ public class ProjectileSimulation {
     public record TargetDebug (
         int pitchYawSteps,
         double forwardError,
-        double rightError
+        double rightError,
+        Time computationTime
     ) {};
 
     /**
@@ -83,14 +110,17 @@ public class ProjectileSimulation {
         Angle launchPitch,
         Angle launchYaw,
         Time timestamp,
+        
         TargetDebug targetDebug
     ) {};
 
     public record TargetInput (
         LinearVelocity startLaunchSpeed,
         AngularVelocity launchAngularYaw,
+        Angle robotYaw,
         Translation2d robotVelocity,
         Translation3d targetPosition,
+        double efficiency,
         int maxSteps, 
         int tps
     ) {};
@@ -110,7 +140,7 @@ public class ProjectileSimulation {
             return null; 
         }
 
-        double discriminant = Math.pow(launchSpeedMPS, 4) - (Math.pow(gravity, 2) * Math.pow(horizontalDistance.in(Meter), 2)) + (2 * gravity * Math.pow(launchSpeedMPS, 2) * -heightOffset.in(Meter));
+        double discriminant = Math.pow(launchSpeedMPS, 4) - (Math.pow(this.gravity, 2) * Math.pow(horizontalDistance.in(Meter), 2)) + (2 * this.gravity * Math.pow(launchSpeedMPS, 2) * -heightOffset.in(Meter));
 
         if (discriminant < 0) {
             return null;
@@ -119,7 +149,7 @@ public class ProjectileSimulation {
         double square_root = Math.sqrt(discriminant);
 
         double numerator = (Math.pow(launchSpeedMPS, 2)) + square_root;
-        double denominator = gravity * horizontalDistance.in(Meter);
+        double denominator = this.gravity * horizontalDistance.in(Meter);
 
         return Radians.of(Math.atan(numerator / denominator));
     }
@@ -137,17 +167,19 @@ public class ProjectileSimulation {
      * @return A {@link Double} array in the format [Cur X, Cur Y, Cur Z, Prev X, Prev Y, Prev Z, Max Height]
      *  
      */
-    public Double[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, boolean logAllPositions, int tps) {
+    public Double[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle robotYaw, boolean logAllPositions, int tps) {
         
-        double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
-        double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
+        double fuelVerticalOffset = Math.sin(launchPitch.in(Radians)) * this.fuelPivotOffset;
+        double fuelForwardOffset = Math.cos(launchPitch.in(Radians)) * this.fuelPivotOffset;
 
-        double noteXOffset = Math.cos(launchYaw.in(Radians)) * noteForwardOffset;
-        double noteYOffset = Math.sin(launchYaw.in(Radians)) * noteForwardOffset;
+        double fuelXOffset = Math.cos(launchYaw.in(Radians)) * fuelForwardOffset;
+        double fuelYOffset = Math.sin(launchYaw.in(Radians)) * fuelForwardOffset;
 
-        double posX = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getX() + noteXOffset;
-        double posY = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getY() + noteYOffset;
-        double posZ = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ() + noteVerticalOffset;
+        Translation3d rotatedTurretOffset = this.turretOffset.rotateBy(new Rotation3d(0, 0, robotYaw.in(Radians)));
+
+        double posX = rotatedTurretOffset.getX() + fuelXOffset;
+        double posY = rotatedTurretOffset.getY() + fuelYOffset;
+        double posZ = rotatedTurretOffset.getZ() + fuelVerticalOffset;
 
         double velX = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.cos(launchYaw.in(Radians))) + robotVelocity.getX();
         double velY = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.sin(launchYaw.in(Radians))) + robotVelocity.getY();
@@ -155,17 +187,15 @@ public class ProjectileSimulation {
 
         double deltaTime = 1.0 / tps;
 
-        double dragConstant = 0.5 * dragCoefficient * fluidDensity * crossSectionArea;
-        double magnusConstant = 0.5 * liftCoefficient * fluidDensity * crossSectionArea * projectileRadius;
-        double rotDragFactor = (0.5 * fluidDensity * rotDragCoefficient * crossSectionArea * Math.pow(projectileRadius, 3)) / momentOfInertia;
+        double dragConstant = 0.5 * this.dragCoefficient * this.fluidDensity * this.crossSectionArea;
+        double magnusConstant = 0.5 * this.liftCoefficient * this.fluidDensity * this.crossSectionArea * this.projectileRadius;
+        double rotDragFactor = (0.5 * this.fluidDensity * this.rotDragCoefficient * this.crossSectionArea * Math.pow(this.projectileRadius, 3)) / this.momentOfInertia;
 
         double pitchSpinAxisYaw = launchYaw.in(Radians) + (Math.PI / 2.0);
 
         double angX = launchAngularPitch.in(RadiansPerSecond) * Math.cos(pitchSpinAxisYaw);
         double angY = launchAngularPitch.in(RadiansPerSecond) * Math.sin(pitchSpinAxisYaw);
         double angZ = launchAngularYaw.in(RadiansPerSecond);
-
-        //double horizontalDistance = Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2));
 
         double prevX = posX;
         double prevY = posY;
@@ -183,7 +213,7 @@ public class ProjectileSimulation {
         ArrayList<Double> positionLog = new ArrayList<>();
         double maxHeight = 0;
 
-        for (int step = 0; step < 60 * tps; step++) {
+        for (int step = 0; step < 10 * tps; step++) {
             prevX = posX;
             prevY = posY;
             prevZ = posZ;
@@ -203,9 +233,9 @@ public class ProjectileSimulation {
             magnusY = magnusConstant * (k1wz * k1vx - k1wx * k1vz);
             magnusZ = magnusConstant * (k1wx * k1vy - k1wy * k1vx);
 
-            k1ax = (((k1vx * dragFactor) + magnusX) / mass);
-            k1ay = (((k1vy * dragFactor) + magnusY) / mass);
-            k1az = (((k1vz * dragFactor) + magnusZ) / mass) - gravity;
+            k1ax = (((k1vx * dragFactor) + magnusX) / this.mass);
+            k1ay = (((k1vy * dragFactor) + magnusY) / this.mass);
+            k1az = (((k1vz * dragFactor) + magnusZ) / this.mass) - this.gravity;
             
             k1alphax = -rotDragFactor * k1wx * magAngVel;
             k1alphay = -rotDragFactor * k1wy * magAngVel;
@@ -226,9 +256,9 @@ public class ProjectileSimulation {
             magnusY = magnusConstant * (k2wz * k2vx - k2wx * k2vz);
             magnusZ = magnusConstant * (k2wx * k2vy - k2wy * k2vx);
 
-            k2ax = (((k2vx * dragFactor) + magnusX) / mass);
-            k2ay = (((k2vy * dragFactor) + magnusY) / mass);
-            k2az = (((k2vz * dragFactor) + magnusZ) / mass) - gravity;
+            k2ax = (((k2vx * dragFactor) + magnusX) / this.mass);
+            k2ay = (((k2vy * dragFactor) + magnusY) / this.mass);
+            k2az = (((k2vz * dragFactor) + magnusZ) / this.mass) - this.gravity;
             
             k2alphax = -rotDragFactor * k2wx * magAngVel;
             k2alphay = -rotDragFactor * k2wy * magAngVel;
@@ -249,9 +279,9 @@ public class ProjectileSimulation {
             magnusY = magnusConstant * (k3wz * k3vx - k3wx * k3vz);
             magnusZ = magnusConstant * (k3wx * k3vy - k3wy * k3vx);
 
-            k3ax = (((k3vx * dragFactor) + magnusX) / mass);
-            k3ay = (((k3vy * dragFactor) + magnusY) / mass);
-            k3az = (((k3vz * dragFactor) + magnusZ) / mass) - gravity;
+            k3ax = (((k3vx * dragFactor) + magnusX) / this.mass);
+            k3ay = (((k3vy * dragFactor) + magnusY) / this.mass);
+            k3az = (((k3vz * dragFactor) + magnusZ) / this.mass) - this.gravity;
             
             k3alphax = -rotDragFactor * k3wx * magAngVel;
             k3alphay = -rotDragFactor * k3wy * magAngVel;
@@ -272,9 +302,9 @@ public class ProjectileSimulation {
             magnusY = magnusConstant * (k4wz * k4vx - k4wx * k4vz);
             magnusZ = magnusConstant * (k4wx * k4vy - k4wy * k4vx);
 
-            k4ax = (((k4vx * dragFactor) + magnusX) / mass);
-            k4ay = (((k4vy * dragFactor) + magnusY) / mass);
-            k4az = (((k4vz * dragFactor) + magnusZ) / mass) - gravity;
+            k4ax = (((k4vx * dragFactor) + magnusX) / this.mass);
+            k4ay = (((k4vy * dragFactor) + magnusY) / this.mass);
+            k4az = (((k4vz * dragFactor) + magnusZ) / this.mass) - this.gravity;
             
             k4alphax = -rotDragFactor * k4wx * magAngVel;
             k4alphay = -rotDragFactor * k4wy * magAngVel;
@@ -305,10 +335,6 @@ public class ProjectileSimulation {
             if (velZ < 0 && posZ < targetPosition.getZ()) {
                 break;
             }
-            
-            /*if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
-                break;
-            }*/
         }
 
         if (logAllPositions) {
@@ -369,7 +395,7 @@ public class ProjectileSimulation {
      *       <li>Height error</li>
      *  </ul>
      */
-    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
+    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle robotYaw, Distance horizontalDistance, int tps) {
         Double[] path = simulateLaunch(
             launchSpeed,
             launchPitch,
@@ -378,11 +404,11 @@ public class ProjectileSimulation {
             launchAngularYaw,
             robotVelocity,
             targetPosition,
-            targetDirectAngle,
+            robotYaw,
             false,
             tps
         );
-        Translation3d crossOverPoint = interpolatePosition(path, targetPosition, targetDirectAngle);
+        Translation3d crossOverPoint = interpolatePosition(path, targetPosition, Radians.of(Math.atan2(targetPosition.getY(), targetPosition.getX())));
 
         double verticalVelocity = (path[2] - path[5]) * tps;
 
@@ -407,7 +433,8 @@ public class ProjectileSimulation {
         double heightError = path[6] - (targetPosition.getZ() + 2);
 
         if (path[5] < targetPosition.getZ()) {
-            forwardError = -1;
+            
+            forwardError = -5.0 - ((targetPosition.getZ() - path[6]) * 3.0);
         }
 
         return new double[]{
@@ -430,23 +457,26 @@ public class ProjectileSimulation {
         double targetDistance = targetPosition.getNorm();
 
         if (targetDistance < 1e-6) {
-            return MetersPerSecond.of(speedLimitUpper.in(MetersPerSecond) * 0.3);
+            return MetersPerSecond.of(speedLimitUpper.in(MetersPerSecond) * 0.4);
         }
 
         double baseVelocity = MathUtil.interpolate(
             speedLimitUpper.in(MetersPerSecond) * 0.4,
             speedLimitUpper.in(MetersPerSecond),
-            MathUtil.inverseInterpolate(0, 10, targetDistance)
+            MathUtil.inverseInterpolate(0, 11, targetDistance)
         );
 
-        double idealX = (targetPosition.getX() / targetDistance) * baseVelocity;
-        double idealY = (targetPosition.getY() / targetDistance) * baseVelocity;
+        double normX = targetPosition.getX() / targetDistance;
+        double normY = targetPosition.getY() / targetDistance;
 
-        double requiredX = idealX - robotVelocity.getX() * 0.5;
-        double requiredY = idealY - robotVelocity.getY() * 0.5;
+        double radialVelocity = robotVelocity.getX() * normX + robotVelocity.getY() * normY;
+        double tangentialVeloicty = robotVelocity.getX() * normY + robotVelocity.getY() * normX;
+
+        double adjustedRadial = baseVelocity - (radialVelocity * ((radialVelocity > 0) ? 0.2 : 0.7));
+        double adjustedTangential = tangentialVeloicty * 0.5;
 
         return MetersPerSecond.of(
-            MathUtil.clamp(Math.sqrt(requiredX * requiredX + requiredY * requiredY), 0.0, speedLimitUpper.in(MetersPerSecond))
+            MathUtil.clamp(Math.sqrt(adjustedRadial * adjustedRadial + adjustedTangential * adjustedTangential), 0.0, speedLimitUpper.in(MetersPerSecond))
         );
     }
 
@@ -454,8 +484,10 @@ public class ProjectileSimulation {
         return calculateLaunchAngleSimulation(
             targetInput.startLaunchSpeed,
             targetInput.launchAngularYaw,
+            targetInput.robotYaw,
             targetInput.robotVelocity,
             targetInput.targetPosition,
+            targetInput.efficiency,
             targetInput.maxSteps,
             targetInput.tps
         );
@@ -471,35 +503,32 @@ public class ProjectileSimulation {
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
      */
-    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
+    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Angle robotYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
+        double startTime = Timer.getFPGATimestamp();
         
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
 
-        double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
-
-        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
+        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - this.turretOffset.getZ()));
 
         if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0));
+            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0, Second.of(Timer.getFPGATimestamp() - startTime)));
         }
 
-        double pitchLimitUpper = (Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radians);
-        double pitchLimitLower = (Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radians);
-
-        double speedLimitUpper = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
-        double speedLimitLower = convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MIN_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5).in(MetersPerSecond);
+        double speedLimitLower = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMinVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
+        double speedLimitUpper = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMaxVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
+        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(speedLimitUpper), robotVelocity).in(MetersPerSecond);
 
         double launchPitch = launchAnglePitch1Temp.in(Radians);
-        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(speedLimitUpper), robotVelocity).in(MetersPerSecond);
-        double launchYaw = targetDirectAngle;
+        
+        double launchYaw = Math.atan2(targetPosition.getY(), targetPosition.getX());
 
         double perturbation = 0.05;
 
-        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / this.projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / this.projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / this.projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
         double pitchDelta;
         double yawDelta;
@@ -532,11 +561,11 @@ public class ProjectileSimulation {
                 MetersPerSecond.of(launchSpeed), 
                 Radians.of(launchPitch), 
                 Radians.of(launchYaw), 
-                RadiansPerSecond.of(-(launchSpeed / projectileRadius)), 
+                RadiansPerSecond.of(-(launchSpeed / this.projectileRadius)), 
                 launchAngularYaw, 
                 robotVelocity, 
                 targetPosition, 
-                Radians.of(targetDirectAngle), 
+                robotYaw, 
                 horizontalDistance, 
                 tps
             );
@@ -589,7 +618,7 @@ public class ProjectileSimulation {
             Radians.of(launchPitch),
             Radians.of(launchYaw),
             Second.of(Timer.getTimestamp()),
-            new TargetDebug(pitchYawSteps, error[0], error[1])
+            new TargetDebug(pitchYawSteps, error[0], error[1], Second.of(Timer.getFPGATimestamp() - startTime))
         );
 
         

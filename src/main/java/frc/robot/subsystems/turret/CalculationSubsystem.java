@@ -10,15 +10,15 @@ import static edu.wpi.first.units.Units.Second;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
@@ -51,13 +51,35 @@ public class CalculationSubsystem {
     private final AtomicReference<TargetInput> targetInputs;
     private final AtomicReference<TargetSolution> targetSolutions;
 
-	private final ProjectileSimulation projectileInstance = new ProjectileSimulation();
+    private double previousVelocityX = 0;
+    private double previousVelocityY = 0;
+    private double previousTimestamp = 0;
+
+    private final LinearFilter velocityFilterX = LinearFilter.movingAverage(5);
+    private final LinearFilter velocityFilterY = LinearFilter.movingAverage(5);
+
+	private final ProjectileSimulation projectileInstance = new ProjectileSimulation(
+        Constants.FuelPhysicsConstants.DRAG_CONSTANT,
+        Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT,
+        Constants.FuelPhysicsConstants.CROSS_SECTION_AREA,
+        Constants.FuelPhysicsConstants.MASS,
+        Constants.FuelPhysicsConstants.FLUID_DENSITY,
+        Constants.FuelPhysicsConstants.GRAVITY,
+        Constants.FuelPhysicsConstants.LIFT_CONSTANT,
+        Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET,
+        Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
+        Constants.TurretConstants.TURRET_PIVOT_OFFSET,
+        Radian.of((Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian)),
+        Radian.of((Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian)),
+        Constants.ShooterConstants.SHOOTER_MIN_VELOCITY,
+        Constants.ShooterConstants.SHOOTER_MAX_VELOCITY
+    );
 
     private Thread projectileThread;
 
     public CalculationSubsystem() {
-        targetInputs = new AtomicReference<>(new TargetInput(MetersPerSecond.of(1), DegreesPerSecond.of(0), new Translation2d(), new Translation3d(), 1, 1));
-        targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0)));
+        targetInputs = new AtomicReference<>(new TargetInput(MetersPerSecond.of(1), DegreesPerSecond.of(0), Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
+        targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0, Second.of(0))));
     }
 
     public ProjectileSimulation getProjectileSimulation() {
@@ -125,15 +147,6 @@ public class CalculationSubsystem {
             return;
         }
 
-        /*
-        for (int index = 0; index < 4; index++) {
-            double distance = botPose.getTranslation().getDistance(trenchZone[index]);
-            if (distance < Constants.FieldConstants.TRENCH_RADIUS.in(Meter)) {
-                botZone = Zone.TRENCH;
-                return;
-            }
-        }
-        */
         
         if (allianceZone[0].getX() <= botPose.getX() && allianceZone[0].getY() <= botPose.getY() &&
             allianceZone[1].getX() >= botPose.getX() && allianceZone[1].getY() >= botPose.getY()) {
@@ -164,13 +177,47 @@ public class CalculationSubsystem {
                 break;
         }
 
-        Translation3d robotTargetRelative = new Translation3d(
-            targetPosition.getX() - botPose.getX(),
-            targetPosition.getY() - botPose.getY(),
-            targetPosition.getZ()
+        double timestamp = Timer.getFPGATimestamp();
+        ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
+        ChassisSpeeds targetSpeeds = RobotContainer.swerveChassisSpeedsSupplier.get();
+
+        double deltaTime = MathUtil.clamp(timestamp - previousTimestamp, 0.005, 0.1);
+
+        double velocityX = velocityFilterX.calculate(fieldSpeeds.vxMetersPerSecond);
+        double velocityY = velocityFilterY.calculate(fieldSpeeds.vyMetersPerSecond);
+
+        double accelerationX = (velocityX - previousVelocityX) / deltaTime;
+        double accelerationY = (velocityY - previousVelocityY) / deltaTime;
+
+        previousVelocityX = velocityX;
+        previousVelocityY = velocityY;
+        previousTimestamp = timestamp;
+
+        double predictedVelocityX = velocityX + (accelerationX * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+        double predictedVelocityY = velocityY + (accelerationY * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+
+        predictedVelocityX = MathUtil.clamp(
+            predictedVelocityX,
+            -Math.max(Math.abs(velocityX), Math.abs(targetSpeeds.vxMetersPerSecond)),
+            Math.max(Math.abs(velocityX), Math.abs(targetSpeeds.vxMetersPerSecond))
+        );
+        predictedVelocityY = MathUtil.clamp(
+            predictedVelocityY,
+            -Math.max(Math.abs(velocityY), Math.abs(targetSpeeds.vyMetersPerSecond)),
+            Math.max(Math.abs(velocityY), Math.abs(targetSpeeds.vyMetersPerSecond))
         );
 
-        ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
+        double predictedAccelerationX = (predictedVelocityX - velocityX) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+        double predictedAccelerationY = (predictedVelocityY - velocityY) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+
+        double predictedPositionX = botPose.getX() + ((velocityX * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationX * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+        double predictedPositionY = botPose.getY() + ((velocityY * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationY * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+
+        Translation3d robotTargetRelative = new Translation3d(
+            targetPosition.getX() - predictedPositionX,
+            targetPosition.getY() - predictedPositionY,
+            targetPosition.getZ()
+        );
 
         setTargetInputs(new TargetInput(
             getProjectileSimulation().convertShooterSpeedToVelocity(
@@ -179,14 +226,19 @@ public class CalculationSubsystem {
                 Constants.FuelPhysicsConstants.EFFICENCY
             ),
             DegreesPerSecond.of(0),
+            botPose.getRotation().getMeasure(),
             new Translation2d(
-                fieldSpeeds.vxMetersPerSecond,
-                fieldSpeeds.vyMetersPerSecond
+                predictedVelocityX,
+                predictedVelocityY
             ),
             robotTargetRelative,
+            Constants.FuelPhysicsConstants.EFFICENCY,
             Constants.FuelPhysicsConstants.MAX_STEPS,
             Constants.FuelPhysicsConstants.TPS
         ));
+
+        SmartDashboard.putNumber("DEBUG/CURRENT", Math.sqrt(fieldSpeeds.vxMetersPerSecond * fieldSpeeds.vxMetersPerSecond + fieldSpeeds.vyMetersPerSecond * fieldSpeeds.vyMetersPerSecond));
+        SmartDashboard.putNumber("DEBUG/TARGET", Math.sqrt(targetSpeeds.vxMetersPerSecond * targetSpeeds.vxMetersPerSecond + targetSpeeds.vyMetersPerSecond * targetSpeeds.vyMetersPerSecond));
 
         TargetSolution lastSolution = getTargetSolutions();
 
@@ -195,6 +247,14 @@ public class CalculationSubsystem {
         SmartDashboard.putString("Auto Aim/Solution Debug", lastSolution.targetDebug().toString());
         SmartDashboard.putNumber("Auto Aim/Timestamp", lastSolution.timestamp().in(Second));
         SmartDashboard.putBoolean("Auto Aim/Error", lastSolution.errorCode() != TargetErrorCode.NONE);
+
+        SmartDashboard.putNumberArray("Auto Aim/Predicted Position", PoseHelpers.convertTranslationToNumbers(new Translation3d(predictedPositionX, predictedPositionY, 0.0)));
+
+        SmartDashboard.putNumber("Auto Aim/Predicted Velocity X", predictedVelocityX);
+        SmartDashboard.putNumber("Auto Aim/Predicted Velocity Y", predictedVelocityY);
+
+        SmartDashboard.putNumber("Auto Aim/Predicted Acceleration X", predictedAccelerationX);
+        SmartDashboard.putNumber("Auto Aim/Predicted Acceleration Y", predictedAccelerationY);
     }
 
     public void setTargetInputs(TargetInput targetInput) {
@@ -223,21 +283,24 @@ public class CalculationSubsystem {
             ProjectileSimulation projectileSimulationInstance = this.getProjectileSimulation();
 
             while (!Thread.currentThread().isInterrupted()) {
-                double startTime = Timer.getFPGATimestamp();
-
-                TargetInput targetInput = this.getTargetInputs();
-
-                TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
-                this.setTargetSolutions(solution);
-
-                double elapsedTime = Timer.getFPGATimestamp() - startTime;
-                long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
-                
                 try {
+                    double startTime = Timer.getFPGATimestamp();
+
+                    TargetInput targetInput = this.getTargetInputs();
+
+                    TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
+                    this.setTargetSolutions(solution);
+
+                    double elapsedTime = Timer.getFPGATimestamp() - startTime;
+
+                    long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
+
                     Thread.sleep(sleepTimeMs);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    DriverStation.reportError("Projectile Simulation Thread Crashed: " + e.getMessage(), e.getStackTrace());
                 }
             }
         });

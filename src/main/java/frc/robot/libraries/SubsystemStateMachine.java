@@ -1,6 +1,5 @@
 package frc.robot.libraries;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class SubsystemStateMachine<E extends Enum<E>> extends SubsystemBase {
@@ -47,14 +46,6 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
         stateMachine.restartStateTimer();
     }
 
-    public void setOverrideState(E overrideState) {
-        stateMachine.setOverrideState(overrideState);
-    }
-
-    public E getOverrideState() {
-        return stateMachine.getOverrideState();
-    }
-
     /**
      * Transitions the current state to the desired state
      **/
@@ -71,10 +62,13 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
         stateMachine.transitionTo(newState);
     }
 
-    /**
-     * MUST BE CALLED AT THE START OF EVERY PERIODIC LOOP
-     **/
-    protected void updateDesiredState() {
+    @Override
+    public final void periodic() {
+        statePeriodicBefore();
         stateMachine.updateDesiredState();
+        statePeriodic();
     }
+
+    protected void statePeriodicBefore() {};
+    protected void statePeriodic() {};
 }

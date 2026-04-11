@@ -3,17 +3,15 @@ package frc.robot.libraries;
 import edu.wpi.first.wpilibj.Timer;
 
 public class StateMachine<E extends Enum<E>> {
-    protected E currentState;
-    protected E desiredState;
+    private E currentState;
+    private E desiredState;
 
-    protected E overrideState;
+    private E defaultState;
 
-    protected E defaultState;
+    private int pendingPriority = Integer.MIN_VALUE;
+    private E pendingState;
 
-    protected int pendingPriority = -1;
-    protected E pendingState;
-
-    protected final Timer stateTimer = new Timer();
+    private final Timer stateTimer = new Timer();
 
     /**
      * 
@@ -63,10 +61,6 @@ public class StateMachine<E extends Enum<E>> {
     }
 
     public E getDesiredState() {
-        if (this.overrideState != null) {
-            return this.overrideState;
-        }
-
         return this.desiredState;
     }
 
@@ -76,18 +70,6 @@ public class StateMachine<E extends Enum<E>> {
 
     public void restartStateTimer() {
         this.stateTimer.restart();
-    }
-
-    public void setOverrideState(E overrideState) {
-        this.overrideState = overrideState;
-        if (this.overrideState != null) {
-            transitionTo(this.overrideState);
-        }
-        
-    }
-
-    public E getOverrideState() {
-        return this.overrideState;
     }
 
     /**
@@ -103,10 +85,6 @@ public class StateMachine<E extends Enum<E>> {
      * @param newState The state to transition too
      **/
     public void transitionTo(E newState) {
-        if (this.overrideState != newState && this.overrideState != null) {
-            return;
-        }
-
         if (newState != currentState && newState != null) {
             this.currentState = newState;
             
@@ -115,13 +93,13 @@ public class StateMachine<E extends Enum<E>> {
     }
 
     /**
-     * MUST BE CALLED AT THE START OF EVERY PERIODIC LOOP
+     * Must be called for the requested state to be applied
      **/
     public void updateDesiredState() {
         if (pendingState != null) {
             this.desiredState = this.pendingState;
         }
-        this.pendingPriority = -1;
+        this.pendingPriority = Integer.MIN_VALUE;
         this.pendingState = this.defaultState;
     }
 }

@@ -1,11 +1,8 @@
 package frc.robot.commands.spindexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.spindexer.SpindexerSubsystem.SpindexerState;
-import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class ActivateSpindexerCommand extends Command{
 

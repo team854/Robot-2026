@@ -1,21 +1,18 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
+import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.ShooterSubsystem.ShooterState> {
-    private final double SHOOTER_THRESHOLD = 1; // RPS
 
     public enum ShooterState {
         IDLE,
@@ -27,14 +24,20 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
     private double shooterTargetVelocity = 0;
 
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
+
     public ShooterSubsystem(ShooterIO io) {
         super(ShooterState.IDLE, null);
 
+        if (io == null) {
+            throw new IllegalArgumentException("ShooterIO cannot be null");
+        }
+        
         this.io = io;
     }
 
     public void setTargetSpeed(AngularVelocity speed) {
-        shooterTargetVelocity = speed.in(RotationsPerSecond);
+        shooterTargetVelocity = MathUtil.clamp(speed.in(RotationsPerSecond), Constants.ShooterConstants.SHOOTER_MIN_VELOCITY.in(RotationsPerSecond), Constants.ShooterConstants.SHOOTER_MAX_VELOCITY.in(RotationsPerSecond));
     }
 
     public AngularVelocity getTargetSpeed() {
@@ -49,14 +52,29 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
         shooterTargetVelocity = 0;
     }
 
-    @Override
-    public void periodic() {
-        updateDesiredState();
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
 
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
+    @Override
+    public void statePeriodicBefore() {
         // Safety Check as the desired state should only ever IDLE or READY
         if (getDesiredState() == ShooterState.SPOOLING) {
-            requestDesiredState(ShooterState.IDLE, 4);
+            requestDesiredState(ShooterState.IDLE, 25);
         }
+    }
+
+    @Override
+    public void statePeriodic() {
         
         
         switch (getCurrentState()) {
@@ -68,7 +86,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
             case SPOOLING:
                 if (getDesiredState() == ShooterState.IDLE) {
                     transitionTo(ShooterState.IDLE);
-                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) < SHOOTER_THRESHOLD) {
+                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) < Constants.ShooterConstants.SHOOTER_READY_THRESHOLD.in(RotationsPerSecond)) {
                     transitionTo(ShooterState.READY);
                 }
 
@@ -76,7 +94,7 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
             case READY:
                 if (getDesiredState() == ShooterState.IDLE) {
                     transitionTo(ShooterState.IDLE);
-                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) > (SHOOTER_THRESHOLD + 0.1)) {
+                } else if (Math.abs(getSpeed().in(RotationsPerSecond) - getTargetSpeed().in(RotationsPerSecond)) > (Constants.ShooterConstants.SHOOTER_READY_THRESHOLD.in(RotationsPerSecond) + 0.1)) {
                     transitionTo(ShooterState.SPOOLING);
                 }
 
@@ -94,7 +112,13 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
             case READY:
                 io.setClosedVelocity(shooterTargetVelocity);
                 break;
+            default:
+                io.setMotorsVoltage(0.0); 
+                System.err.println("Shooter in unknown state: " + getCurrentState());
+                break;
         }
+
+        checkCanHealth();
 
         //SmartDashboard.putNumber("Shooter/Motor Voltage", shooterVoltage);
 

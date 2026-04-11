@@ -1,6 +1,5 @@
 package frc.robot.libraries.control;
 
-import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;

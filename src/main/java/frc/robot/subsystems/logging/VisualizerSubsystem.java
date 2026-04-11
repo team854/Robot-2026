@@ -1,7 +1,6 @@
 package frc.robot.subsystems.logging;
 
 import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -17,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.PoseHelpers;
 import frc.robot.subsystems.intake.IntakeDeploymentSubsystem.IntakeDeploymentState;
 import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
@@ -65,7 +63,7 @@ public class VisualizerSubsystem extends SubsystemBase {
                     fieldSpeeds.vyMetersPerSecond
                 ),
                 robotTargetRelative,
-                Radian.of(Math.atan2(robotTargetRelative.getY(), robotTargetRelative.getX())),
+                robotPose.getRotation().getMeasure(),
                 true,
                 Constants.FuelPhysicsConstants.TPS
             );

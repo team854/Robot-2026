@@ -2,14 +2,17 @@ package frc.robot.subsystems.turret;
 
 import static edu.wpi.first.units.Units.Radian;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
-import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -18,7 +21,7 @@ import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
-public class TurretIOReal implements TurretIO {
+public class TurretIOKrakenReal implements TurretIO {
     
     private final SparkMax turretYawMotor; 
     private final RelativeEncoder turretYawEncoder;
@@ -26,22 +29,23 @@ public class TurretIOReal implements TurretIO {
     private final SparkMaxConfig turretYawConfig;
     private final double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
     private final double relativeStepSize = (2 * Math.PI) / (Constants.TurretConstants.TURRET_YAW_COUNTS_PER_REV * Constants.TurretConstants.TURRET_YAW_GEAR_RATIO);
-    private double yawAbsoluteOffset = 0; 
+    private double yawAbsoluteOffset = 0;
     
-    private final SparkMax turretPitchMotor;
-    private final RelativeEncoder turretPitchEncoder;
-    private final SparkMaxConfig turretPitchConfig;
-    
+    private final TalonFX turretPitchMotor;
+    private final double pitchConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_PITCH_GEAR_RATIO;
+    private final TalonFXConfiguration turretPitchConfig;
+
     private final DigitalInput yawHomingSensor;
     private final Counter yawHomingCounter;
 
-    public TurretIOReal() {
+    private final VoltageOut pitchVoltageRequest = new VoltageOut(0);
+    
+    public TurretIOKrakenReal() {
         turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
-        turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
+        turretPitchMotor = new TalonFX(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID);
 
         turretYawEncoder = turretYawMotor.getEncoder();
         turretYawAbsoluteEncoder = turretYawMotor.getAbsoluteEncoder();
-        turretPitchEncoder = turretPitchMotor.getEncoder();
 
         // Configure motors
         
@@ -58,13 +62,12 @@ public class TurretIOReal implements TurretIO {
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         
-        turretPitchConfig = new SparkMaxConfig();
-        turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
-        turretPitchConfig.idleMode(IdleMode.kCoast);
-        double pitchConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_PITCH_GEAR_RATIO;
-        turretPitchConfig.encoder.positionConversionFactor(pitchConversionFactor);
-        turretPitchConfig.encoder.velocityConversionFactor(pitchConversionFactor / 60.0);
-        turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        turretPitchConfig = new TalonFXConfiguration();
+        turretPitchConfig.MotorOutput.Inverted = Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED 
+            ? InvertedValue.Clockwise_Positive 
+            : InvertedValue.CounterClockwise_Positive;
+        turretPitchConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        turretPitchMotor.getConfigurator().apply(turretPitchConfig);
         
 
         yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
@@ -72,7 +75,7 @@ public class TurretIOReal implements TurretIO {
         yawHomingCounter.setUpSourceEdge(true,false);
 
         setYawEncoderPosition(turretYawEncoder.getPosition());
-        turretPitchEncoder.setPosition(0);
+        turretPitchMotor.setPosition(0);
     }
 
     @Override
@@ -83,8 +86,7 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public void setPitchMotorVoltage(double voltage) {
-        
-        turretPitchMotor.setVoltage(voltage);
+        turretPitchMotor.setControl(pitchVoltageRequest.withOutput(voltage));
     }
     
 
@@ -106,7 +108,7 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public double getPitchRadians() {
-        return (Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian) + turretPitchEncoder.getPosition());
+        return (Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian) + (turretPitchMotor.getPosition().getValueAsDouble() * pitchConversionFactor));
     }
 
     @Override
@@ -149,13 +151,12 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public void resetPitchPosition() {
-        turretPitchEncoder.setPosition(0);
+        turretPitchMotor.setPosition(0);
     }
 
     @Override
     public boolean checkCANError() {
-        turretPitchMotor.getBusVoltage();
-        if (turretPitchMotor.getFaults().can == true) {
+        if (turretPitchMotor.isConnected()) {
             return true;
         }
 

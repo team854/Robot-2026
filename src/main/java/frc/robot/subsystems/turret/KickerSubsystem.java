@@ -1,19 +1,15 @@
 package frc.robot.subsystems.turret;
 
 import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
 import frc.robot.subsystems.turret.CalculationSubsystem.Zone;
@@ -29,8 +25,14 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     
     private final KickerIO io;
 
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
+
     public KickerSubsystem(KickerIO io) {
         super(KickerState.IDLE, KickerState.IDLE);
+
+        if (io == null) {
+            throw new IllegalArgumentException("KickerIO cannot be null");
+        }
 
         this.io = io;
     }
@@ -39,15 +41,30 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         return Amp.of(io.getMotorCurrent());
     }
 
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
     @Override
-    public void periodic() {
+    public void statePeriodicBefore() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(KickerState.STOWED, 30);
         } else {
             requestDesiredState(KickerState.IDLE, 0); 
         }
+    }
 
-        updateDesiredState();
+    @Override
+    public void statePeriodic() {
         
         switch (getCurrentState()) {
             case IDLE:
@@ -105,9 +122,16 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case READY:
                 kickerVoltage = Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
+            default:
+                kickerVoltage = 0.0;
+                System.err.println("Kicker in unknown state: " + getCurrentState());
+                break;
         }
 
+        kickerVoltage = MathUtil.clamp(kickerVoltage, -12, 12);
         io.setMotorVoltage(kickerVoltage);
+
+        checkCanHealth();
 
         SmartDashboard.putNumber("Kicker/Voltage", kickerVoltage);
 

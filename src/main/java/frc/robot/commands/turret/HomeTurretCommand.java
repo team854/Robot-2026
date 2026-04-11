@@ -1,6 +1,5 @@
 package frc.robot.commands.turret;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
@@ -15,7 +14,8 @@ public class HomeTurretCommand extends Command{
     
     @Override
     public void initialize() {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.HOMING, 5);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 6);
+        RobotContainer.turretSubsystem.resetTurretHoming();
         hasStartedHoming = false;
     }
 

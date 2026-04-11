@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volt;
 
 import com.revrobotics.PersistMode;
@@ -10,6 +11,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.MathUtil;
+
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -65,6 +69,7 @@ public class ShooterIOReal implements ShooterIO {
 
     @Override
     public void setClosedVelocity(double targetRPS) {
+        
         shooterClosedLoop1.setSetpoint(targetRPS, ControlType.kVelocity);
     }
 
@@ -83,5 +88,15 @@ public class ShooterIOReal implements ShooterIO {
     public double getMotor2RPS() {
         //return shooterEncoder2.getVelocity();
         return shooterEncoder1.getVelocity();
+    }
+
+    @Override
+    public boolean checkCANError() {
+        shooterMotor1.getBusVoltage();
+        if (shooterMotor1.getFaults().can == true) {
+            return true;
+        }
+
+        return false;
     }
 }
