@@ -81,7 +81,7 @@ import frc.robot.subsystems.vision.QuestNavSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final HealthSubsystem healthSubsystem = new HealthSubsystem();
@@ -249,13 +249,13 @@ public class RobotContainer {
 		driverController.leftBumper().whileTrue(new ManualStowTurretCommand());
 
 		driverController.backButton().onTrue(new ResetTurretPitchCommand());
-		/*
+		
 		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
 				new ActivateKickerCommand(),
 				new ActivateSpindexerCommand()
 			)
 		);
-		*/
+		
 		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
 				new ReverseKickerCommand(),
 				new ReverseSpindexerCommand()
@@ -264,7 +264,7 @@ public class RobotContainer {
 
 		driverController.upButton().toggleOnTrue(new ToggleFixedAimCommand());
 		
-		driverController.rightTrigger().whileTrue(new SmartShootCommand());
+		//driverController.rightTrigger().whileTrue(new SmartShootCommand());
 
 		driverController.leftButton().toggleOnTrue(new ToggleIntakeDeployCommand());
 
@@ -324,6 +324,7 @@ public class RobotContainer {
 		}
 
 		if (!turretHomed) {
+			/*
 			if (Robot.isReal()) {
 				CommandScheduler.getInstance().cancel(turretHomeCommand);
 
@@ -332,6 +333,7 @@ public class RobotContainer {
 			} else {
 				turretHomed = true;
 			}
+			*/
 		}
 		
 	}

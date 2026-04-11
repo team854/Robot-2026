@@ -43,7 +43,7 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
     public static class SwerveConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
         
         public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
         public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(4.25); // Maximum speed the swerve drive can go
@@ -57,7 +57,7 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
@@ -84,7 +84,7 @@ public final class Constants {
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(180);
 
-        public static final int TURRET_PITCH_MOTOR_ID = 11;
+        public static final int TURRET_PITCH_MOTOR_ID = 12;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
@@ -176,7 +176,7 @@ public final class Constants {
     }
 
     public final class IntakeConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_1 = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_1 = false;
@@ -236,7 +236,7 @@ public final class Constants {
     }
 
     public final class LimelightConstants {
-        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-back", "limelight-back-left"};
+        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-b", "limelight-bl"};
 
         public static final double SINGLE_TAG_STARTING_STD_DEV = 0.9;
         public static final double SINGLE_TAG_DISTANCE_FACTOR = 0.5;
