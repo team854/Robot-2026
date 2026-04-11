@@ -10,29 +10,44 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants;
 
 public class IntakeIOReal implements IntakeIO {
-    private final SparkMax intakeMotor;
-    private final SparkMaxConfig intakeConfig;
+    private final SparkMax intakeMotor1;
+    private final SparkMax intakeMotor2;
+
+    private final SparkMaxConfig intakeConfig1;
+    private final SparkMaxConfig intakeConfig2;
 
     public IntakeIOReal() {
-        intakeMotor = new SparkMax(Constants.IntakeConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
+        intakeMotor1 = new SparkMax(Constants.IntakeConstants.INTAKE_MOTOR_ID_1, MotorType.kBrushless);
+        intakeMotor2 = new SparkMax(Constants.IntakeConstants.INTAKE_MOTOR_ID_2, MotorType.kBrushless);
 
-        intakeConfig = new SparkMaxConfig();
-        intakeConfig.idleMode(IdleMode.kCoast);
-        intakeConfig.inverted(Constants.IntakeConstants.INTAKE_MOTOR_INVERTED);
-        intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        intakeConfig1 = new SparkMaxConfig();
+        intakeConfig1.idleMode(IdleMode.kCoast);
+        intakeConfig1.inverted(Constants.IntakeConstants.INTAKE_MOTOR_INVERTED_1);
+        intakeMotor1.configure(intakeConfig1, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        intakeConfig2 = new SparkMaxConfig();
+        intakeConfig2.idleMode(IdleMode.kCoast);
+        intakeConfig2.inverted(Constants.IntakeConstants.INTAKE_MOTOR_INVERTED_2);
+        intakeMotor2.configure(intakeConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     }
 
 
     @Override
     public void setIntakeMotorVoltage(double voltage) {
-        intakeMotor.setVoltage(voltage);
+        intakeMotor1.setVoltage(voltage);
+        intakeMotor2.setVoltage(voltage);
     }
 
     @Override
     public boolean checkCANError() {
-        intakeMotor.getBusVoltage();
-        if (intakeMotor.getFaults().can == true) {
+        intakeMotor1.getBusVoltage();
+        if (intakeMotor1.getFaults().can == true) {
+            return true;
+        }
+
+        intakeMotor2.getBusVoltage();
+        if (intakeMotor2.getFaults().can == true) {
             return true;
         }
 

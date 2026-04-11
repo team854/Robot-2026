@@ -187,8 +187,12 @@ public final class Constants {
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(1.0);
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.2);
 
-        public static final int INTAKE_MOTOR_ID = 14;
-        public static final boolean INTAKE_MOTOR_INVERTED = false;
+        public static final int INTAKE_MOTOR_ID_1 = 14;
+        public static final boolean INTAKE_MOTOR_INVERTED_1 = false;
+
+        public static final int INTAKE_MOTOR_ID_2 = 46;
+        public static final boolean INTAKE_MOTOR_INVERTED_2 = false;
+
         public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(9);
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
