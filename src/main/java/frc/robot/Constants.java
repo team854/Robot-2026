@@ -141,8 +141,11 @@ public final class Constants {
     }
     
     public final class LightConstants {
-        public static final int LIGHT_PORT = 0;
-        public static final int LIGHT_LENGTH = 80;
+        public static final int LIGHT_PORT_1 = 0;
+        public static final int LIGHT_PORT_2 = 0;
+
+        public static final int LIGHT_LENGTH_1 = 80;
+        public static final int LIGHT_LENGTH_2 = 80;
 
         public static final LEDPattern COLOR_SHOOTER_ON = LEDPattern.solid(new Color(0, 255, 0));
         public static final LEDPattern COLOR_SHOOTER_OFF = LEDPattern.solid(new Color(255, 0, 0));

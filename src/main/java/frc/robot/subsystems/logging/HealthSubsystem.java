@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -42,7 +44,7 @@ public class HealthSubsystem extends SubsystemBase {
         boolean showDisabled
     ) {};
 
-    private final Map<ErrorCode, Set<String>> activeErrors = new HashMap<>();
+    private final Map<ErrorCode, TreeSet<String>> activeErrors = new HashMap<>();
 
     public HealthSubsystem() {
         
@@ -50,7 +52,7 @@ public class HealthSubsystem extends SubsystemBase {
 
     public void reportError(String subsystem, ErrorCode errorCode) {
         if (activeErrors.get(errorCode) == null) {
-            activeErrors.put(errorCode, new HashSet<>());
+            activeErrors.put(errorCode, new TreeSet<>());
         }
 
         activeErrors.get(errorCode).add(subsystem);
@@ -64,6 +66,10 @@ public class HealthSubsystem extends SubsystemBase {
                 activeErrors.remove(errorCode);
             }
         }
+    }
+
+    public TreeSet<String> getErrorSubsystems(ErrorCode errorCode) {
+        return activeErrors.getOrDefault(errorCode, new TreeSet<>());
     }
 
     public ErrorCode getCurrentDisplayError() {
@@ -93,6 +99,21 @@ public class HealthSubsystem extends SubsystemBase {
             int index = (int) ((Timer.getFPGATimestamp() / Constants.HealthConstants.CYCLE_TIME.in(Second)) % tiedErrors.size());
             return tiedErrors.get(index);
         }
+    }
+
+    @Override
+    public void periodic() {
+        ErrorCode displayErrorCode = getCurrentDisplayError();
+
+        String errorCodeText = "NONE";
+        TreeSet<String> errorCodeSubsystems = new TreeSet<>();
+        if (displayErrorCode != null) {
+            errorCodeText = displayErrorCode.errorText;
+            errorCodeSubsystems = getErrorSubsystems(displayErrorCode);
+        }
+
+        SmartDashboard.putString("Health/Display Error Text", errorCodeText);
+        SmartDashboard.putString("Health/Display Error Subsystems", errorCodeSubsystems.toString());
     }
 
 }
