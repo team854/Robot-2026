@@ -43,7 +43,7 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
     public final class SwerveConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
         
         public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
         public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(4.25); // Maximum speed the swerve drive can go
@@ -57,7 +57,7 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
@@ -76,8 +76,8 @@ public final class Constants {
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(2400);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
-        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.65);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.25);
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.65);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.25);
         public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.1);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(-3);
@@ -88,15 +88,15 @@ public final class Constants {
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 4.2;
+        public static final double TURRET_PITCH_P = 4.5;
         public static final double TURRET_PITCH_I = 0;
         public static final double TURRET_PITCH_D = 0.03;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
-        public static final double TURRET_PITCH_V = 0.135; // Unit is V/(rad/s)
-        public static final double TURRET_PITCH_A = 0.019; // Unit is V/(rad/s^2)
-        public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(600);
-        public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(600);
+        public static final double TURRET_PITCH_V = 0.130; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_A = 0.02; // Unit is V/(rad/s^2)
+        public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(2000);
+        public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1000);
         public static final Angle TURRET_PITCH_IZONE = Degree.of(5);
         public static final Angle TURRET_PITCH_READY_THRESHOLD = Radian.of(0.05);
 
@@ -129,7 +129,7 @@ public final class Constants {
         public static final double SHOOTER_I = 0.0;
         public static final double SHOOTER_D = 0.01;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.135; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.1175; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.005; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
@@ -142,7 +142,7 @@ public final class Constants {
     
     public final class LightConstants {
         public static final int LIGHT_PORT = 0;
-        public static final int LIGHT_LENGTH = 30;
+        public static final int LIGHT_LENGTH = 80;
 
         public static final LEDPattern COLOR_SHOOTER_ON = LEDPattern.solid(new Color(0, 255, 0));
         public static final LEDPattern COLOR_SHOOTER_OFF = LEDPattern.solid(new Color(255, 0, 0));
@@ -176,7 +176,7 @@ public final class Constants {
     }
 
     public final class IntakeConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_1 = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_1 = false;
@@ -185,12 +185,12 @@ public final class Constants {
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(1.0);
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.2);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.3);
 
         public static final int INTAKE_MOTOR_ID_1 = 14;
-        public static final boolean INTAKE_MOTOR_INVERTED_1 = false;
+        public static final boolean INTAKE_MOTOR_INVERTED_1 = true;
 
-        public static final int INTAKE_MOTOR_ID_2 = 46;
+        public static final int INTAKE_MOTOR_ID_2 = 11;
         public static final boolean INTAKE_MOTOR_INVERTED_2 = false;
 
         public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(9);

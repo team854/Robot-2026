@@ -250,11 +250,11 @@ public class RobotContainer {
 
 		driverController.backButton().onTrue(new ResetTurretPitchCommand());
 		
-		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
-				new ActivateKickerCommand(),
-				new ActivateSpindexerCommand()
-			)
-		);
+		//driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
+		//		new ActivateKickerCommand(),
+		//		new ActivateSpindexerCommand()
+		//	)
+		//);
 		
 		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
 				new ReverseKickerCommand(),
@@ -264,7 +264,7 @@ public class RobotContainer {
 
 		driverController.upButton().toggleOnTrue(new ToggleFixedAimCommand());
 		
-		//driverController.rightTrigger().whileTrue(new SmartShootCommand());
+		driverController.rightTrigger().whileTrue(new SmartShootCommand());
 
 		driverController.leftButton().toggleOnTrue(new ToggleIntakeDeployCommand());
 
