@@ -461,7 +461,7 @@ public class ProjectileSimulation {
         }
 
         double baseVelocity = MathUtil.interpolate(
-            speedLimitUpper.in(MetersPerSecond) * 0.5,
+            speedLimitUpper.in(MetersPerSecond) * 0.3,
             speedLimitUpper.in(MetersPerSecond),
             MathUtil.inverseInterpolate(0, 11, targetDistance)
         );
@@ -514,7 +514,6 @@ public class ProjectileSimulation {
             return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0, Second.of(Timer.getFPGATimestamp() - startTime)));
         }
 
-        // Calculate the actual boundaries the shooter can physically achieve at the current efficiency
         double speedLimitLower = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMinVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
         double speedLimitUpper = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMaxVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
 
