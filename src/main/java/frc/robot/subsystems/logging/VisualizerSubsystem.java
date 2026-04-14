@@ -54,7 +54,7 @@ public class VisualizerSubsystem extends SubsystemBase {
 
             Double[] positionHistory = RobotContainer.calculationSubsystem.getProjectileSimulation().simulateLaunch(
                 launchSpeed,
-                Degree.of(90).minus(RobotContainer.turretSubsystem.getTurretTargetPitch()),
+                RobotContainer.calculationSubsystem.getTargetSolutions().launchPitch(),
                 launchYaw,
                 RadiansPerSecond.of(-(launchSpeed.in(MetersPerSecond) / RobotContainer.calculationSubsystem.getProjectileSimulation().projectileRadius)),
                 RadiansPerSecond.of(0), 
