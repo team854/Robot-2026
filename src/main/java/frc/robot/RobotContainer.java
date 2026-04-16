@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Volt;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -15,6 +16,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -78,6 +80,7 @@ import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import frc.robot.subsystems.vision.QuestNavSubsystem;
+import frc.robot.subsystems.vision.LimelightSubsystem.VisionMeasurement;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -127,7 +130,9 @@ public class RobotContainer {
 	
 	private int lastTeam = -1;
 
-	private LinearFilter batteryVoltageFilter = LinearFilter.movingAverage(50);
+	private LinearFilter batteryVoltageFilter = LinearFilter.movingAverage(400);
+
+	private boolean questNavHomed = false;
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
@@ -333,10 +338,24 @@ public class RobotContainer {
 				turretHomed = true;
 			}
 		}
+
+		questNavHomed = false;
 		
 	}
 
 	public void periodic() {
+
+		List<VisionMeasurement> visionMeasurements = RobotContainer.limelightSubsystem.getVisionEstimate();
+
+		double stdDevsThreshold = (questNavHomed ? Constants.QuestConstants.STD_DEV_THRESHOLD : Constants.QuestConstants.INITAL_STD_DEV_THRESHOLD);
+
+		for (VisionMeasurement visionMeasurement : visionMeasurements) {
+			if (visionMeasurement.visionStdDevs().stdDevs() < stdDevsThreshold) {
+				questNavHomed = true;
+				questNavSubsystem.resetPose(new Pose3d(visionMeasurement.robotPose()));
+				break;
+			}
+		}
 		
 		Pose2d botPose = swerveSubsystem.getPose2d();
 

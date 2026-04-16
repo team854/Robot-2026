@@ -145,10 +145,4 @@ public class SwerveIOReal implements SwerveIO {
 
         return false;
     }
-
-    @Override
-    public boolean checkPigeonError() {
-        Pigeon2 pigeon2 = (Pigeon2) swerveDrive.getGyro().getIMU();
-        return !pigeon2.isConnected();
-    }
 }

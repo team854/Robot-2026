@@ -26,17 +26,10 @@ public class LightSubsystem extends SubsystemBase {
 
     private final AddressableLED ledStrip = new AddressableLED(Constants.LightConstants.LIGHT_PORT);
 
-    private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(Constants.LightConstants.LIGHT_LENGTH_1 + Constants.LightConstants.LIGHT_LENGTH_2);
+    private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(Constants.LightConstants.LIGHT_LENGTH);
 
-    private final AddressableLEDBufferView stripView1;
-    private final AddressableLEDBufferView stripView2;
     
     public LightSubsystem() {
-        stripView1 = ledBuffer.createView(0, Constants.LightConstants.LIGHT_LENGTH_1 - 1);
-        stripView2 = ledBuffer.createView(
-            Constants.LightConstants.LIGHT_LENGTH_1, 
-            Constants.LightConstants.LIGHT_LENGTH_1 + Constants.LightConstants.LIGHT_LENGTH_2 - 1
-        );
 
         ledStrip.setLength(ledBuffer.getLength());
         ledStrip.start();
@@ -80,9 +73,7 @@ public class LightSubsystem extends SubsystemBase {
     public void periodic() {
         LEDPattern ledPattern = determineLEDPattern();
 
-        ledPattern.applyTo(stripView1);
-        ledPattern.applyTo(stripView2);
-
+        ledPattern.applyTo(ledBuffer);
         ledStrip.setData(ledBuffer);
     }
 }

@@ -66,9 +66,9 @@ public final class Constants {
         public static final double TURRET_YAW_GEAR_RATIO = 113.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
         public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
-        public static final double TURRET_YAW_P = 2.75;
+        public static final double TURRET_YAW_P = 2.9;
         public static final double TURRET_YAW_I = 0.4;
-        public static final double TURRET_YAW_D = 0.1;
+        public static final double TURRET_YAW_D = 0.12;
         public static final Voltage TURRET_YAW_S = Volts.of(0.2);
         public static final double TURRET_YAW_V = 0.12; // Unit is V/(rad/s)
         public static final double TURRET_YAW_A = 0.018; // Unit is V/(rad/s^2)
@@ -90,11 +90,11 @@ public final class Constants {
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
         public static final double TURRET_PITCH_P = 4.5;
         public static final double TURRET_PITCH_I = 0;
-        public static final double TURRET_PITCH_D = 0.03;
+        public static final double TURRET_PITCH_D = 0.02;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
-        public static final double TURRET_PITCH_V = 0.130; // Unit is V/(rad/s)
-        public static final double TURRET_PITCH_A = 0.02; // Unit is V/(rad/s^2)
+        public static final double TURRET_PITCH_V = 0.125; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_A = 0.015; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(2000);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1000);
         public static final Angle TURRET_PITCH_IZONE = Degree.of(5);
@@ -125,16 +125,16 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 1;
+        public static final double SHOOTER_P = 1.2;
         public static final double SHOOTER_I = 0.0;
-        public static final double SHOOTER_D = 0.0;
+        public static final double SHOOTER_D = 0.01;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.125; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.118; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.005; // Unit is V/(rotations/s^2)
-        public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
+        public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(1.93);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(91);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(5);
-        public static final AngularVelocity SHOOTER_READY_THRESHOLD = RotationsPerSecond.of(6);
+        public static final AngularVelocity SHOOTER_READY_THRESHOLD = RotationsPerSecond.of(8);
 
         public static final Angle SHOOTER_YAW_DEADZONE = Degree.of(10);
     }
@@ -142,21 +142,20 @@ public final class Constants {
     public final class LightConstants {
         public static final int LIGHT_PORT = 0;
 
-        public static final int LIGHT_LENGTH_1 = 80;
-        public static final int LIGHT_LENGTH_2 = 80;
+        public static final int LIGHT_LENGTH = 198;
 
         public static final LEDPattern COLOR_SHOOTER_ON = LEDPattern.solid(new Color(0, 255, 0));
         public static final LEDPattern COLOR_SHOOTER_OFF = LEDPattern.solid(new Color(255, 0, 0));
         public static final LEDPattern COLOR_INVALID_SHOT = LEDPattern.solid(new Color(0, 0, 255));
         public static final LEDPattern COLOR_TURRET_HOMING = LEDPattern.solid(Color.kPurple);
-        public static final LEDPattern COLOR_BOT_DISABLED = LEDPattern.rainbow(255, 255).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.25), Meter.of(0.015));
+        public static final LEDPattern COLOR_BOT_DISABLED = LEDPattern.rainbow(255, 255).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), Meter.of(1.0 / 144.0));
     }
 
     public final class KickerConstants {
         public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
-        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(10);
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(12);
         public static final Current KICKER_REVERSE_CURRENT = Amp.of(400);
     }
 
@@ -164,7 +163,7 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(10);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(12);
         public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(400);
     }
 
@@ -186,7 +185,7 @@ public final class Constants {
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(2.0);
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.3);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.35);
 
         public static final int INTAKE_MOTOR_ID_1 = 14;
         public static final boolean INTAKE_MOTOR_INVERTED_1 = true;
@@ -211,10 +210,10 @@ public final class Constants {
     }
 
     public final class FuelPhysicsConstants {
-        public static final int TPS = 25;
-        public static final int MAX_STEPS = 15;
+        public static final int TPS = 20;
+        public static final int MAX_STEPS = 10;
         public static final double DRAG_CONSTANT = 0.6;
-        public static final double EFFICENCY = 0.6;
+        public static final double EFFICENCY = 0.42;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;
@@ -242,17 +241,21 @@ public final class Constants {
         public static final double SINGLE_TAG_STARTING_STD_DEV = 0.9;
         public static final double SINGLE_TAG_DISTANCE_FACTOR = 0.5;
 
-        public static final double MULTI_TAG_STARTING_STD_DEV = 0.4;
-        public static final double MULTI_TAG_DISTANCE_FACTOR = 0.1;
+        public static final double MULTI_TAG_STARTING_STD_DEV = 0.25;
+        public static final double MULTI_TAG_DISTANCE_FACTOR = 0.15;
     }
 
     public final class QuestConstants {
-        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2568, -0.2925, 0.2, new Rotation3d(0, 0, -90));
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2568, -0.2925, 0.5, new Rotation3d(0, 15, -90));
 
-        public static final Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
-            0.02, // Trust down to 2cm in X direction
-            0.02, // Trust down to 2cm in Y direction
-            0.035 // Trust down to 2 degrees rotational
+        public static final double INITAL_STD_DEV_THRESHOLD = 1.2;
+        public static final double STD_DEV_THRESHOLD = 0.7;
+
+        public static final Matrix<N3,
+         N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
+            0.1,
+            0.1,
+            0.05
         );
     }
 }

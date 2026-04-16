@@ -38,5 +38,4 @@ public interface SwerveIO {
 
     default boolean checkCANError() {return false;}
     default boolean checkAngleAbsoluteEncodersError() {return false;}
-    default boolean checkPigeonError() {return false;}
 }

@@ -165,20 +165,9 @@ public class SwerveSubsystem extends SubsystemBase{
         }
     }
 
-    public void checkPigeonHealth() {
-        if (io.checkPigeonError()) {
-            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
-        } else {
-            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
-        }
-    }
-
     @Override
     public void periodic() {
-        RobotContainer.limelightSubsystem.getVisionEstimate();
-
         checkCanHealth();
         checkAngleAbsoluteEncodersHealth();
-        checkPigeonHealth();
     }
 }

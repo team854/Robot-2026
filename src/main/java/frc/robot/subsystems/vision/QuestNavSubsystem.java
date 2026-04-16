@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import java.util.OptionalInt;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,7 +21,8 @@ public class QuestNavSubsystem extends SubsystemBase {
 
     public enum VisionRejection {
         NONE,
-        OUT_OF_FIELD_BOUNDS
+        OUT_OF_FIELD_BOUNDS,
+        LOW_BATTERY
     }
 
 
@@ -38,9 +41,15 @@ public class QuestNavSubsystem extends SubsystemBase {
         questNav.setPose(resetPose.transformBy(Constants.QuestConstants.ROBOT_TO_QUEST));
     }
 
-    public VisionStdDevs calculateVisionStdDevs(Pose3d visionPose) {
+    public VisionStdDevs calculateVisionStdDevs(Pose3d visionPose, OptionalInt battery) {
         if (!FieldHelpers.poseInField(visionPose)) {
             return new VisionStdDevs(VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), VisionRejection.OUT_OF_FIELD_BOUNDS);
+        }
+
+        if(battery.isPresent()) {
+            if (battery.getAsInt() < 20) {
+                return new VisionStdDevs(VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), VisionRejection.LOW_BATTERY);
+            }
         }
 
         return new VisionStdDevs(Constants.QuestConstants.QUESTNAV_STD_DEVS, VisionRejection.NONE);
@@ -59,7 +68,7 @@ public class QuestNavSubsystem extends SubsystemBase {
 
                 Pose3d robotPose = questPose.transformBy(Constants.QuestConstants.ROBOT_TO_QUEST.inverse());
 
-                VisionStdDevs stdDevs = calculateVisionStdDevs(robotPose);
+                VisionStdDevs stdDevs = calculateVisionStdDevs(robotPose, questNav.getBatteryPercent());
 
                 if (!stdDevs.stdDevs().equals(VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE))) {
                     RobotContainer.swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, stdDevs.stdDevs());

@@ -5,8 +5,11 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.opencv.core.Mat;
@@ -46,6 +49,12 @@ public class LimelightSubsystem extends SubsystemBase {
     public record VisionStdDevs (
         double stdDevs,
         VisionRejection visionRejection
+    ) {}
+
+    public record VisionMeasurement (
+        Pose2d robotPose,
+        Time timestamp,
+        VisionStdDevs visionStdDevs
     ) {}
 
     private final Map<String, Double> lastHeartbeats = new HashMap<>();
@@ -121,13 +130,15 @@ public class LimelightSubsystem extends SubsystemBase {
         return new VisionStdDevs(stdDevs, VisionRejection.NONE);
     }
 
-    public void getVisionEstimate() {
+    public List<VisionMeasurement> getVisionEstimate() {
 
         // LimelightHelpers.SetIMUMode("limelight", 4);
 
         Angle robotAngle = RobotContainer.swerveSubsystem.getAngle();
         AngularVelocity robotAngularVelocity = RobotContainer.swerveSubsystem.getAngularVelocity();
         ChassisSpeeds robotChassisSpeeds = RobotContainer.swerveSubsystem.getRobotChassisSpeeds();
+
+        List<VisionMeasurement> visionMeasurements = new ArrayList<>();
 
         for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
             LimelightHelpers.SetRobotOrientation(limelight, robotAngle.in(Degree), robotAngularVelocity.in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
@@ -149,9 +160,11 @@ public class LimelightSubsystem extends SubsystemBase {
                     stdDevs = new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MEASUREMENT_NULL);
                 }
 
-
                 if (stdDevs.stdDevs() != Double.MAX_VALUE) {
                     RobotContainer.swerveSubsystem.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(stdDevs.stdDevs(), stdDevs.stdDevs(), Double.MAX_VALUE));
+
+                    visionMeasurements.add(new VisionMeasurement(limelightMeasurement.pose, Seconds.of(limelightMeasurement.timestampSeconds), stdDevs));
+                    
                     SmartDashboard.putNumberArray("Limelight/" + limelight + "/Position", PoseHelpers.convertPoseToNumbers(limelightMeasurement.pose));
                     SmartDashboard.putNumber("Limelight/" + limelight + "/Tag Count", limelightMeasurement.tagCount);
                 }
@@ -165,5 +178,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 e.printStackTrace();
             }
         }
+
+        return visionMeasurements;
     }
 }

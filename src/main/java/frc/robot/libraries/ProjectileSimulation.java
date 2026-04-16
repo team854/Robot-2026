@@ -452,7 +452,11 @@ public class ProjectileSimulation {
         return RadiansPerSecond.of((linearVelocity.in(MetersPerSecond) / radius.in(Meter)) / efficiency);
     }
 
-    public LinearVelocity estimateShootingVelocity(Translation2d targetPosition, LinearVelocity speedLimitUpper, Translation2d robotVelocity) {
+    public LinearVelocity estimateShootingVelocity(Translation2d targetPosition, LinearVelocity speedLimitUpper, Translation2d robotVelocity, Angle robotYaw) {
+        Translation3d rotatedTurretOffset = this.turretOffset.rotateBy(new Rotation3d(0, 0, robotYaw.in(Radians)));
+
+        targetPosition = targetPosition.minus(rotatedTurretOffset.toTranslation2d());
+
         double targetDistance = targetPosition.getNorm();
 
         if (targetDistance < 1e-6) {
@@ -460,9 +464,9 @@ public class ProjectileSimulation {
         }
 
         double baseVelocity = MathUtil.interpolate(
-            speedLimitUpper.in(MetersPerSecond) * 0.15,
+            speedLimitUpper.in(MetersPerSecond) * 0.18,
             speedLimitUpper.in(MetersPerSecond),
-            MathUtil.inverseInterpolate(0, 25, targetDistance)
+            MathUtil.inverseInterpolate(0, 32.5, targetDistance)
         );
 
         double normX = targetPosition.getX() / targetDistance;
@@ -510,7 +514,7 @@ public class ProjectileSimulation {
 
         double theoreticalMaxSpeed = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMaxVelocity), Meter.of(shooterWheelRadius), 1.0).in(MetersPerSecond);
 
-        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(theoreticalMaxSpeed), robotVelocity).in(MetersPerSecond);
+        double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(theoreticalMaxSpeed), robotVelocity, robotYaw).in(MetersPerSecond);
 
         launchSpeed = MathUtil.clamp(launchSpeed, speedLimitLower, speedLimitUpper);
 
