@@ -253,9 +253,9 @@ public final class Constants {
 
         public static final Matrix<N3,
          N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
-            0.1,
-            0.1,
-            0.05
+            0.5,
+            0.5,
+            Double.MAX_VALUE
         );
     }
 }
