@@ -103,9 +103,9 @@ public final class Constants {
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
-            -0.2,
-            0.25,
-            0.18
+            -0.1675,
+            0.0975,
+            0.5
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
 
@@ -125,7 +125,7 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 1.2;
+        public static final double SHOOTER_P = 1.1;
         public static final double SHOOTER_I = 0.0;
         public static final double SHOOTER_D = 0.01;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
@@ -246,7 +246,7 @@ public final class Constants {
     }
 
     public final class QuestConstants {
-        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2568, -0.2925, 0.5, new Rotation3d(0, 15, -90));
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2675, -0.2225, 0.52, new Rotation3d(0, 15, -90));
 
         public static final double INITAL_STD_DEV_THRESHOLD = 1.2;
         public static final double STD_DEV_THRESHOLD = 0.7;
