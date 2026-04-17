@@ -93,6 +93,7 @@ public class QuestNavSubsystem extends SubsystemBase {
             }
         } else {
             RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
         }
     }
  

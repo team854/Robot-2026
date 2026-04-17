@@ -226,7 +226,7 @@ public class RobotContainer {
 		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
 		NamedCommands.registerCommand("ActivateIntakeCommand", new ActivateIntakeCommand());
 
-		NamedCommands.registerCommand("SmartShootCommand", new SmartShootCommandFUcked());
+		NamedCommands.registerCommand("SmartShootCommand", new SmartShootCommand());
 	}
 
 	private void configureBindings() {

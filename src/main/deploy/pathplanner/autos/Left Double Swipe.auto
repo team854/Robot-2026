@@ -98,6 +98,12 @@
                             }
                           },
                           {
+                            "type": "named",
+                            "data": {
+                              "name": "ActivateShooterCommand"
+                            }
+                          },
+                          {
                             "type": "sequential",
                             "data": {
                               "commands": [
@@ -189,6 +195,12 @@
                             "type": "named",
                             "data": {
                               "name": "SmartShootCommand"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "ActivateShooterCommand"
                             }
                           },
                           {

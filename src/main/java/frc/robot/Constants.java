@@ -262,7 +262,7 @@ public final class Constants {
         public static final double INITAL_STD_DEV_THRESHOLD = 1.2;
         public static final double STD_DEV_THRESHOLD = 0.7;
 
-        public static final int LOW_BATTERY_THRESHOLD = 50;
+        public static final int LOW_BATTERY_THRESHOLD = 30;
 
         public static final Matrix<N3,
          N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
