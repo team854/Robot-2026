@@ -52,10 +52,18 @@ public final class ErrorConstants {
         true
     );
 
+    public static final ErrorCode QUEST_DISCONNECTED = new ErrorCode(
+        10,
+        "The quest is disconnected",
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kBlue)),
+        false,
+        true
+    );
+
     public static final ErrorCode LOW_BATTERY_VOLTAGE = new ErrorCode(
         10,
         "The battery is below its low voltage threshold",
-        LEDPattern.steps(Map.of(0, Color.kBrown, SPLIT_PERCENT, Color.kGreen)),
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kGreen)),
         false,
         true
     );

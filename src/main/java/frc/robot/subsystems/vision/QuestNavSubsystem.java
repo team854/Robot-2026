@@ -10,6 +10,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.PoseHelpers;
@@ -55,18 +56,6 @@ public class QuestNavSubsystem extends SubsystemBase {
         return new VisionStdDevs(Constants.QuestConstants.QUESTNAV_STD_DEVS, VisionRejection.NONE);
     }
 
-    @Override
-    public void periodic() {
-        questNav.commandPeriodic();
-
-        SmartDashboard.putBoolean("QuestNav/Connected", questNav.isConnected());
-        SmartDashboard.putBoolean("QuestNav/Tracking", questNav.isTracking());
-        SmartDashboard.putNumber("QuestNav/Latency", questNav.getLatency());
-        questNav.getBatteryPercent().ifPresent(
-            battery -> SmartDashboard.putNumber("QuestNav/Battery Percent", battery));
-        questNav.getTrackingLostCounter().ifPresent(
-            count -> SmartDashboard.putNumber("QuestNav/Tracking Lost Count", count));
-    }
 
     public void getVisionEstimate() {
         PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
@@ -91,5 +80,28 @@ public class QuestNavSubsystem extends SubsystemBase {
                 
             }
         }
+    }
+
+    public void checkQuestHealth() {
+        if (!questNav.isConnected()) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
+        }
+    }
+ 
+    @Override
+    public void periodic() {
+        questNav.commandPeriodic();
+
+        SmartDashboard.putBoolean("QuestNav/Connected", questNav.isConnected());
+        SmartDashboard.putBoolean("QuestNav/Tracking", questNav.isTracking());
+        SmartDashboard.putNumber("QuestNav/Latency", questNav.getLatency());
+        questNav.getBatteryPercent().ifPresent(
+            battery -> SmartDashboard.putNumber("QuestNav/Battery Percent", battery));
+        questNav.getTrackingLostCounter().ifPresent(
+            count -> SmartDashboard.putNumber("QuestNav/Tracking Lost Count", count));
+
+        checkQuestHealth();
     }
 }
