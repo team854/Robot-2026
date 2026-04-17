@@ -34,6 +34,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private enum HomingStage {
         SEARCHING,
+        SEARCHING_DELAY,
         REFINING_START,
         REFINING_END
     }
@@ -77,6 +78,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private Angle turretManualPitch = Degree.of(0);
 
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
+    private Timer turretHomingTimer = new Timer();
     private double turretHomingStart = 0;
 
     private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
@@ -362,6 +364,12 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 if (turretHomingStage == HomingStage.SEARCHING) {
                     turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);
                     if (io.getHomingCounter()) {
+                        turretHomingStage = HomingStage.SEARCHING_DELAY;
+                        turretHomingTimer.reset();
+                    }
+                } else if (turretHomingStage == HomingStage.SEARCHING_DELAY) {
+                    turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);
+                    if (turretHomingTimer.get() > 0.1) {
                         turretHomingStage = HomingStage.REFINING_START;
                     }
                 } else {
