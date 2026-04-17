@@ -318,8 +318,10 @@ public class RobotContainer {
 
 	public void initAll() {
 
-		DataLogManager.start();
-		DataLogManager.logNetworkTables(true); 
+		if (Robot.isReal()) {
+			DataLogManager.start();
+			DataLogManager.logNetworkTables(true); 
+		}
 
 		shooterSubsystem.resetShooter();
 
