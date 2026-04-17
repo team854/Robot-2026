@@ -167,6 +167,7 @@ public class RobotContainer {
 		if (Constants.SwerveConstants.ENABLED) {
 			autoChooser = AutoBuilder.buildAutoChooser();
 			autoChooser.addOption("Right Double Swipe", new PathPlannerAuto("Left Double Swipe", true));
+			autoChooser.addOption("Right Double Swipe With Bump", new PathPlannerAuto("Left Double Swipe With Bump", true));
 		} else {
 			autoChooser = new SendableChooser<Command>();
 		}

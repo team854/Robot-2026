@@ -185,6 +185,7 @@ public final class Constants {
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(2.0);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE = Volt.of(8);
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.35);
 
         public static final int INTAKE_MOTOR_ID_1 = 14;

@@ -122,7 +122,12 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
                 intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
                 break;
             case DEPLOYING:
-                intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
+                if (getStateTimer() > 2.0) {
+                    intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE.in(Volt);
+                } else {
+                    intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
+                }
+                
                 break;
             default:
                 intakeDeploymentVoltage = 0.0;
