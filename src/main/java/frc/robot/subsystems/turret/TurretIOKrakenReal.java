@@ -59,6 +59,7 @@ public class TurretIOKrakenReal implements TurretIO {
         turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_YAW_ABSOLUTE_ENCODER_INVERTED);
         turretYawConfig.signals.absoluteEncoderPositionPeriodMs(10);
+        turretYawConfig.smartCurrentLimit(30);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         
