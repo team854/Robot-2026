@@ -51,7 +51,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "Left Top Collect Balls Bump Exit"
+                              "pathName": "Left Top Collect Balls"
                             }
                           },
                           {
@@ -72,7 +72,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Left Go Back Via Bump"
+                        "pathName": "Left go Back"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left Shoot"
                       }
                     },
                     {
@@ -80,58 +86,9 @@
                       "data": {
                         "commands": [
                           {
-                            "type": "path",
+                            "type": "wait",
                             "data": {
-                              "pathName": "Left Shoot From Bump"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "ActivateShooterCommand"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SmartShootCommand"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "ActivateIntakeCommand"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Left Bump Shoot Return Start"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Left Bottom Collect Balls Bump Exit"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Left Go Back Via Bump"
-                      }
-                    },
-                    {
-                      "type": "deadline",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "Left Shoot From Bump"
+                              "waitTime": 3.0
                             }
                           },
                           {
@@ -151,28 +108,22 @@
                             "data": {
                               "commands": [
                                 {
-                                  "type": "deadline",
+                                  "type": "wait",
                                   "data": {
-                                    "commands": [
-                                      {
-                                        "type": "wait",
-                                        "data": {
-                                          "waitTime": 2.0
-                                        }
-                                      },
-                                      {
-                                        "type": "named",
-                                        "data": {
-                                          "name": "ActivateIntakeCommand"
-                                        }
-                                      }
-                                    ]
+                                    "waitTime": 1.0
                                   }
                                 },
                                 {
-                                  "type": "named",
+                                  "type": "parallel",
                                   "data": {
-                                    "name": "RetractIntakeCommand"
+                                    "commands": [
+                                      {
+                                        "type": "named",
+                                        "data": {
+                                          "name": "RetractIntakeCommand"
+                                        }
+                                      }
+                                    ]
                                   }
                                 }
                               ]
@@ -182,13 +133,68 @@
                       }
                     },
                     {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left Shoot Go Back"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left go Neutral"
+                      }
+                    },
+                    {
+                      "type": "deadline",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Left Bottom Collect Balls"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "DeployIntakeCommand"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "ActivateIntakeCommand"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left go Back"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left Shoot"
+                      }
+                    },
+                    {
                       "type": "deadline",
                       "data": {
                         "commands": [
                           {
                             "type": "wait",
                             "data": {
-                              "waitTime": 5.0
+                              "waitTime": 3.0
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "SmartShootCommand"
                             }
                           },
                           {
@@ -198,9 +204,29 @@
                             }
                           },
                           {
-                            "type": "named",
+                            "type": "sequential",
                             "data": {
-                              "name": "SmartShootCommand"
+                              "commands": [
+                                {
+                                  "type": "wait",
+                                  "data": {
+                                    "waitTime": 1.0
+                                  }
+                                },
+                                {
+                                  "type": "parallel",
+                                  "data": {
+                                    "commands": [
+                                      {
+                                        "type": "named",
+                                        "data": {
+                                          "name": "RetractIntakeCommand"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]

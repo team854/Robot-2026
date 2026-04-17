@@ -79,7 +79,7 @@ public final class Constants {
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
         public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.65);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.25);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.15);
         public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.1);
         public static final Current TURRET_YAW_MOTOR_CURRENT_LIMIT = Amp.of(25);
     
@@ -257,6 +257,8 @@ public final class Constants {
     }
 
     public final class QuestConstants {
+        public static final boolean ENABLED = false;
+
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2675, -0.2225, 0.52, new Rotation3d(0, 15, -90));
 
         public static final double INITAL_STD_DEV_THRESHOLD = 1.2;

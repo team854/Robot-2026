@@ -70,8 +70,10 @@ public class QuestNavSubsystem extends SubsystemBase {
                 VisionStdDevs stdDevs = calculateVisionStdDevs(robotPose, questNav.getBatteryPercent());
 
                 if (!stdDevs.stdDevs().equals(VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE))) {
-                    RobotContainer.swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, stdDevs.stdDevs());
-
+                    if (Constants.QuestConstants.ENABLED) {
+                        RobotContainer.swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, stdDevs.stdDevs());
+                    }
+                    
                     SmartDashboard.putNumberArray("QuestNav/Position", PoseHelpers.convertPoseToNumbers(robotPose));
                 }
 
