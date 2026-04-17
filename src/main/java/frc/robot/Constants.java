@@ -79,6 +79,7 @@ public final class Constants {
         public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.65);
         public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.25);
         public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.1);
+        public static final Current TURRET_YAW_MOTOR_CURRENT_LIMIT = Amp.of(25);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(-1);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
@@ -156,7 +157,10 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(12);
+
         public static final Current KICKER_REVERSE_CURRENT = Amp.of(400);
+
+        public static final Current KICKER_MOTOR_CURRENT_LIMIT = Amp.of(30);
     }
 
     public final class SpindexerConstants {
@@ -188,6 +192,8 @@ public final class Constants {
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE = Volt.of(8);
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.35);
 
+        public static final Current INTAKE_DEPLOYMENT_MOTOR_CURRENT_LIMIT = Amp.of(20);
+
         public static final int INTAKE_MOTOR_ID_1 = 14;
         public static final boolean INTAKE_MOTOR_INVERTED_1 = true;
 
@@ -195,6 +201,8 @@ public final class Constants {
         public static final boolean INTAKE_MOTOR_INVERTED_2 = false;
 
         public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(9);
+
+        public static final Current INTAKE_MOTOR_CURRENT_LIMIT = Amp.of(30);
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
         public static final int INTAKE_DEPLOYED_SENSOR_DIO = 1;

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Radian;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -59,7 +60,7 @@ public class TurretIOKrakenReal implements TurretIO {
         turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_YAW_ABSOLUTE_ENCODER_INVERTED);
         turretYawConfig.signals.absoluteEncoderPositionPeriodMs(10);
-        turretYawConfig.smartCurrentLimit(30);
+        turretYawConfig.smartCurrentLimit((int) Constants.TurretConstants.TURRET_YAW_MOTOR_CURRENT_LIMIT.in(Amp));
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         

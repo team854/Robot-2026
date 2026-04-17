@@ -1,5 +1,7 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -8,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.robot.Constants;
+import frc.robot.Constants.KickerConstants;
 
 public class KickerIOReal implements KickerIO {
     
@@ -20,7 +23,7 @@ public class KickerIOReal implements KickerIO {
         kickerConfig = new SparkMaxConfig();
         kickerConfig.idleMode(IdleMode.kBrake);
         kickerConfig.inverted(Constants.KickerConstants.KICKER_MOTOR_INVERTED);
-        kickerConfig.smartCurrentLimit(30); 
+        kickerConfig.smartCurrentLimit((int) KickerConstants.KICKER_MOTOR_CURRENT_LIMIT.in(Amp)); 
         kickerMotor.configure(kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -23,13 +25,13 @@ public class IntakeIOReal implements IntakeIO {
         intakeConfig1 = new SparkMaxConfig();
         intakeConfig1.idleMode(IdleMode.kCoast);
         intakeConfig1.inverted(Constants.IntakeConstants.INTAKE_MOTOR_INVERTED_1);
-        intakeConfig1.smartCurrentLimit(30);
+        intakeConfig1.smartCurrentLimit((int) Constants.IntakeConstants.INTAKE_MOTOR_CURRENT_LIMIT.in(Amp));
         intakeMotor1.configure(intakeConfig1, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         intakeConfig2 = new SparkMaxConfig();
         intakeConfig2.idleMode(IdleMode.kCoast);
         intakeConfig2.inverted(Constants.IntakeConstants.INTAKE_MOTOR_INVERTED_2);
-        intakeConfig2.smartCurrentLimit(30);
+        intakeConfig2.smartCurrentLimit((int) Constants.IntakeConstants.INTAKE_MOTOR_CURRENT_LIMIT.in(Amp));
         intakeMotor2.configure(intakeConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     }

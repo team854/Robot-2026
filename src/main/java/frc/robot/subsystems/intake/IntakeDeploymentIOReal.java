@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -31,13 +33,13 @@ public class IntakeDeploymentIOReal implements IntakeDeploymentIO {
         intakeDeploymentConfig1 = new SparkMaxConfig();
         intakeDeploymentConfig1.idleMode(IdleMode.kBrake);
         intakeDeploymentConfig1.inverted(Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_INVERTED_1);
-        intakeDeploymentConfig1.smartCurrentLimit(20);
+        intakeDeploymentConfig1.smartCurrentLimit((int) Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_CURRENT_LIMIT.in(Amp));
         intakeDeploymentMotor1.configure(intakeDeploymentConfig1, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         intakeDeploymentConfig2 = new SparkMaxConfig();
         intakeDeploymentConfig2.idleMode(IdleMode.kBrake);
         intakeDeploymentConfig2.inverted(Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_INVERTED_2);
-        intakeDeploymentConfig2.smartCurrentLimit(20);
+        intakeDeploymentConfig2.smartCurrentLimit((int) Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_CURRENT_LIMIT.in(Amp));
         intakeDeploymentMotor2.configure(intakeDeploymentConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
