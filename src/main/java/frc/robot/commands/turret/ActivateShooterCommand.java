@@ -13,11 +13,13 @@ public class ActivateShooterCommand extends Command{
     
     @Override
     public void initialize() {
+        System.out.println("TEST1");
         RobotContainer.shooterSubsystem.setTargetSpeed(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY);
     }
 
     @Override
     public void execute() {
+        System.out.println("TEST2");
         RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.READY, 5);
     }
 
@@ -28,6 +30,7 @@ public class ActivateShooterCommand extends Command{
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("TEST3");
         RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.IDLE, 5);
     }
 }

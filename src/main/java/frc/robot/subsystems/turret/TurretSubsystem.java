@@ -365,7 +365,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);
                     if (io.getHomingCounter()) {
                         turretHomingStage = HomingStage.SEARCHING_DELAY;
-                        turretHomingTimer.reset();
+                        turretHomingTimer.restart();
                     }
                 } else if (turretHomingStage == HomingStage.SEARCHING_DELAY) {
                     turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);

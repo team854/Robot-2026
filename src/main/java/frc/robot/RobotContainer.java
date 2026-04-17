@@ -37,6 +37,7 @@ import frc.robot.commands.intake.ToggleIntakeDeployCommand;
 import frc.robot.commands.kicker.ActivateKickerCommand;
 import frc.robot.commands.kicker.ReverseKickerCommand;
 import frc.robot.commands.smart.SmartShootCommand;
+import frc.robot.commands.smart.SmartShootCommandFUcked;
 import frc.robot.commands.spindexer.ActivateSpindexerCommand;
 import frc.robot.commands.spindexer.ReverseSpindexerCommand;
 import frc.robot.commands.turret.ActivateShooterCommand;
@@ -225,7 +226,7 @@ public class RobotContainer {
 		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
 		NamedCommands.registerCommand("ActivateIntakeCommand", new ActivateIntakeCommand());
 
-		NamedCommands.registerCommand("SmartShootCommand", new SmartShootCommand());
+		NamedCommands.registerCommand("SmartShootCommand", new SmartShootCommandFUcked());
 	}
 
 	private void configureBindings() {

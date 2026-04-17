@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Pound;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -251,6 +253,8 @@ public final class Constants {
 
         public static final double INITAL_STD_DEV_THRESHOLD = 1.2;
         public static final double STD_DEV_THRESHOLD = 0.7;
+
+        public static final int LOW_BATTERY_THRESHOLD = 50;
 
         public static final Matrix<N3,
          N1> QUESTNAV_STD_DEVS = VecBuilder.fill(

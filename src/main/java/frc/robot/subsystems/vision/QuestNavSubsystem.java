@@ -85,6 +85,12 @@ public class QuestNavSubsystem extends SubsystemBase {
     public void checkQuestHealth() {
         if (!questNav.isConnected()) {
             RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
+
+            if (questNav.getBatteryPercent().getAsInt() < Constants.QuestConstants.LOW_BATTERY_THRESHOLD) {
+                RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
+            } else {
+                RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
+            }
         } else {
             RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
         }
