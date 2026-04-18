@@ -316,6 +316,10 @@ public class RobotContainer {
 		}
 	}
 
+	public static boolean getTurretHomed() {
+		return turretHomed;
+	}
+
 	public static void setTurretHomed() {
 		turretHomed = true;
 	}

@@ -59,7 +59,7 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
@@ -80,7 +80,7 @@ public final class Constants {
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
         public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.65);
         public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.25);
-        public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.1);
+        public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.15);
         public static final Current TURRET_YAW_MOTOR_CURRENT_LIMIT = Amp.of(25);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(-1);
@@ -118,7 +118,7 @@ public final class Constants {
     }
 
     public final class ShooterConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int SHOOTER_MOTOR_1_ID = 15;
         public static final boolean SHOOTER_MOTOR_1_INVERTED = true;
@@ -224,7 +224,7 @@ public final class Constants {
         public static final int TPS = 20;
         public static final int MAX_STEPS = 10;
         public static final double DRAG_CONSTANT = 0.6;
-        public static final double EFFICENCY = 0.42;
+        public static final double EFFICENCY = 0.41;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;

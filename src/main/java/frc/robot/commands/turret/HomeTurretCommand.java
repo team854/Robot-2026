@@ -31,6 +31,10 @@ public class HomeTurretCommand extends Command{
 
     @Override
     public boolean isFinished() {
+        if (RobotContainer.getTurretHomed()) {
+            return true;
+        }
+
         if (!hasStartedHoming) {
             return false;
         }
@@ -39,7 +43,7 @@ public class HomeTurretCommand extends Command{
     }
 
     @Override
-    
+
     public void end(boolean interrupted) {
         if (!interrupted) {
             RobotContainer.setTurretHomed();

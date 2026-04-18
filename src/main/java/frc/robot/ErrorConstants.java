@@ -57,7 +57,7 @@ public final class ErrorConstants {
         "The quest is disconnected",
         LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kBlue)),
         false,
-        true
+        false
     );
 
     public static final ErrorCode LOW_BATTERY_VOLTAGE = new ErrorCode(

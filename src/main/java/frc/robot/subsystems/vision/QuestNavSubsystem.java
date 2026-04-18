@@ -73,7 +73,7 @@ public class QuestNavSubsystem extends SubsystemBase {
                     if (Constants.QuestConstants.ENABLED) {
                         RobotContainer.swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, stdDevs.stdDevs());
                     }
-                    
+
                     SmartDashboard.putNumberArray("QuestNav/Position", PoseHelpers.convertPoseToNumbers(robotPose));
                 }
 
@@ -87,15 +87,16 @@ public class QuestNavSubsystem extends SubsystemBase {
     public void checkQuestHealth() {
         if (!questNav.isConnected()) {
             RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
+            
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
 
             if (questNav.getBatteryPercent().getAsInt() < Constants.QuestConstants.LOW_BATTERY_THRESHOLD) {
                 RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
             } else {
                 RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
             }
-        } else {
-            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_DISCONNECTED);
-            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.QUEST_LOW_BATTERY);
         }
     }
  
