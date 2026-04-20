@@ -40,30 +40,28 @@ public class VisualizerSubsystem extends SubsystemBase {
                 targetPosition.getZ()
             );
             
-            LinearVelocity launchSpeed = RobotContainer.calculationSubsystem.getProjectileSimulation().convertShooterSpeedToVelocity(
+            double launchSpeed = RobotContainer.calculationSubsystem.getProjectileSimulation().convertShooterSpeedToVelocity(
                 RobotContainer.shooterSubsystem.getTargetSpeed(),
                 Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
                 Constants.FuelPhysicsConstants.EFFICENCY
-            );
+            ).in(MetersPerSecond);
 
-            Angle launchYaw = Radian.of(
-                robotPose.getRotation().getRadians() - RobotContainer.turretSubsystem.getTurretTargetYaw().in(Radian) +  + Math.PI
-            );
+            double launchYaw = robotPose.getRotation().getRadians() - RobotContainer.turretSubsystem.getTurretTargetYaw().in(Radian) + Math.PI;
 
             ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
 
-            Double[] positionHistory = RobotContainer.calculationSubsystem.getProjectileSimulation().simulateLaunch(
+            double[] positionHistory = RobotContainer.calculationSubsystem.getProjectileSimulation().simulateLaunch(
                 launchSpeed,
-                RobotContainer.calculationSubsystem.getTargetSolutions().launchPitch(),
+                RobotContainer.calculationSubsystem.getTargetSolutions().launchPitch().in(Radian),
                 launchYaw,
-                RadiansPerSecond.of(-(launchSpeed.in(MetersPerSecond) / RobotContainer.calculationSubsystem.getProjectileSimulation().projectileRadius)),
-                RadiansPerSecond.of(0), 
-                new Translation2d(
-                    fieldSpeeds.vxMetersPerSecond,
-                    fieldSpeeds.vyMetersPerSecond
-                ),
-                robotTargetRelative,
-                robotPose.getRotation().getMeasure(),
+                -(launchSpeed / RobotContainer.calculationSubsystem.getProjectileSimulation().projectileRadius),
+                0.0, 
+                fieldSpeeds.vxMetersPerSecond,
+                fieldSpeeds.vyMetersPerSecond,
+                robotTargetRelative.getX(),
+                robotTargetRelative.getY(),
+                robotTargetRelative.getZ(),
+                robotPose.getRotation().getRadians(),
                 true,
                 Constants.FuelPhysicsConstants.TPS
             );

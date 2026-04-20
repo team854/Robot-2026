@@ -77,8 +77,10 @@ public class CalculationSubsystem {
 
     private Thread projectileThread;
 
+    private final LinearFilter simulationTimeFilter = LinearFilter.movingAverage(500);
+
     public CalculationSubsystem() {
-        targetInputs = new AtomicReference<>(new TargetInput(DegreesPerSecond.of(0), Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
+        targetInputs = new AtomicReference<>(new TargetInput(Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
         targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0, Second.of(0))));
     }
 
@@ -220,7 +222,6 @@ public class CalculationSubsystem {
         );
 
         setTargetInputs(new TargetInput(
-            DegreesPerSecond.of(0),
             botPose.getRotation().getMeasure(),
             new Translation2d(
                 predictedVelocityX,
@@ -233,12 +234,14 @@ public class CalculationSubsystem {
         ));
 
         TargetSolution lastSolution = getTargetSolutions();
+        double filteredComputationTime = simulationTimeFilter.calculate(lastSolution.targetDebug().computationTime().in(Second));
 
         SmartDashboard.putNumberArray("Auto Aim/Target Position", PoseHelpers.convertTranslationToNumbers(targetPosition));
         SmartDashboard.putString("Auto Aim/Error Code", lastSolution.errorCode().name());
         SmartDashboard.putString("Auto Aim/Solution Debug", lastSolution.targetDebug().toString());
         SmartDashboard.putNumber("Auto Aim/Timestamp", lastSolution.timestamp().in(Second));
         SmartDashboard.putBoolean("Auto Aim/Error", lastSolution.errorCode() != TargetErrorCode.NONE);
+        SmartDashboard.putNumber("Auto Aim/Smoothed Computation Time", filteredComputationTime);
 
         SmartDashboard.putNumberArray("Auto Aim/Predicted Position", PoseHelpers.convertTranslationToNumbers(new Translation3d(predictedPositionX, predictedPositionY, 0.0)));
 
