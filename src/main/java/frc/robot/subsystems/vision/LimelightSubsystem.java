@@ -111,9 +111,9 @@ public class LimelightSubsystem extends SubsystemBase {
         
         double robotTranslationalVelocity = Math.hypot(robotChassisSpeeds.vxMetersPerSecond, robotChassisSpeeds.vyMetersPerSecond);
 
-        double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / 720.0;
+        double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / Constants.LimelightConstants.ANGULAR_VELOCITY_DIVISOR;
 
-        stdDevs += robotTranslationalVelocity / 10.0;
+        stdDevs += robotTranslationalVelocity / Constants.LimelightConstants.TRANSLATIONAL_VELOCITY_DIVISOR;
 
         if (tagCount == 1) {
             if (averageTagDistance >= 5) {

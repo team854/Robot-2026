@@ -90,7 +90,7 @@ Each subsystem that controls hardware with the exception of `LimelightSubsystem.
  - It makes the subsystem code cleaner
  - It allows subsystems to be disabled by passing in the `____IO.java` instead of an `____IOReal.java`
  - It allows for the hardware to be easily switched for example `ShooterIOReal`(NEOs) and `ShooterIOKrakenReal.java`(Krakens)
- - For our team specificly it allows testing code on incomplete hardware
+ - For our team specifically it allows testing code on incomplete hardware
 
 Each IO abstraction layer consists of a base `____IO.java` class and a class with the real implementation `____IOReal.java`. For example the spindexer uses `SpindexerIO.java` and `SpindexerIOReal.java`
 
@@ -143,13 +143,12 @@ public class SpindexerIOReal implements SpindexerIO {
 }
 ```
 
-The `SpindexerIO.java` class is an interface that implments default functions. Default getter functions return safe values that won't crash the subsystem or cause adverse effects. Setter functions accept all of the arguments of the normal setter then discard the values and do nothing. In `SpindexerIOReal.java` each of the default methods is implemented via a `@Override`
+The `SpindexerIO.java` class is an interface that implements default functions. Default getter functions return safe values that won't crash the subsystem or cause adverse effects. Setter functions accept all of the arguments of the normal setter then discard the values and do nothing. In `SpindexerIOReal.java` each of the default methods is implemented via a `@Override`
 
 # Statemachines
-
 Each of the subsystems that controls hardware with the exception of `SwerveSubsystem.java`, `LimelightSubsystem.java`, `QuestNavSubsystem.java`, and `LightSubsystem.java` extends a custom statemachine called `SubsystemStateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/SubsystemStateMachine.java`) which itself extends `SubsystemBase` and provides a proxy for the custom `StateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/StateMachine.java`). State machines have several advantages for the code:
  - It centralizes the state switching logic
- - It adds a prioity system so multiple systems requesting a state get automatically prioritized
+ - It adds a priority system so multiple systems requesting a state get automatically prioritized
  - It reduces conditions where the robot goes into weird states that are hard to debug
 
 The state machine operates on a `desiredState` and a `currentState`. The `desiredState` is the state that the subsystem wants to be in and the `currentState` is the state that the subsystem is in. When something requests a desired state it passes in both the `desiredState` and a `priority`. At the start of each periodic tick the state machine sets the current `desiredState` to the requested `desiredState` with the highest priority. In this code I have structured the priorities as follows:
@@ -161,7 +160,7 @@ The state machine operates on a `desiredState` and a `currentState`. The `desire
 While the architecture is pretty elegant and worked very well there are some important things to remember:
  1. It takes one tick to switch `desiredState`. Meaning if a state is requested on tick 0 it will only be set as the `desiredState` on tick 1
  2. In the state machines default configuration it will automatically reset its `desiredState` to the `defaultState` if no requests for a `desiredState` are made in a tick. This behaviour can be disabled by passing in `null` to the `defaultState` upon constructing the state machine
- 3. Only the subsystem that extends the `SubsystemStateMachine` can transition states using the `transitionTo()`. If you find yourself in a state where this needs to be violated you should probabley use the base `StateMachine` class
+ 3. Only the subsystem that extends the `SubsystemStateMachine` can transition states using the `transitionTo()`. If you find yourself in a state where this needs to be violated you should probably use the base `StateMachine` class
 
 ### SpindexerSubsystem.java:
 ```java
@@ -312,7 +311,7 @@ Then to read that distance back into a double you would do:
 double exampleDistanceMeter = exampleDistance.in(Meters);
 double exampleDistanceInches = exampleDistance.in(Inch);
 ```
-I would strongly recomend you use the `Units` library in your code. You can find documentation [here](https://docs.wpilib.org/en/stable/docs/software/basic-programming/java-units.html).
+I would strongly recomend you use the `Units` library in your code. You can find documentation [here](https://docs.wpilib.org/en/stable/docs/software/basic-programming/java-units.html). Do note that while in some cases it is convient to use imperial units in `Constants.java` all WPIlib functions use metric so so I would advise using metric internally. Its also important to note that the `Units` library does cause garbage collection pressure when used in frequent loops.
 
 # Constants
 This project uses a central file called `Constants.java` to store the constants for every part of the code. Just like how the subsystem files are organized into folders, the constants are organized into sub classes.
@@ -350,9 +349,9 @@ public VisionStdDevs calculateVisionStdDevs(Pose2d visionPose, int tagCount, dou
     
     double robotTranslationalVelocity = Math.hypot(robotChassisSpeeds.vxMetersPerSecond, robotChassisSpeeds.vyMetersPerSecond);
 
-    double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / 720.0;
+    double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / Constants.LimelightConstants.ANGULAR_VELOCITY_DIVISOR;
 
-    stdDevs += robotTranslationalVelocity / 10.0;
+    stdDevs += robotTranslationalVelocity / Constants.LimelightConstants.TRANSLATIONAL_VELOCITY_DIVISOR;
 
     if (tagCount == 1) {
         if (averageTagDistance >= 5) {
@@ -369,4 +368,73 @@ public VisionStdDevs calculateVisionStdDevs(Pose2d visionPose, int tagCount, dou
     return new VisionStdDevs(stdDevs, VisionRejection.NONE);
 }
 ```
-This code calculates the std devs of a limelight mesurement based on `visionPose`, `tagCount`, `averageTagDistance`, `robotChassisSpeeds`, and `robotAngularVelocity`. The code first filters for obvious bad mesurements like when the mesurement is out of the field perimeter. Then 
+This code calculates the std devs of a limelight mesurement based on `visionPose`, `tagCount`, `averageTagDistance`, `robotChassisSpeeds`, and `robotAngularVelocity`. The code first filters for obvious bad mesurements like when the mesurement is out of the field perimeter. Then it penalizes the mesurement based on how fast the robot is translating and rotating. The final and most important step is penalizing the mesurement based on the average distance of the tags. If there is only 1 tag then the mesurement should be penalized much more.
+
+# Logging
+While there are many ways to handle logging in frc this code uses `SmartDashboard` to publish values over `NetworkTables`. In addition it uses `AdvantageKit` to log additional values and provide better replay compatiblity. `AdvantageKit` is able to log completly without `SmartDashboard` but I chose to use `SmartDashboard` because I was familar with it. I would encourge you to do some reserch and decide on your own setup. Some important things to note with `AdvantageKit` is that you should be logging `NetworkTables` as part of your log file. For example:
+```java
+public class Robot extends LoggedRobot {
+    private final RobotContainer robotContainer;
+	
+	public Robot() {
+		robotContainer = new RobotContainer();
+
+		Logger.recordMetadata("ProjectName", "2026 Robot");
+
+		if (isReal()) {
+			Logger.addDataReceiver(new WPILOGWriter());
+			Logger.addDataReceiver(new NT4Publisher());
+		} else {
+			setUseTiming(false);
+		}
+		Logger.start(); 
+	}
+
+    @Override
+    public void testInit() {
+        robotContainer.initAll();
+    }
+    @Override
+    public void teleopInit() {
+        robotContainer.initAll();
+    }
+    @Override
+    public void autonomousInit() {
+        robotContainer.initAll();
+    }
+}
+```
+```java
+public class RobotContainer {
+    public void initAll() {
+		if (Robot.isReal()) {
+			DataLogManager.start();
+			DataLogManager.logNetworkTables(true); 
+		}
+    }
+}
+```
+# Controller IO Abstraction
+Just like how subsystems use IO abstractions for their hardware, abstracting the controllers can have several advantages for the code:
+ - Allows interchangeable use of both PS5 and XBox controllers
+ - Allows applying a curve to both controller types easily
+
+In this code `ControllerIO.java` is the base class that contains default methods that return safe values while `ControllerIOPS5.java` and `ControllerIOXbox.java` implment the required methods from `ControllerIO.java`. In `RobotContainer.java` switching bettween PS5 and Xbox is simple:
+```java
+public class RobotContainer {
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+}
+```
+
+# Projectile Simulation
+
+To calculate the required launch pitch, yaw, and speed of the projectile, this code uses a RK4(Runge-Kutta 4th Order) physics simulation and Broyden's method. The physics simulation accounts for translational drag, rotational drag, the magnus effect, and shooter offsets. This has several advantages for the code:
+ - Built in SOTM(Shoot On The Move)
+ - Easy to tune for a new or incomplete robot
+The projectile simulation uses RK4 which allows it to run at incredibly low tps while still remaining stable. The projectile simulation code can be found in `src/main/java/frc/robot/libraries/ProjectileSimulation.java` and the simulation itself is handled by the `simulateLaunch` method. One of the most difficult parts of the simulation was optimizing it for the robot rio. The robo rio is incredably underpowered as its CPU has 2 cores that run at 667 MHz. To optimize the code I had to use several strategies:
+ - All varibles in the main simulation loop are declared once then over written.
+ - No dynamic length arrays
+ - All varibles are primatives
+ - No use of the `Units` library in the hot path
+
+To optimize the pitch and yaw the code first calculates the pitch and yaw asuming no drag, robot movement, or magnus effect. 

@@ -246,6 +246,9 @@ public final class Constants {
     public final class LimelightConstants {
         public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-b", "limelight-bl"};
 
+        public static final double TRANSLATIONAL_VELOCITY_DIVISOR = 10.0;
+        public static final double ANGULAR_VELOCITY_DIVISOR = 720.0;
+
         public static final double SINGLE_TAG_STARTING_STD_DEV = 0.9;
         public static final double SINGLE_TAG_DISTANCE_FACTOR = 0.5;
 
