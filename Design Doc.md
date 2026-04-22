@@ -150,6 +150,7 @@ Each of the subsystems that controls hardware with the exception of `SwerveSubsy
  - It centralizes the state switching logic
  - It adds a priority system so multiple systems requesting a state get automatically prioritized
  - It reduces conditions where the robot goes into weird states that are hard to debug
+ - Allows each subsystem to finely control what state it is in and dictate what states it can go to
 
 The state machine operates on a `desiredState` and a `currentState`. The `desiredState` is the state that the subsystem wants to be in and the `currentState` is the state that the subsystem is in. When something requests a desired state it passes in both the `desiredState` and a `priority`. At the start of each periodic tick the state machine sets the current `desiredState` to the requested `desiredState` with the highest priority. In this code I have structured the priorities as follows:
  - 0: Idle state
@@ -437,4 +438,82 @@ The projectile simulation uses RK4 which allows it to run at incredibly low tps 
  - All varibles are primatives
  - No use of the `Units` library in the hot path
 
-To optimize the pitch and yaw the code first calculates the pitch and yaw asuming no drag, robot movement, or magnus effect. 
+To optimize the pitch and yaw the code first calculates the pitch and yaw asuming no drag, robot movement, or magnus effect. it then checks if the projectile can reach the target without drag and if it can it uses those values as the starting point for the interative optimizer. I tried optimizing for pitch, yaw, and speed but gave up so the code estimates the projectile speed based on the distance to the target and the speed of the robot. The optimizer first runs the simulation three times with the following parameters:
+ 1. Inital pitch, Inital yaw
+ 2. Inital pitch + Peturbation, Inital yaw
+ 3. Inital pitch, Inital yaw + Peturbation
+
+Using the errors from the inital simulations the optimizer constructs a matrix that shows how the error of the projctile changes based on how the pitch and yaw are changed. It then changes the pitch and yaw and runs another simulation. Using the new error values the code adjusts the matrix and repeats. Once the error values are within a certain range the code performs an early exit. To prevent the optimizer from returning weird values the code contains several saftey checks:
+ - `TargetErrorCode.EXCESSIVE_YAW` : When the solver fails the gradients like to explode and make the yaw really high
+ - `TargetErrorCode.PITCH_UPPER_LIMIT` : When the solver produces a solution where the pitch is higher then the turret is capable of
+ - `TargetErrorCode.PITCH_LOWER_LIMIT` : When the solver produces a solution where the pitch is lower then the turret is capable of
+ - `TargetErrorCode.FORWARD_ERROR_HIGH` : When the solver produces a solution where the forward error of the projectile is too high
+ - `TargetErrorCode.RIGHT_ERROR_HIGH` : When the solver produces a solution where the right/left error of the projectile is too high
+ - `TargetErrorCode.SPEED_UPPER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
+ - `TargetErrorCode.SPEED_LOWER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
+
+Because of how underpowered the robo rio to prevent loop overruns the physics simulation and optimizer are ran on a seperate `projectileThread` than the main robot code:
+```java
+public class CalculationSubsystem {
+
+    private final AtomicReference<TargetInput> targetInputs;
+    private final AtomicReference<TargetSolution> targetSolutions;
+    private Thread projectileThread;
+
+    public void setTargetInputs(TargetInput targetInput) {
+        targetInputs.set(targetInput);
+    }
+
+    public TargetInput getTargetInputs() {
+        return targetInputs.get();
+    }
+
+    public void setTargetSolutions(TargetSolution targetSolution) {
+        targetSolutions.set(targetSolution);
+    }
+
+    public TargetSolution getTargetSolutions() {
+        return targetSolutions.get();
+    }
+
+    public void startPhysicsSimulation() {
+        if (projectileThread != null && projectileThread.isAlive()) {
+            return; 
+        }
+
+        projectileThread = new Thread(() -> {
+
+            ProjectileSimulation projectileSimulationInstance = this.getProjectileSimulation();
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    double startTime = Timer.getFPGATimestamp();
+
+                    TargetInput targetInput = this.getTargetInputs();
+
+                    TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
+                    this.setTargetSolutions(solution);
+
+                    double elapsedTime = Timer.getFPGATimestamp() - startTime;
+
+                    long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
+
+                    Thread.sleep(sleepTimeMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    DriverStation.reportError("Projectile Simulation Thread Crashed: " + e.getMessage(), e.getStackTrace());
+                }
+            }
+        });
+        projectileThread.setDaemon(true);
+        projectileThread.setName("Projectile Simulation Thread");
+        projectileThread.start();
+    }
+}
+```
+
+As an additional safty measure to prevent the main thread from even being fully starved the `projectileThread` sleeps for a minimum of 5 ms per loop. The `projectileThread` uses `AtomicReference` to pass information bettween itself and the main thread and vice versa. This prevents race condtions which could cause corrupted values.
+
+# 
