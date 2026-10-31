@@ -48,7 +48,7 @@ public final class Constants {
         public static final boolean ENABLED = true;
         
         public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
-        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(1); // Maximum speed the swerve drive can go
+        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(4.25); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
 
         public static final double DRIVE_P = 2;
