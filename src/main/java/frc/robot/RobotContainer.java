@@ -85,7 +85,7 @@ import frc.robot.subsystems.vision.LimelightSubsystem.VisionMeasurement;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5	(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final HealthSubsystem healthSubsystem = new HealthSubsystem();
@@ -119,7 +119,7 @@ public class RobotContainer {
 	
 	private static SendableChooser<Command> autoChooser;
 
-	// Transforms controller input into swerve drive spee
+	// Transforms controller input into swerve drive speed
 	public static SwerveInputStream swerveInputStream;
 	public static Supplier<ChassisSpeeds> swerveChassisSpeedsSupplier = () -> {return new ChassisSpeeds();};
 
@@ -256,12 +256,13 @@ public class RobotContainer {
 		driverController.leftBumper().whileTrue(new ManualStowTurretCommand());
 
 		driverController.backButton().onTrue(new ResetTurretPitchCommand());
-		
-		//driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
-		//		new ActivateKickerCommand(),
-		//		new ActivateSpindexerCommand()
-		//	)
-		//);
+		/* 
+		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
+				new ActivateKickerCommand(),
+				new ActivateSpindexerCommand()
+			)
+		);
+		*/
 		
 		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
 				new ReverseKickerCommand(),
