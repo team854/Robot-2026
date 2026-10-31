@@ -21,7 +21,7 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
     }
 
     private final IntakeDeploymentIO io;
-
+ 
     private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public IntakeDeploymentSubsystem(IntakeDeploymentIO io) {
@@ -106,41 +106,60 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
                 break;
         }
 
-        double intakeDeploymentVoltage = 0;
-
+        double intakeDeploymentVoltageRight = 0;
+        double intakeDeploymentVoltageLeft = 0;
         switch (getCurrentState()) {
             case UNKNOWN:
-                intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
+                intakeDeploymentVoltageRight = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_RIGHT.in(Volt);
+                 intakeDeploymentVoltageLeft = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_LEFT.in(Volt);
                 break;
             case RETRACTED:
-                intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
+                intakeDeploymentVoltageRight = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
+                
+                intakeDeploymentVoltageLeft = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
                 break;
             case DEPLOYED:
-                intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
+                intakeDeploymentVoltageRight = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
+                intakeDeploymentVoltageLeft = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE.in(Volt);
                 break;
             case RETRACTING:
-                intakeDeploymentVoltage = -Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
+                intakeDeploymentVoltageRight = -Constants.IntakeConstants.INTAKE_RETRACTING_MOTOR_VOLTAGE_RIGHT.in(Volt);
+                intakeDeploymentVoltageLeft = -Constants.IntakeConstants.INTAKE_RETRACTING_MOTOR_VOLTAGE_LEFT.in(Volt);
                 break;
             case DEPLOYING:
                 if (getStateTimer() > 2.0) {
-                    intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE.in(Volt);
+                    intakeDeploymentVoltageRight = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE.in(Volt);
+                     intakeDeploymentVoltageLeft = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE.in(Volt);
                 } else {
-                    intakeDeploymentVoltage = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE.in(Volt);
+                    intakeDeploymentVoltageRight = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_RIGHT.in(Volt);
+                    intakeDeploymentVoltageRight = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_LEFT.in(Volt);
+                    
+                    intakeDeploymentVoltageLeft = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_RIGHT.in(Volt);
+                    intakeDeploymentVoltageLeft = Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_LEFT.in(Volt);
                 }
                 
                 break;
             default:
-                intakeDeploymentVoltage = 0.0;
+                intakeDeploymentVoltageRight = 0.0;
+                intakeDeploymentVoltageLeft = 0.0;
+                
                 System.err.println("IntakeDeployment in unknown state: " + getCurrentState());
                 break;
         }
 
-        intakeDeploymentVoltage = MathUtil.clamp(intakeDeploymentVoltage, -5, 5);
-        io.setDeploymentMotorVoltage(intakeDeploymentVoltage);
+        intakeDeploymentVoltageRight = MathUtil.clamp(intakeDeploymentVoltageRight, -9, 9);
+        intakeDeploymentVoltageLeft = MathUtil.clamp(intakeDeploymentVoltageLeft, -9, 9);
+        System.out.println(getCurrentState());
+        System.out.println(getDesiredState());
+        System.out.println("Deployed Sensor" + io.getDeployedSensor());
+        System.out.println("Retracted Sensor" + io.getRetractedSensor());
+        io.setDeploymentMotor1Voltage(intakeDeploymentVoltageRight);
+        io.setDeploymentMotor2Voltage(intakeDeploymentVoltageLeft);
 
         checkCanHealth();
 
-        SmartDashboard.putNumber("Intake Deployment/Voltage", intakeDeploymentVoltage);
+        SmartDashboard.putNumber("Intake Deployment/Voltage Right", intakeDeploymentVoltageRight);
+        SmartDashboard.putNumber("Intake Deployment/Voltage Left", intakeDeploymentVoltageLeft);
 
         SmartDashboard.putBoolean("Intake Deployment/Retracted Sensor", io.getRetractedSensor());
         SmartDashboard.putBoolean("Intake Deployment/Deployed Sensor", io.getDeployedSensor());

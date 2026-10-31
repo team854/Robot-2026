@@ -256,12 +256,13 @@ public class RobotContainer {
 		driverController.leftBumper().whileTrue(new ManualStowTurretCommand());
 
 		driverController.backButton().onTrue(new ResetTurretPitchCommand());
-		
-		//driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
-		//		new ActivateKickerCommand(),
-		//		new ActivateSpindexerCommand()
-		//	)
-		//);
+		/* 
+		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
+				new ActivateKickerCommand(),
+				new ActivateSpindexerCommand()
+			)
+		);
+		*/
 		
 		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
 				new ReverseKickerCommand(),

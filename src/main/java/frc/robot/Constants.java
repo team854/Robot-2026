@@ -187,8 +187,11 @@ public final class Constants {
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_2 = 17;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(2.0);
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE = Volt.of(8);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_RIGHT = Volt.of(1);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE_LEFT = Volt.of(2); //Deploy
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_FORCE_VOLTAGE = Volt.of(2);
+        public static final Voltage INTAKE_RETRACTING_MOTOR_VOLTAGE_RIGHT = Volt.of(5);
+        public static final Voltage INTAKE_RETRACTING_MOTOR_VOLTAGE_LEFT = Volt.of(7);
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.35);
 
         public static final Current INTAKE_DEPLOYMENT_MOTOR_CURRENT_LIMIT = Amp.of(20);
@@ -244,7 +247,7 @@ public final class Constants {
     }
 
     public final class LimelightConstants {
-        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-b", "limelight-bl"};
+        public static final String[] LIMELIGHT_NAMES = new String[] {"limelight-b", "limelight-bl"}; // "limelight-bl" is removed
 
         public static final double TRANSLATIONAL_VELOCITY_DIVISOR = 10.0;
         public static final double ANGULAR_VELOCITY_DIVISOR = 720.0;

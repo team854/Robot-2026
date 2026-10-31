@@ -44,8 +44,10 @@ public class IntakeDeploymentIOReal implements IntakeDeploymentIO {
     }
 
     @Override
-    public void setDeploymentMotorVoltage(double voltage) {
+    public void setDeploymentMotor1Voltage(double voltage) {
         intakeDeploymentMotor1.setVoltage(voltage);
+    }
+    public void setDeploymentMotor2Voltage(double voltage) {
         intakeDeploymentMotor2.setVoltage(voltage);
     }
 
